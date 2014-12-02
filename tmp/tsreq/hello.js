@@ -1,4 +1,5 @@
 ///<reference path='../typings/tsd.d.ts' />
+var _ = require("underscore");
 function Hello(opts) {
     // Underscore's extend functionality is a great
     // way to extend default parameters, with parameters

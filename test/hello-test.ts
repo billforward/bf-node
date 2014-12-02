@@ -1,9 +1,9 @@
 ///<reference path='../typings/tsd.d.ts' />
 
+var Hello = require('../lib/index.ts').Hello;
 import _ = require("underscore");
 import sinon = require("sinon");
-var assert = require('assert'),
-  Hello = require('../lib').Hello;
+var assert = require('assert');
 
 describe('Hello', function() {
 
