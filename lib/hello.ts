@@ -11,7 +11,7 @@ module BillForward {
       // way to extend default parameters, with parameters
       // passed in when creating a new instance of a class.
       _.extend(this, {
-        helloMessage: 'Hello Wurzel!'
+        helloMessage: 'Hello World!'
       }, opts);
     }
 
