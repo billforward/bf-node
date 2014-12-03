@@ -22,7 +22,7 @@ Include
 -------------------------
 So far the library is still being architected.
 
-====From JavaScript
+#####From JavaScript
 
 Having installed `index.js` to your source tree, include like so:
 
@@ -30,7 +30,7 @@ Having installed `index.js` to your source tree, include like so:
 var BillForward = require('path/to/index.js');
 ```
 
-====From Node
+#####From Node
 In future, once the package is available, you would install and then include like this:
 
 ```js
