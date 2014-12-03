@@ -1,27 +1,27 @@
 {
-  "name": "node-mocha-skeleton",
+  "name": "BillForward",
   "version": "0.0.1",
   "directories": {
     "lib": "./lib",
     "bin": "./bin",
-    "spec": "./spec"
+    "test": "./test"
   },
-  "main": "./lib/index.js",
-  "author": "Ben Coe <bencoe@gmail.com>",
+  "main": "./lib/index.ts",
+  "author": "Alex Birch <alexander.birch@billforward.net>",
   "engines": [
     "node"
   ],
   "scripts": {
     "test": "make test"
   },
-  "description": "A skeleton Node.JS project, with Mocha for testing.",
+  "description": "BillForward Node.js Client Library",
   "keywords": [
-    "skeleton",
-    "mocha"
+    "BillForward",
+    "node"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/bcoe/node-mocha-skeleton.git"
+    "url": "https://github.com/billforward/billforward-js.git"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
