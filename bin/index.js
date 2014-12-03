@@ -41,4 +41,3 @@ var BillForward;
     BillForward.Main = Main;
 })(BillForward || (BillForward = {}));
 module.exports = BillForward;
-//# sourceMappingURL=index.js.map
