@@ -1,7 +1,7 @@
-///<reference path='../typings/tsd.d.ts' />
-var Hello = require('../lib/index.ts').Hello;
+var Hello = require('../lib').Hello;
 var sinon = require("sinon");
 var assert = require('assert');
+
 describe('Hello', function () {
     // An example of synchronous testing in Mocha.
     describe('#sayHello', function () {
@@ -16,6 +16,7 @@ describe('Hello', function () {
             assert.equal('你好世界', hello.sayHello());
         });
     });
+
     // An example of asynchronous testing in Mocha.
     describe('#sayHelloLater', function () {
         it('should execute callback with the hello message asynchronously', function (done) {
@@ -28,6 +29,7 @@ describe('Hello', function () {
             });
         });
     });
+
     // An example of using sinon to spy on function calls.
     describe('#sayHelloThenSayHelloLater', function () {
         it('should invoke both #sayHello and #sayHelloLater', function () {
@@ -42,4 +44,3 @@ describe('Hello', function () {
         });
     });
 });
-//# sourceMappingURL=hello-test.js.map
