@@ -7,10 +7,10 @@ Install
 -------------------------
 So far the library is still being architected.
 
-#####From JavaScript
+#####Now
 Grab the `index.js` from `/bin`. Put it somewhere in your source tree.
 
-#####From NPM
+#####Future
 In future we will publish the package so you can install like so:
 
 ```
@@ -22,7 +22,7 @@ Include
 -------------------------
 So far the library is still being architected.
 
-#####From JavaScript
+#####Now
 
 Having installed `index.js` to your source tree, include like so:
 
@@ -30,7 +30,7 @@ Having installed `index.js` to your source tree, include like so:
 var BillForward = require('path/to/index.js');
 ```
 
-#####From Node
+#####Future
 In future, once the package is available, you would install and then include like this:
 
 ```js
