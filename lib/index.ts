@@ -1,4 +1,4 @@
 ///<reference path='../typings/tsd.d.ts' />
 ///<reference path="./hello.ts"/>
 
-exports.Hello = require('./hello').Hello;
+export var Hello = require('./hello');
