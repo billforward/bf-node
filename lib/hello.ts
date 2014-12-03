@@ -30,7 +30,6 @@ class Hello {
     this.sayHelloLater(callback);
     return this.sayHello();
   }
-
 }
 
 export = Hello;

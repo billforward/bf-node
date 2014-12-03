@@ -2,8 +2,8 @@
 declare class Hello {
     private helloMessage;
     constructor(opts: any);
-    public sayHello(): String;
-    public sayHelloLater(callback: any): void;
-    public sayHelloThenSayHelloLater(callback: any): String;
+    sayHello(): String;
+    sayHelloLater(callback: any): void;
+    sayHelloThenSayHelloLater(callback: any): String;
 }
 export = Hello;
