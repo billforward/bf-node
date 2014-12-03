@@ -7,10 +7,10 @@ Install
 -------------------------
 So far the library is still being architected.
 
-====From JavaScript
+#####From JavaScript
 Grab the `index.js` from `/bin`. Put it somewhere in your source tree.
 
-====From NPM
+#####From NPM
 In future we will publish the package so you can install like so:
 
 ```
