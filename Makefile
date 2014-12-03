@@ -1,5 +1,5 @@
 build:
-	@./node_modules/.bin/tsc --module commonjs ./lib/index.ts
+	@tsc -out ./bin/index.js ./lib/index.ts --module amd -d --sourcemap
 
 test:
 	@./node_modules/.bin/mocha -u bdd

@@ -1,7 +1,9 @@
 ///<reference path='../typings/tsd.d.ts' />
 
 module BillForward {
+
   export class Hello {
+
     private helloMessage:String;
 
     constructor(opts) {

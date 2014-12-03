@@ -8,6 +8,7 @@ declare module BillForward {
         sayHelloThenSayHelloLater(callback: any): String;
     }
 }
+declare var _: UnderscoreStatic;
 declare module BillForward {
     class Main {
         private _h;

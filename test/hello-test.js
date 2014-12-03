@@ -1,11 +1,6 @@
 var BillForward = require('../bin/index.js');
-//var sinon = require("sinon");
-var sinon = require("../node_modules/sinon/lib/sinon.js");
-//var assert = require("../node_modules/sinon/lib/sinon.js");
-//var assert = require('assert');
-var assert = require('../node_modules/sinon/lib/sinon/assert.js');
-
-console.log(BillForward.Hello);
+var sinon = require("sinon");
+var assert = require('assert');
 
 describe('Hello', function () {
     // An example of synchronous testing in Mocha.

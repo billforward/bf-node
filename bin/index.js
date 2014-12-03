@@ -29,6 +29,7 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 ///<reference path='../typings/tsd.d.ts' />
 ///<reference path='hello.ts' />
+var _ = require('../node_modules/underscore/underscore.js');
 var BillForward;
 (function (BillForward) {
     var Main = (function () {
