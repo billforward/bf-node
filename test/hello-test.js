@@ -1,4 +1,4 @@
-var BillForward = require('../bin/index.js').BillForward;
+var BillForward = require('../bin/index.js');
 //var sinon = require("sinon");
 var sinon = require("../node_modules/sinon/lib/sinon.js");
 //var assert = require("../node_modules/sinon/lib/sinon.js");

@@ -27,7 +27,6 @@ var BillForward;
     })();
     BillForward.Hello = Hello;
 })(BillForward || (BillForward = {}));
-exports.BillForward = BillForward;
 ///<reference path='../typings/tsd.d.ts' />
 ///<reference path='hello.ts' />
 var BillForward;
@@ -40,4 +39,5 @@ var BillForward;
     })();
     BillForward.Main = Main;
 })(BillForward || (BillForward = {}));
+module.exports = BillForward;
 //# sourceMappingURL=index.js.map

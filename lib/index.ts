@@ -12,3 +12,5 @@ module BillForward {
 	}
 
 }
+
+module.exports = BillForward;

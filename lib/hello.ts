@@ -31,5 +31,3 @@ module BillForward {
     }
   } 
 }
-
-exports.BillForward = BillForward;
