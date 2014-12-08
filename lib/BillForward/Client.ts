@@ -6,33 +6,29 @@ module BillForward {
 
     private static singletonClient:Client;
 
-    private accessToken:String;
-    private urlRoot:String;
+    private accessToken:string;
+    private urlRoot:string;
 
-    constructor(accessToken:String, urlRoot:String) {
+    constructor(accessToken:string, urlRoot:string) {
       this.accessToken = accessToken;
       this.urlRoot = urlRoot;
     }
 
-    static setDefaultClient(client:Client):Client {
+    static setDefault(client:Client):Client {
       Client.singletonClient = client;
       return Client.singletonClient;
     }
 
-    request(verb:String, path:String, queryParams:Object = {}, json:Object = {}) {
-      var parsed = url.parse(path);
-      var protocol = parsed.protocol;
+    static makeDefault(accessToken:string, urlRoot:string):Client {
+      var client = new Client(accessToken, urlRoot);
+      return Client.setDefault(client);
+    }
 
-      /*var client;
-      switch (protocol) {
-        case "http:":
-        case "https:":
-          client = 
-          client = http;
-        } === ) {
+    request(verb:string, path:string, queryParams:Object = {}, json:Object = {}) {
+      var fullPath = this.urlRoot+path;
 
-      }
-      var client = 
+      var parsed = url.parse(fullPath);
+      var client = parsed.protocol === "http:" ? http : https;
 
       var options = {
         host: parsed.hostname,
@@ -41,14 +37,14 @@ module BillForward {
         method: verb
       };
 
-      var req = http.request(options, function(res) {
+      var req = client.request(options, function(res) {
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
         res.setEncoding('utf8');
         res.on('data', function (chunk) {
           console.log('BODY: ' + chunk);
         });
-      });*/
+      });
     }
   } 
 }

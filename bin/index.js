@@ -6,41 +6,34 @@ var BillForward;
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
         }
-        Client.setDefaultClient = function (client) {
+        Client.setDefault = function (client) {
             Client.singletonClient = client;
             return Client.singletonClient;
+        };
+        Client.makeDefault = function (accessToken, urlRoot) {
+            var client = new Client(accessToken, urlRoot);
+            return Client.setDefault(client);
         };
         Client.prototype.request = function (verb, path, queryParams, json) {
             if (queryParams === void 0) { queryParams = {}; }
             if (json === void 0) { json = {}; }
-            var parsed = url.parse(path);
-            var protocol = parsed.protocol;
-            /*var client;
-            switch (protocol) {
-              case "http:":
-              case "https:":
-                client =
-                client = http;
-              } === ) {
-      
-            }
-            var client =
-      
+            var fullPath = this.urlRoot + path;
+            var parsed = url.parse(fullPath);
+            var client = parsed.protocol === "http:" ? http : https;
             var options = {
-              host: parsed.hostname,
-              port: parsed.port,
-              pathname: parsed.pathname,
-              method: verb
+                host: parsed.hostname,
+                port: parsed.port,
+                pathname: parsed.pathname,
+                method: verb
             };
-      
-            var req = http.request(options, function(res) {
-              console.log('STATUS: ' + res.statusCode);
-              console.log('HEADERS: ' + JSON.stringify(res.headers));
-              res.setEncoding('utf8');
-              res.on('data', function (chunk) {
-                console.log('BODY: ' + chunk);
-              });
-            });*/
+            var req = client.request(options, function (res) {
+                console.log('STATUS: ' + res.statusCode);
+                console.log('HEADERS: ' + JSON.stringify(res.headers));
+                res.setEncoding('utf8');
+                res.on('data', function (chunk) {
+                    console.log('BODY: ' + chunk);
+                });
+            });
         };
         return Client;
     })();

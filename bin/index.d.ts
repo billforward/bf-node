@@ -4,9 +4,10 @@ declare module BillForward {
         private static singletonClient;
         private accessToken;
         private urlRoot;
-        constructor(accessToken: String, urlRoot: String);
-        static setDefaultClient(client: Client): Client;
-        request(verb: String, path: String, queryParams?: Object, json?: Object): void;
+        constructor(accessToken: string, urlRoot: string);
+        static setDefault(client: Client): Client;
+        static makeDefault(accessToken: string, urlRoot: string): Client;
+        request(verb: string, path: string, queryParams?: Object, json?: Object): void;
     }
 }
 declare module BillForward {
