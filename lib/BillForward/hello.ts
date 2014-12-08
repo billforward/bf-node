@@ -1,4 +1,4 @@
-///<reference path='../typings/tsd.d.ts' />
+///<reference path='../../typings/tsd.d.ts' />
 
 module BillForward {
 
@@ -15,11 +15,11 @@ module BillForward {
       }, opts);
     }
 
-    public sayHello():String {
+    sayHello():String {
       return this.helloMessage;
     }
 
-    public sayHelloLater(callback):void {
+    sayHelloLater(callback):void {
       var _this = this;
 
       setTimeout(function() {
@@ -27,7 +27,7 @@ module BillForward {
       }, 250);
     }
 
-    public sayHelloThenSayHelloLater(callback):String {
+    sayHelloThenSayHelloLater(callback):String {
       this.sayHelloLater(callback);
       return this.sayHello();
     }

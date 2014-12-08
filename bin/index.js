@@ -1,4 +1,52 @@
-///<reference path='../typings/tsd.d.ts' />
+///<reference path='../../typings/tsd.d.ts' />
+var BillForward;
+(function (BillForward) {
+    var Client = (function () {
+        function Client(accessToken, urlRoot) {
+            this.accessToken = accessToken;
+            this.urlRoot = urlRoot;
+        }
+        Client.setDefaultClient = function (client) {
+            Client.singletonClient = client;
+            return Client.singletonClient;
+        };
+        Client.prototype.request = function (verb, path, queryParams, json) {
+            if (queryParams === void 0) { queryParams = {}; }
+            if (json === void 0) { json = {}; }
+            var parsed = url.parse(path);
+            var protocol = parsed.protocol;
+            /*var client;
+            switch (protocol) {
+              case "http:":
+              case "https:":
+                client =
+                client = http;
+              } === ) {
+      
+            }
+            var client =
+      
+            var options = {
+              host: parsed.hostname,
+              port: parsed.port,
+              pathname: parsed.pathname,
+              method: verb
+            };
+      
+            var req = http.request(options, function(res) {
+              console.log('STATUS: ' + res.statusCode);
+              console.log('HEADERS: ' + JSON.stringify(res.headers));
+              res.setEncoding('utf8');
+              res.on('data', function (chunk) {
+                console.log('BODY: ' + chunk);
+              });
+            });*/
+        };
+        return Client;
+    })();
+    BillForward.Client = Client;
+})(BillForward || (BillForward = {}));
+///<reference path='../../typings/tsd.d.ts' />
 var BillForward;
 (function (BillForward) {
     var Hello = (function () {
@@ -28,17 +76,9 @@ var BillForward;
     BillForward.Hello = Hello;
 })(BillForward || (BillForward = {}));
 ///<reference path='../typings/tsd.d.ts' />
-///<reference path='hello.ts' />
-var _ = require('underscore');
-var BillForward;
-(function (BillForward) {
-    var Main = (function () {
-        function Main() {
-            this._h = new BillForward.Hello({});
-        }
-        return Main;
-    })();
-    BillForward.Main = Main;
-})(BillForward || (BillForward = {}));
+var _ = require('lodash');
+var http = require('http');
+var https = require('https');
+var url = require('url');
 module.exports = BillForward;
 //# sourceMappingURL=index.js.map
