@@ -27,17 +27,17 @@ module BillForward {
     request(verb:string, path:string, queryParams:Object = {}, json:Object = {}) {
       var fullPath = this.urlRoot+path;
 
-      var parsed = url.parse(fullPath);
-      var client = parsed.protocol === "http:" ? http : https;
+      // var parsed = url.parse(fullPath);
+      // var client = parsed.protocol === "http:" ? http : https;
 
-      var options = {
-        host: parsed.hostname,
-        port: parsed.port,
-        pathname: parsed.pathname,
-        method: verb
-      };
+      // var options = {
+      //   host: parsed.hostname,
+      //   port: parsed.port,
+      //   pathname: parsed.pathname,
+      //   method: verb
+      // };
 
-      var deferred = q.defer();
+      /*// var deferred = q.defer();
 
       var req = client.request(options, function(res) {
         console.log('STATUS: ' + res.statusCode);
@@ -59,17 +59,35 @@ module BillForward {
         // deferred.reject(req);
         });
 
-      req.end();
+      // req.end();
+
+      return deferred.promise;*/
+      var _this = this;
+
+      var deferred = q.defer();
+
+      httpinvoke(fullPath, verb, function(err, body, statusCode, headers) {
+          if(err) {
+            _this.errorResponse(err, deferred);
+            return;
+          }
+          // console.log('Success', body, statusCode, headers);
+          _this.successResponse(body, statusCode, headers, deferred);
+      })
 
       return deferred.promise;
     }
 
-    private successResponse(req, deferred) {
-      deferred.resolve(req);
+    private successResponse(body, statusCode, headers, deferred) {
+      if (statusCode === 200) {
+        deferred.resolve(body);
+        return;
+      }
+      this.errorResponse(body, deferred);
     }
 
-    private errorResponse(req, deferred) {
-      deferred.reject(req);
+    private errorResponse(err, deferred) {
+      deferred.reject(err);
     }
   } 
 }

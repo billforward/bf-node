@@ -8,8 +8,8 @@ declare module BillForward {
         static setDefault(client: Client): Client;
         static makeDefault(accessToken: string, urlRoot: string): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): any;
-        private successResponse(req, deferred);
-        private errorResponse(req, deferred);
+        private successResponse(body, statusCode, headers, deferred);
+        private errorResponse(err, deferred);
     }
 }
 declare module BillForward {
@@ -22,7 +22,5 @@ declare module BillForward {
     }
 }
 declare var _: _.LoDashStatic;
-declare var http: any;
-declare var https: any;
-declare var url: any;
+declare var httpinvoke: any;
 declare var q: any;
