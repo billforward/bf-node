@@ -14,3 +14,8 @@ results
 
 npm-debug.log
 node_modules
+
+.tscache/*
+*.#.*
+
+lib/.baseDir.ts

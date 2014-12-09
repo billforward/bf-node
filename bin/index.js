@@ -1,4 +1,3 @@
-///<reference path='../../typings/tsd.d.ts' />
 var BillForward;
 (function (BillForward) {
     var Client = (function () {
@@ -27,7 +26,6 @@ var BillForward;
                 method: verb
             };
             var deferred = q.defer();
-            console.log(options);
             var req = client.request(options, function (res) {
                 console.log('STATUS: ' + res.statusCode);
                 console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -39,11 +37,9 @@ var BillForward;
             var self = this;
             req.on('response', function (req) {
                 self.successResponse(req, deferred);
-                // deferred.resolve(req);
             });
             req.on('error', function (req) {
                 self.errorResponse(req, deferred);
-                // deferred.reject(req);
             });
             req.end();
             return deferred.promise;
@@ -58,14 +54,10 @@ var BillForward;
     })();
     BillForward.Client = Client;
 })(BillForward || (BillForward = {}));
-///<reference path='../../typings/tsd.d.ts' />
 var BillForward;
 (function (BillForward) {
     var Hello = (function () {
         function Hello(opts) {
-            // Underscore's extend functionality is a great
-            // way to extend default parameters, with parameters
-            // passed in when creating a new instance of a class.
             _.extend(this, {
                 helloMessage: 'Hello World!'
             }, opts);
@@ -87,7 +79,6 @@ var BillForward;
     })();
     BillForward.Hello = Hello;
 })(BillForward || (BillForward = {}));
-///<reference path='../typings/tsd.d.ts' />
 var _ = require('lodash');
 var http = require('http');
 var https = require('https');

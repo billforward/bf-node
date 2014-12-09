@@ -1,5 +1,6 @@
 module.exports = function (grunt) {
-    grunt.loadNpmTasks('grunt-typescript');
+    // grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-open');
@@ -14,22 +15,23 @@ module.exports = function (grunt) {
                 }
             }
         },
-        typescript: {
-            base: {
-                src: ['lib/**/*.ts'],
-                dest: 'bin/index.js',
-                //dest: 'bin/',
-                options: {
-                    module: 'commonjs',
-                    target: 'es5',
-                    sourceMap: true,
-                    declaration: true
-                }
+        ts: {
+          default : {
+            src: ["lib/**/*.ts", "!node_modules/**/*.ts"],
+            out: "bin/index.js",
+            //outDir: "bin/",
+            options: {
+                module: "commonjs",
+                declaration: true,
+                sourceMap: true,
+                fast: 'watch',
+                watch: "lib/"
             }
+          }
         },
         watch: {
-            files: '**/*.ts',
-            tasks: ['typescript']
+            files: 'lib/**/*.ts',
+            tasks: ['ts']
         },
         open: {
             dev: {
@@ -38,6 +40,7 @@ module.exports = function (grunt) {
         }
     });
  
-    grunt.registerTask('default', ['connect', 'open', 'watch']);
- 
+    //grunt.registerTask('default', ['connect', 'open', 'watch']);
+   grunt.registerTask("default", ["watch", "ts", 'connect', 'open']);
+
 }

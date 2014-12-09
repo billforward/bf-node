@@ -39,8 +39,6 @@ module BillForward {
 
       var deferred = q.defer();
 
-      console.log(options);
-
       var req = client.request(options, function(res) {
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
