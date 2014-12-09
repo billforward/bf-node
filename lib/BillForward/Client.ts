@@ -92,12 +92,19 @@ module BillForward {
         'Authorization': 'Bearer '+this.accessToken
       };
 
-      var options = {
-        headers: headers,
-        finished: callback
+      var converters = {
+        'text json': JSON.parse,
+        'json text': JSON.stringify
       };
 
-      httpinvoke(fullPath, verb, options)
+      var options = {
+        headers: headers,
+        finished: callback,
+        outputType: 'json',
+        converters: converters
+      };
+
+      httpinvoke(fullPath, verb, options);
 
       return deferred.promise;
     }

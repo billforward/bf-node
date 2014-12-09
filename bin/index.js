@@ -41,9 +41,15 @@ var BillForward;
             var headers = {
                 'Authorization': 'Bearer ' + this.accessToken
             };
+            var converters = {
+                'text json': JSON.parse,
+                'json text': JSON.stringify
+            };
             var options = {
                 headers: headers,
-                finished: callback
+                finished: callback,
+                outputType: 'json',
+                converters: converters
             };
             httpinvoke(fullPath, verb, options);
             return deferred.promise;
@@ -88,7 +94,15 @@ var BillForward;
             var apiRoute = this.getResourcePath().getPath();
             var endpoint = "/" + id;
             var fullRoute = apiRoute + endpoint;
-            return client.request("GET", fullRoute);
+            var deferred = q.defer();
+            client.request("GET", fullRoute).then(function (payload) {
+                if (payload.results.length < 1) {
+                    deferred.reject("No results");
+                    return;
+                }
+                deferred.resolve(payload);
+            }).done();
+            return deferred.promise;
         };
         BillingEntity.getResourcePath = function () {
             return this._resourcePath;

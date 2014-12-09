@@ -28,7 +28,19 @@ module BillForward {
 		var endpoint = "/"+id;
 		var fullRoute = apiRoute+endpoint;
 
-		return client.request("GET", fullRoute)
+		var deferred = q.defer();
+
+		client.request("GET", fullRoute)
+		.then(function(payload) {
+				if (payload.results.length<1) {
+					deferred.reject("No results");
+					return;
+				}
+				deferred.resolve(payload);
+			})
+		.done();
+
+		return deferred.promise;
 
     	// return new this();
     }
