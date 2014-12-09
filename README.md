@@ -8,7 +8,7 @@ Install
 So far the library is still being architected.
 
 #####Now
-Grab the `index.js` from `/bin`. Put it somewhere in your source tree.
+Grab `index.js` from `/bin`. Put it somewhere in your source tree.
 
 #####Future
 In future we will publish the package so you can install like so:
@@ -102,9 +102,9 @@ Test
 -------------------------
 We use Sinon for mocking, Chai for assertions, and Mocha as our testrunner.
 
-Test settings (including BillForward credentials) are loaded from the file `test/config/config.json`.
+Test settings (including BillForward credentials) are loaded from the file `config.json` in `test/config`.
 
-You will have to make this file yourself; you can base it on the template `test/config/config.example.json`.
+You will have to make this file yourself; you can base it on the template `config.example.json`.
 
 Run all tests:
 
