@@ -6,9 +6,23 @@ var client = testBase.client;
 describe('Client', function () {
     // An example of synchronous testing in Mocha.
     describe('#request', function () {
-        it('should naninani', function () {
-            return client.request("POST", "accounts")
-            .should.be.rejected;
-        });
+	    context('unauthorised', function () {
+	    	var unauthorisedClient;
+	    	before(function() {
+	    		var urlRoot = testBase.client.getUrlRoot();
+	    		var defunctToken = "zalgo";
+				unauthorisedClient = new BillForward.Client(defunctToken, urlRoot)
+			})
+	        it('should reject', function () {
+	            return unauthorisedClient.request("POST", "accounts")
+	            .should.be.rejected;
+	        });
+	    });
+	    context('authorised', function () {
+	    	it('should accept', function () {
+	            return client.request("GET", "organizations/mine")
+	            .should.be.fulfilled;
+	        });
+	    });
     });
 });

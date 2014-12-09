@@ -5,6 +5,8 @@ declare module BillForward {
         private accessToken;
         private urlRoot;
         constructor(accessToken: string, urlRoot: string);
+        getAccessToken(): string;
+        getUrlRoot(): string;
         static setDefault(client: Client): Client;
         static makeDefault(accessToken: string, urlRoot: string): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): any;

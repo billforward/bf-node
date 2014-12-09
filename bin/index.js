@@ -5,6 +5,12 @@ var BillForward;
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
         }
+        Client.prototype.getAccessToken = function () {
+            return this.accessToken;
+        };
+        Client.prototype.getUrlRoot = function () {
+            return this.urlRoot;
+        };
         Client.setDefault = function (client) {
             Client.singletonClient = client;
             return Client.singletonClient;
@@ -19,14 +25,21 @@ var BillForward;
             var fullPath = this.urlRoot + path;
             var _this = this;
             var deferred = q.defer();
-            httpinvoke(fullPath, verb, function (err, body, statusCode, headers) {
+            var callback = function (err, body, statusCode, headers) {
                 if (err) {
                     _this.errorResponse(err, deferred);
                     return;
                 }
-                console.log('Success', body, statusCode, headers);
                 _this.successResponse(body, statusCode, headers, deferred);
-            });
+            };
+            var headers = {
+                'Authorization': 'Bearer ' + this.accessToken
+            };
+            var options = {
+                headers: headers,
+                finished: callback
+            };
+            httpinvoke(fullPath, verb, options);
             return deferred.promise;
         };
         Client.prototype.successResponse = function (body, statusCode, headers, deferred) {

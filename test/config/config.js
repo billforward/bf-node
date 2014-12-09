@@ -1,4 +1,4 @@
 module.exports = {
 	"urlRoot":     "http://local.billforward.net:8080/RestAPI/",
-	"accessToken": "67e1f077-eac0-47cf-9e89-25570a089763"
+	"accessToken": "7cc9abdd-7da2-4b13-9a5b-cbbcc9c81a3d"
 }

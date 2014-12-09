@@ -14,6 +14,14 @@ module BillForward {
       this.urlRoot = urlRoot;
     }
 
+    getAccessToken():string {
+      return this.accessToken;
+    }
+
+    getUrlRoot():string {
+      return this.urlRoot;
+    }
+
     static setDefault(client:Client):Client {
       Client.singletonClient = client;
       return Client.singletonClient;
@@ -66,14 +74,25 @@ module BillForward {
 
       var deferred = q.defer();
 
-      httpinvoke(fullPath, verb, function(err, body, statusCode, headers) {
+      var callback = function(err, body, statusCode, headers) {
           if(err) {
             _this.errorResponse(err, deferred);
             return;
           }
-          console.log('Success', body, statusCode, headers);
+          // console.log('Success', body, statusCode, headers);
           _this.successResponse(body, statusCode, headers, deferred);
-      })
+      };
+
+      var headers = {
+        'Authorization': 'Bearer '+this.accessToken
+      };
+
+      var options = {
+        headers: headers,
+        finished: callback
+      };
+
+      httpinvoke(fullPath, verb, options)
 
       return deferred.promise;
     }
