@@ -1,7 +1,8 @@
-var BillForward = require('../bin/index.js');
-require('mocha-sinon');
-var sinon = require("sinon");
-var assert = require('assert');
+var testBase = require('../test-base.js');
+
+var BillForward = testBase.BillForward;
+var assert = testBase.assert;
+var sinon = testBase.sinon;
 
 describe('Hello', function () {
     // An example of synchronous testing in Mocha.

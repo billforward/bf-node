@@ -24,6 +24,7 @@ var BillForward;
                     _this.errorResponse(err, deferred);
                     return;
                 }
+                console.log('Success', body, statusCode, headers);
                 _this.successResponse(body, statusCode, headers, deferred);
             });
             return deferred.promise;

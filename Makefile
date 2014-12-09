@@ -2,6 +2,6 @@ build:
 	@./node_modules/.bin/tsc -out ./bin/index.js ./lib/index.ts --module amd -d --sourcemap
 
 test:
-	@./node_modules/.bin/mocha -u bdd
+	@./node_modules/.bin/mocha -u bdd test --recursive
 
 .PHONY: test
