@@ -85,13 +85,13 @@ var BillForward;
             if (!client) {
                 client = BillingEntity.getSingletonClient();
             }
-            var apiRoute = this.constructor.getResourcePath().getPath();
+            var apiRoute = this.getResourcePath().getPath();
             var endpoint = "/" + id;
             var fullRoute = apiRoute + endpoint;
             return client.request("GET", fullRoute);
         };
         BillingEntity.getResourcePath = function () {
-            return this.constructor._resourcePath;
+            return this._resourcePath;
         };
         BillingEntity.getSingletonClient = function () {
             return BillForward.Client.getDefaultClient();

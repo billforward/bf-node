@@ -24,7 +24,7 @@ module BillForward {
     		client = BillingEntity.getSingletonClient();
     	}
 
-		var apiRoute = (<any>this).constructor.getResourcePath().getPath();
+		var apiRoute = this.getResourcePath().getPath();
 		var endpoint = "/"+id;
 		var fullRoute = apiRoute+endpoint;
 
@@ -34,7 +34,7 @@ module BillForward {
     }
 
     static getResourcePath() {
-    	return (<any>this).constructor._resourcePath;
+    	return (<any>this)._resourcePath;
     }
 
     static getSingletonClient():Client {
