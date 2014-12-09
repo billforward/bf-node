@@ -1,4 +1,4 @@
-///<reference path='_typings.d.ts' />
+///<reference path='../typings/tsd.d.ts' />
 
 var _:_.LoDashStatic = require('lodash');
 // var http = require('http');

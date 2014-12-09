@@ -1,7 +1,4 @@
-/// <reference path="../lib/BillForward/_typings.d.ts" />
-/// <reference path="../lib/BillForward/Entity/Abstract/_typings.d.ts" />
-/// <reference path="../lib/BillForward/Entity/_typings.d.ts" />
-/// <reference path="../lib/_typings.d.ts" />
+/// <reference path="../typings/tsd.d.ts" />
 declare module BillForward {
     class Client {
         private static singletonClient;
