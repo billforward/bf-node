@@ -30,6 +30,13 @@ module BillForward {
       return Client.setDefault(client);
     }
 
+    static getDefaultClient():Client {
+      if (!Client.singletonClient) {
+        throw 'No default BillForwardClient found; cannot make API requests.';
+      }
+      return Client.singletonClient;
+    }
+
     request(verb:string, path:string, queryParams:Object = {}, json:Object = {}) {
       var fullPath = this.urlRoot+path;
 

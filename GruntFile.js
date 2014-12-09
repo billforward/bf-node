@@ -24,7 +24,7 @@ module.exports = function (grunt) {
                 module: "commonjs",
                 declaration: true,
                 sourceMap: true,
-                fast: 'watch',
+                //fast: 'watch',
                 watch: "lib/"
             }
           }

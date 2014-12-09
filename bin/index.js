@@ -19,6 +19,12 @@ var BillForward;
             var client = new Client(accessToken, urlRoot);
             return Client.setDefault(client);
         };
+        Client.getDefaultClient = function () {
+            if (!Client.singletonClient) {
+                throw 'No default BillForwardClient found; cannot make API requests.';
+            }
+            return Client.singletonClient;
+        };
         Client.prototype.request = function (verb, path, queryParams, json) {
             if (queryParams === void 0) { queryParams = {}; }
             if (json === void 0) { json = {}; }
@@ -59,19 +65,75 @@ var BillForward;
 var BillForward;
 (function (BillForward) {
     var BillingEntity = (function () {
-        function BillingEntity() {
+        function BillingEntity(options, client) {
+            if (options === void 0) { options = {}; }
+            if (client === void 0) { client = null; }
+            if (!client) {
+                client = BillingEntity.getSingletonClient();
+            }
+            this.setClient(client);
         }
+        BillingEntity.prototype.getClient = function () {
+            return this._client;
+        };
+        BillingEntity.prototype.setClient = function (client) {
+            this._client = client;
+        };
+        BillingEntity.getByID = function (id, options, client) {
+            if (options === void 0) { options = {}; }
+            if (client === void 0) { client = null; }
+            if (!client) {
+                client = BillingEntity.getSingletonClient();
+            }
+            var apiRoute = this.constructor.getResourcePath().getPath();
+            var endpoint = "/" + id;
+            var fullRoute = apiRoute + endpoint;
+            return client.request("GET", fullRoute);
+        };
+        BillingEntity.getResourcePath = function () {
+            return this.constructor._resourcePath;
+        };
+        BillingEntity.getSingletonClient = function () {
+            return BillForward.Client.getDefaultClient();
+            ;
+        };
         return BillingEntity;
     })();
     BillForward.BillingEntity = BillingEntity;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
-    var Account = (function () {
-        function Account() {
+    var ResourcePath = (function () {
+        function ResourcePath(path, entityName) {
+            this.path = path;
+            this.entityName = entityName;
         }
-        return Account;
+        ResourcePath.prototype.getPath = function () {
+            return this.path;
+        };
+        ResourcePath.prototype.getEntityName = function () {
+            return this.entityName;
+        };
+        return ResourcePath;
     })();
+    BillForward.ResourcePath = ResourcePath;
+})(BillForward || (BillForward = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var BillForward;
+(function (BillForward) {
+    var Account = (function (_super) {
+        __extends(Account, _super);
+        function Account() {
+            _super.call(this);
+        }
+        Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
+        return Account;
+    })(BillForward.BillingEntity);
     BillForward.Account = Account;
 })(BillForward || (BillForward = {}));
 var BillForward;

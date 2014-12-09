@@ -9,6 +9,7 @@ declare module BillForward {
         getUrlRoot(): string;
         static setDefault(client: Client): Client;
         static makeDefault(accessToken: string, urlRoot: string): Client;
+        static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): any;
         private successResponse(body, statusCode, headers, deferred);
         private errorResponse(err, deferred);
@@ -16,11 +17,27 @@ declare module BillForward {
 }
 declare module BillForward {
     class BillingEntity {
-        constructor();
+        private _client;
+        constructor(options?: Object, client?: Client);
+        getClient(): Client;
+        setClient(client: Client): void;
+        static getByID(id: string, options?: Object, client?: Client): any;
+        static getResourcePath(): any;
+        static getSingletonClient(): Client;
     }
 }
 declare module BillForward {
-    class Account {
+    class ResourcePath {
+        protected path: any;
+        protected entityName: any;
+        constructor(path: string, entityName: string);
+        getPath(): string;
+        getEntityName(): string;
+    }
+}
+declare module BillForward {
+    class Account extends BillingEntity {
+        protected static _resourcePath: ResourcePath;
         constructor();
     }
 }
