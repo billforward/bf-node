@@ -1,4 +1,5 @@
 var BillForward = require('../bin/index.js');
+require('mocha-sinon');
 var sinon = require("sinon");
 var assert = require('assert');
 

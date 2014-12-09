@@ -26,6 +26,8 @@ var BillForward;
                 pathname: parsed.pathname,
                 method: verb
             };
+            var deferred = q.defer();
+            console.log(options);
             var req = client.request(options, function (res) {
                 console.log('STATUS: ' + res.statusCode);
                 console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -34,6 +36,23 @@ var BillForward;
                     console.log('BODY: ' + chunk);
                 });
             });
+            var self = this;
+            req.on('response', function (req) {
+                self.successResponse(req, deferred);
+                // deferred.resolve(req);
+            });
+            req.on('error', function (req) {
+                self.errorResponse(req, deferred);
+                // deferred.reject(req);
+            });
+            req.end();
+            return deferred.promise;
+        };
+        Client.prototype.successResponse = function (req, deferred) {
+            deferred.resolve(req);
+        };
+        Client.prototype.errorResponse = function (req, deferred) {
+            deferred.reject(req);
         };
         return Client;
     })();
@@ -73,5 +92,6 @@ var _ = require('lodash');
 var http = require('http');
 var https = require('https');
 var url = require('url');
+var q = require('q');
 module.exports = BillForward;
 //# sourceMappingURL=index.js.map
