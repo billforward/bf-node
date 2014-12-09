@@ -20,4 +20,4 @@ node_modules
 
 lib/.baseDir.ts
 
-test/BillForward/config/config.json
+test/config/config.js
