@@ -1,4 +1,7 @@
-/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../lib/BillForward/_typings.d.ts" />
+/// <reference path="../lib/BillForward/Entity/Abstract/_typings.d.ts" />
+/// <reference path="../lib/BillForward/Entity/_typings.d.ts" />
+/// <reference path="../lib/_typings.d.ts" />
 declare module BillForward {
     class Client {
         private static singletonClient;
@@ -12,6 +15,16 @@ declare module BillForward {
         request(verb: string, path: string, queryParams?: Object, json?: Object): any;
         private successResponse(body, statusCode, headers, deferred);
         private errorResponse(err, deferred);
+    }
+}
+declare module BillForward {
+    class BillingEntity {
+        constructor();
+    }
+}
+declare module BillForward {
+    class Account {
+        constructor();
     }
 }
 declare module BillForward {

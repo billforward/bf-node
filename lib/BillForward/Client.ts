@@ -1,4 +1,4 @@
-///<reference path='../../typings/tsd.d.ts' />
+///<reference path='_typings.d.ts' />
 
 module BillForward {
 

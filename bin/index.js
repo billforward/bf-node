@@ -58,6 +58,24 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var BillingEntity = (function () {
+        function BillingEntity() {
+        }
+        return BillingEntity;
+    })();
+    BillForward.BillingEntity = BillingEntity;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Account = (function () {
+        function Account() {
+        }
+        return Account;
+    })();
+    BillForward.Account = Account;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var Hello = (function () {
         function Hello(opts) {
             _.extend(this, {
