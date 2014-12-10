@@ -57,12 +57,3 @@ declare module BillForward {
         static Q: any;
     }
 }
-declare module BillForward {
-    class Hello {
-        private helloMessage;
-        constructor(opts: any);
-        sayHello(): String;
-        sayHelloLater(callback: any): void;
-        sayHelloThenSayHelloLater(callback: any): String;
-    }
-}
