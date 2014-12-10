@@ -147,11 +147,22 @@ var BillForward;
                     deferred.reject("No results");
                     return;
                 }
-                deferred.resolve(payload);
+                var entity;
+                try {
+                    entity = entityClass.makeEntityFromResponse(payload, client, deferred);
+                }
+                catch (e) {
+                    deferred.reject(e);
+                    return;
+                }
+                if (!entity) {
+                    deferred.reject("Failed to unserialize API response into entity.");
+                }
+                deferred.resolve(entity);
             }).done();
             return deferred.promise;
         };
-        InsertableEntity.makeEntityFromResponse = function (payload, deferred) {
+        InsertableEntity.makeEntityFromResponse = function (payload, providedClient, deferred) {
             var entityClass = this.getDerivedClassStatic();
             return new entityClass(payload);
         };

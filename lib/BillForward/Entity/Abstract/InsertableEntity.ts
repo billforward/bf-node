@@ -23,14 +23,26 @@ module BillForward {
 					return;
 				}
 
-				deferred.resolve(payload);
+                var entity;
+                try {
+                    entity = entityClass.makeEntityFromResponse(payload, client, deferred);   
+                } catch (e) {
+                    deferred.reject(e);
+                    return;
+                }
+
+                if (!entity) {
+                    deferred.reject("Failed to unserialize API response into entity.");
+                }
+                deferred.resolve(entity);
+				// deferred.resolve(payload);
 			})
 		.done();
 
 		return deferred.promise;
     }
 
-    static makeEntityFromResponse(payload:Object, deferred: Q.Deferred<any>) {
+    static makeEntityFromResponse(payload:Object, providedClient:Client, deferred: Q.Deferred<any>) {
     	//deferred.
     	var entityClass = this.getDerivedClassStatic();
     	return new entityClass(payload);
