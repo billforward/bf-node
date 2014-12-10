@@ -20,3 +20,12 @@ exports.BillForward = BillForward;
 exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.logging);
 exports.assert = assert
 exports.sinon = sinon;
+
+var context = '';
+exports.getContext = function() {
+	return context;
+};
+
+exports.setContext = function(newContext) {
+	context = newContext;
+};

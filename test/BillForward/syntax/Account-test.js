@@ -1,11 +1,13 @@
-var testBase = require('../../test-base.js');
+var testBase = require('./_test-base');
 
 var BillForward = testBase.BillForward;
 
-describe('Account', function () {
-	describe('#new', function () {
-		it('should succeed', function () {
-			var account = new BillForward.Account({});
+context(testBase.getContext(), function () {
+	describe('Account', function () {
+		describe('#new', function () {
+			it('should succeed', function () {
+				var account = new BillForward.Account({});
+			});
 		});
 	});
 });

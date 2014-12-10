@@ -42,8 +42,7 @@ var BillForward;
                 _this.successResponse(body, statusCode, headers, deferred);
             };
             var headers = {
-                'Authorization': 'Bearer ' + this.accessToken,
-                'Content-Type': 'application/json'
+                'Authorization': 'Bearer ' + this.accessToken
             };
             var converters = {
                 'text json': JSON.parse,
@@ -58,6 +57,7 @@ var BillForward;
             if (verb === 'POST') {
                 options.input = json;
                 options.inputType = 'json';
+                options.headers['Content-Type'] = 'application/json';
             }
             BillForward.Imports.httpinvoke(fullPath, verb, options);
             return deferred.promise;

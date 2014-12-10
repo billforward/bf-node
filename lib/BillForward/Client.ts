@@ -91,8 +91,7 @@ module BillForward {
       };
 
       var headers = {
-        'Authorization': 'Bearer '+this.accessToken,
-        'Content-Type': 'application/json'
+        'Authorization': 'Bearer '+this.accessToken
       };
 
       var converters = {
@@ -110,6 +109,7 @@ module BillForward {
       if(verb === 'POST') {
         options.input = json;
         options.inputType = 'json';
+        options.headers['Content-Type'] = 'application/json';
       }
 
       Imports.httpinvoke(fullPath, verb, options);

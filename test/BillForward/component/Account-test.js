@@ -1,28 +1,30 @@
-var testBase = require('../../test-base.js');
+var testBase = require('./_test-base');
 
 var BillForward = testBase.BillForward;
 var client = testBase.client;
 
 var sinon = testBase.sinon;
 
-describe('Account', function () {
-	describe('::create', function () {
-		context('model constructed', function() {
-			var model;
+context(testBase.getContext(), function () {
+	describe('Account', function () {
+		describe('::create', function () {
+			context('model constructed', function() {
+				var model;
 
-			before(function() {
-				model = new BillForward.Account({});
-			});
-			after(function () {
-			    BillForward.Imports.httpinvoke.restore();
-			});
-			it('should succeed', function () {
-				sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-					options.finished(false, mocks.blankAccount, 200, options.headers);
+				before(function() {
+					model = new BillForward.Account({});
 				});
+				after(function () {
+				    BillForward.Imports.httpinvoke.restore();
+				});
+				it('should succeed', function () {
+					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
+						options.finished(false, mocks.blankAccount, 200, options.headers);
+					});
 
-				return BillForward.Account.create(model)
-				.should.be.fulfilled;
+					return BillForward.Account.create(model)
+					.should.be.fulfilled;
+				});
 			});
 		});
 	});
