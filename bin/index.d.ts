@@ -29,13 +29,14 @@ declare module BillForward {
         getDerivedClass(): any;
         serialize(): Object;
         protected unserialize(json: Object): void;
+        protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<any>): void;
+        protected static makeEntityFromPayload(payload: any, client: Client): BillingEntity;
     }
 }
 declare module BillForward {
     class InsertableEntity extends BillingEntity {
         constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): Q.Promise<any>;
-        static makeEntityFromResponse(payload: Object, providedClient: Client, deferred: Q.Deferred<any>): any;
     }
 }
 declare module BillForward {

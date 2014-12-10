@@ -112,11 +112,7 @@ var BillForward;
             var fullRoute = apiRoute + endpoint;
             var deferred = BillForward.Imports.Q.defer();
             client.request("GET", fullRoute).then(function (payload) {
-                if (payload.results.length < 1) {
-                    deferred.reject("No results");
-                    return;
-                }
-                deferred.resolve(payload);
+                entityClass.getFirstEntityFromResponse(payload, client, deferred);
             }).done();
             return deferred.promise;
         };
@@ -141,6 +137,30 @@ var BillForward;
                 var value = json[key];
                 this[key] = value;
             }
+        };
+        BillingEntity.getFirstEntityFromResponse = function (payload, client, deferred) {
+            if (payload.results.length < 1) {
+                deferred.reject("No results");
+                return;
+            }
+            var entity;
+            try {
+                var results = payload.results;
+                var assumeFirst = results[0];
+                var stateParams = assumeFirst;
+                entity = this.makeEntityFromPayload(stateParams, client);
+            }
+            catch (e) {
+                deferred.reject(e);
+                return;
+            }
+            if (!entity) {
+                deferred.reject("Failed to unserialize API response into entity.");
+            }
+            deferred.resolve(entity);
+        };
+        BillingEntity.makeEntityFromPayload = function (payload, client) {
+            return new this(payload, client);
         };
         return BillingEntity;
     })();
@@ -169,31 +189,9 @@ var BillForward;
             var fullRoute = apiRoute + endpoint;
             var deferred = BillForward.Imports.Q.defer();
             client.request("POST", fullRoute, {}, entity.serialize()).then(function (payload) {
-                if (payload.results.length < 1) {
-                    deferred.reject("No results");
-                    return;
-                }
-                var entity;
-                try {
-                    var results = payload.results;
-                    var assumeFirst = results[0];
-                    var stateParams = assumeFirst;
-                    entity = entityClass.makeEntityFromResponse(stateParams, client, deferred);
-                }
-                catch (e) {
-                    deferred.reject(e);
-                    return;
-                }
-                if (!entity) {
-                    deferred.reject("Failed to unserialize API response into entity.");
-                }
-                deferred.resolve(entity);
+                entityClass.getFirstEntityFromResponse(payload, client, deferred);
             }).done();
             return deferred.promise;
-        };
-        InsertableEntity.makeEntityFromResponse = function (payload, providedClient, deferred) {
-            var entityClass = this.getDerivedClassStatic();
-            return new entityClass(payload);
         };
         return InsertableEntity;
     })(BillForward.BillingEntity);

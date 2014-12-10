@@ -36,11 +36,7 @@ module BillForward {
 
 		client.request("GET", fullRoute)
 		.then(function(payload) {
-				if (payload.results.length<1) {
-					deferred.reject("No results");
-					return;
-				}
-				deferred.resolve(payload);
+				entityClass.getFirstEntityFromResponse(payload, client, deferred);
 			})
 		.done();
 
@@ -74,6 +70,33 @@ module BillForward {
             var value = json[key];
             this[key] = value;
         }
+    }
+
+    protected static getFirstEntityFromResponse(payload:any, client:Client, deferred: Q.Deferred<any>) {
+        if (payload.results.length<1) {
+            deferred.reject("No results");
+            return;
+        }
+
+        var entity;
+        try {
+            var results = payload.results;
+            var assumeFirst = results[0];
+            var stateParams = assumeFirst;
+            entity = this.makeEntityFromPayload(stateParams, client);
+        } catch (e) {
+            deferred.reject(e);
+            return;
+        }
+
+        if (!entity) {
+            deferred.reject("Failed to unserialize API response into entity.");
+        }
+        deferred.resolve(entity);
+    }
+
+    protected static makeEntityFromPayload(payload:any, client:Client) {
+        return new this(payload, client);
     }
   } 
 }

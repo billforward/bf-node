@@ -18,37 +18,11 @@ module BillForward {
 
 		client.request("POST", fullRoute, {}, entity.serialize())
 		.then(function(payload) {
-				if (payload.results.length<1) {
-					deferred.reject("No results");
-					return;
-				}
-
-                var entity;
-                try {
-                    var results = payload.results;
-                    var assumeFirst = results[0];
-                    var stateParams = assumeFirst;
-                    entity = entityClass.makeEntityFromResponse(stateParams, client, deferred);   
-                } catch (e) {
-                    deferred.reject(e);
-                    return;
-                }
-
-                if (!entity) {
-                    deferred.reject("Failed to unserialize API response into entity.");
-                }
-                deferred.resolve(entity);
-				// deferred.resolve(payload);
+                entityClass.getFirstEntityFromResponse(payload, client, deferred);
 			})
 		.done();
 
 		return deferred.promise;
-    }
-
-    static makeEntityFromResponse(payload:Object, providedClient:Client, deferred: Q.Deferred<any>) {
-    	//deferred.
-    	var entityClass = this.getDerivedClassStatic();
-    	return new entityClass(payload);
     }
   } 
 }
