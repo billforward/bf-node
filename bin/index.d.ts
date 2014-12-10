@@ -32,7 +32,7 @@ declare module BillForward {
     class InsertableEntity extends BillingEntity {
         constructor();
         static create(entity: InsertableEntity): Q.Promise<any>;
-        static makeEntityFromResponse(payload: Object, deferred: Q.Deferred<any>): void;
+        static makeEntityFromResponse(payload: Object, deferred: Q.Deferred<any>): any;
     }
 }
 declare module BillForward {

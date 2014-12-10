@@ -32,6 +32,8 @@ module BillForward {
 
     static makeEntityFromResponse(payload:Object, deferred: Q.Deferred<any>) {
     	//deferred.
+    	var entityClass = this.getDerivedClassStatic();
+    	return new entityClass(payload);
     }
   } 
 }

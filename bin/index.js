@@ -152,6 +152,8 @@ var BillForward;
             return deferred.promise;
         };
         InsertableEntity.makeEntityFromResponse = function (payload, deferred) {
+            var entityClass = this.getDerivedClassStatic();
+            return new entityClass(payload);
         };
         return InsertableEntity;
     })(BillForward.BillingEntity);
