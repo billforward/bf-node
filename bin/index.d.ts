@@ -54,7 +54,6 @@ declare module BillForward {
 }
 declare module BillForward {
     class Imports {
-        static _: _.LoDashStatic;
         static httpinvoke: any;
         static Q: any;
     }

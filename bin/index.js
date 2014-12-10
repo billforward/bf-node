@@ -233,7 +233,6 @@ var BillForward;
     var Imports = (function () {
         function Imports() {
         }
-        Imports._ = require('lodash');
         Imports.httpinvoke = require('httpinvoke');
         Imports.Q = require('q');
         return Imports;
