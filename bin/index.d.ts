@@ -22,7 +22,7 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client);
         getClient(): Client;
         setClient(client: Client): void;
-        static getByID(id: string, options?: Object, client?: Client): Q.Promise<any>;
+        static getByID<T extends BillingEntity>(id: string, options?: Object, client?: Client): Q.Promise<T>;
         static getResourcePath(): any;
         static getSingletonClient(): Client;
         static getDerivedClassStatic(): any;
@@ -33,7 +33,7 @@ declare module BillForward {
 declare module BillForward {
     class InsertableEntity extends BillingEntity {
         constructor();
-        static create(entity: InsertableEntity): Q.Promise<any>;
+        static create<T extends InsertableEntity>(entity: T): Q.Promise<T>;
         static makeEntityFromResponse(payload: Object, providedClient: Client, deferred: Q.Deferred<any>): any;
     }
 }
@@ -47,7 +47,7 @@ declare module BillForward {
     }
 }
 declare module BillForward {
-    class Account extends InsertableEntity {
+    class Account extends InsertableEntity implements Controller {
         protected static _resourcePath: ResourcePath;
         constructor();
     }
@@ -57,6 +57,12 @@ declare module BillForward {
         static _: _.LoDashStatic;
         static httpinvoke: any;
         static Q: any;
+    }
+}
+declare module BillForward {
+    class Controller {
+        protected static _resourcePath: any;
+        static getResourcePath(): any;
     }
 }
 declare module BillForward {

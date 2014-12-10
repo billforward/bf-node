@@ -233,6 +233,18 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var Controller = (function () {
+        function Controller() {
+        }
+        Controller.getResourcePath = function () {
+            return this._resourcePath;
+        };
+        return Controller;
+    })();
+    BillForward.Controller = Controller;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var MixinHandler = (function () {
         function MixinHandler() {
         }

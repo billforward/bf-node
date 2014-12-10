@@ -5,7 +5,7 @@ module BillForward {
       super();
     }
 
-    static create(entity:InsertableEntity) {
+    static create<T extends InsertableEntity>(entity:T):Q.Promise<T> {
     	var client:Client = entity.getClient();
 
     	var entityClass = this.getDerivedClassStatic();
