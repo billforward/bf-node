@@ -48,7 +48,7 @@ module BillForward {
     }
 
     static getResourcePath() {
-    	return this.getDerivedClassStatic()._resourcePath;
+        return this.getDerivedClassStatic()._resourcePath;
     }
 
     static getSingletonClient():Client {
@@ -61,6 +61,10 @@ module BillForward {
 
     getDerivedClass():any {
         return <any>this;
+    }
+
+    serialize():Object {
+        return {};
     }
   } 
 }

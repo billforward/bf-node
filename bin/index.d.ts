@@ -27,6 +27,7 @@ declare module BillForward {
         static getSingletonClient(): Client;
         static getDerivedClassStatic(): any;
         getDerivedClass(): any;
+        serialize(): Object;
     }
 }
 declare module BillForward {
@@ -56,5 +57,10 @@ declare module BillForward {
         static _: _.LoDashStatic;
         static httpinvoke: any;
         static Q: any;
+    }
+}
+declare module BillForward {
+    class MixinHandler {
+        static applyMixins(derivedCtor: any, baseCtors: any[]): void;
     }
 }

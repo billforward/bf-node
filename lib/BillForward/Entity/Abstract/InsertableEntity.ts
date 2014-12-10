@@ -16,7 +16,7 @@ module BillForward {
 
 		var deferred: Q.Deferred<any> = Imports.Q.defer();
 
-		client.request("POST", fullRoute)
+		client.request("POST", fullRoute, {}, entity.serialize())
 		.then(function(payload) {
 				if (payload.results.length<1) {
 					deferred.reject("No results");

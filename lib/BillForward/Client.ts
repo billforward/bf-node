@@ -91,7 +91,8 @@ module BillForward {
       };
 
       var headers = {
-        'Authorization': 'Bearer '+this.accessToken
+        'Authorization': 'Bearer '+this.accessToken,
+        'Content-Type': 'application/json'
       };
 
       var converters = {
@@ -99,12 +100,21 @@ module BillForward {
         'json text': JSON.stringify
       };
 
-      var options = {
+      var options:any = {
         headers: headers,
         finished: callback,
         outputType: 'json',
         converters: converters
       };
+
+      if(verb === 'POST') {
+        options.input = json;
+        options.inputType = 'json';
+
+        if (this.logging) {
+          console.log(json);
+        }
+      }
 
       Imports.httpinvoke(fullPath, verb, options);
 

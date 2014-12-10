@@ -5,5 +5,5 @@ module BillForward {
     constructor() {
       super();
     }
-  } 
+  }
 }

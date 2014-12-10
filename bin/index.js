@@ -42,7 +42,8 @@ var BillForward;
                 _this.successResponse(body, statusCode, headers, deferred);
             };
             var headers = {
-                'Authorization': 'Bearer ' + this.accessToken
+                'Authorization': 'Bearer ' + this.accessToken,
+                'Content-Type': 'application/json'
             };
             var converters = {
                 'text json': JSON.parse,
@@ -54,6 +55,13 @@ var BillForward;
                 outputType: 'json',
                 converters: converters
             };
+            if (verb === 'POST') {
+                options.input = json;
+                options.inputType = 'json';
+                if (this.logging) {
+                    console.log(json);
+                }
+            }
             BillForward.Imports.httpinvoke(fullPath, verb, options);
             return deferred.promise;
         };
@@ -127,6 +135,9 @@ var BillForward;
         BillingEntity.prototype.getDerivedClass = function () {
             return this;
         };
+        BillingEntity.prototype.serialize = function () {
+            return {};
+        };
         return BillingEntity;
     })();
     BillForward.BillingEntity = BillingEntity;
@@ -151,7 +162,7 @@ var BillForward;
             var endpoint = "/";
             var fullRoute = apiRoute + endpoint;
             var deferred = BillForward.Imports.Q.defer();
-            client.request("POST", fullRoute).then(function (payload) {
+            client.request("POST", fullRoute, {}, entity.serialize()).then(function (payload) {
                 if (payload.results.length < 1) {
                     deferred.reject("No results");
                     return;
@@ -219,6 +230,22 @@ var BillForward;
         return Imports;
     })();
     BillForward.Imports = Imports;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var MixinHandler = (function () {
+        function MixinHandler() {
+        }
+        MixinHandler.applyMixins = function (derivedCtor, baseCtors) {
+            baseCtors.forEach(function (baseCtor) {
+                Object.getOwnPropertyNames(baseCtor.prototype).forEach(function (name) {
+                    derivedCtor.prototype[name] = baseCtor.prototype[name];
+                });
+            });
+        };
+        return MixinHandler;
+    })();
+    BillForward.MixinHandler = MixinHandler;
 })(BillForward || (BillForward = {}));
 module.exports = BillForward;
 //# sourceMappingURL=index.js.map
