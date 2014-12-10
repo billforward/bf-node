@@ -58,9 +58,6 @@ var BillForward;
             if (verb === 'POST') {
                 options.input = json;
                 options.inputType = 'json';
-                if (this.logging) {
-                    console.log(json);
-                }
             }
             BillForward.Imports.httpinvoke(fullPath, verb, options);
             return deferred.promise;
@@ -68,7 +65,7 @@ var BillForward;
         Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
             if (statusCode === 200) {
                 if (this.logging) {
-                    console.log(body);
+                    console.log(JSON.stringify(body, null, "\t"));
                 }
                 deferred.resolve(body);
                 return;
