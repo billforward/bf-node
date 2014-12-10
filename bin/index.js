@@ -113,7 +113,7 @@ var BillForward;
             var deferred = BillForward.Imports.Q.defer();
             client.request("GET", fullRoute).then(function (payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
-            }).done();
+            });
             return deferred.promise;
         };
         BillingEntity.getResourcePath = function () {
@@ -139,8 +139,14 @@ var BillForward;
             }
         };
         BillingEntity.getFirstEntityFromResponse = function (payload, client, deferred) {
-            if (payload.results.length < 1) {
-                deferred.reject("No results");
+            try {
+                if (payload.results.length < 1) {
+                    deferred.reject("No results returned upon API request.");
+                    return;
+                }
+            }
+            catch (e) {
+                deferred.reject("Received malformed response from API.");
                 return;
             }
             var entity;
@@ -156,6 +162,7 @@ var BillForward;
             }
             if (!entity) {
                 deferred.reject("Failed to unserialize API response into entity.");
+                return;
             }
             deferred.resolve(entity);
         };
@@ -190,7 +197,7 @@ var BillForward;
             var deferred = BillForward.Imports.Q.defer();
             client.request("POST", fullRoute, {}, entity.serialize()).then(function (payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
-            }).done();
+            });
             return deferred.promise;
         };
         return InsertableEntity;

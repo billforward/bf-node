@@ -19,8 +19,7 @@ module BillForward {
 		client.request("POST", fullRoute, {}, entity.serialize())
 		.then(function(payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
-			})
-		.done();
+			});
 
 		return deferred.promise;
     }

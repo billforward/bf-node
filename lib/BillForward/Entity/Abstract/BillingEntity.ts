@@ -37,8 +37,7 @@ module BillForward {
 		client.request("GET", fullRoute)
 		.then(function(payload) {
 				entityClass.getFirstEntityFromResponse(payload, client, deferred);
-			})
-		.done();
+			});
 
 		return deferred.promise;
 
@@ -73,8 +72,13 @@ module BillForward {
     }
 
     protected static getFirstEntityFromResponse(payload:any, client:Client, deferred: Q.Deferred<any>) {
-        if (payload.results.length<1) {
-            deferred.reject("No results");
+        try {
+            if (payload.results.length<1) {
+                deferred.reject("No results returned upon API request.");
+                return;
+            }
+        } catch (e) {
+            deferred.reject("Received malformed response from API.");
             return;
         }
 
@@ -91,6 +95,7 @@ module BillForward {
 
         if (!entity) {
             deferred.reject("Failed to unserialize API response into entity.");
+            return;
         }
         deferred.resolve(entity);
     }
