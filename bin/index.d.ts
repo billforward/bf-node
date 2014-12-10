@@ -28,11 +28,12 @@ declare module BillForward {
         static getDerivedClassStatic(): any;
         getDerivedClass(): any;
         serialize(): Object;
+        protected unserialize(json: Object): void;
     }
 }
 declare module BillForward {
     class InsertableEntity extends BillingEntity {
-        constructor();
+        constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): Q.Promise<any>;
         static makeEntityFromResponse(payload: Object, providedClient: Client, deferred: Q.Deferred<any>): any;
     }
@@ -49,7 +50,6 @@ declare module BillForward {
 declare module BillForward {
     class Account extends InsertableEntity {
         protected static _resourcePath: ResourcePath;
-        constructor();
     }
 }
 declare module BillForward {

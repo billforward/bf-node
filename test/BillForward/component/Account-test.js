@@ -23,7 +23,8 @@ context(testBase.getContext(), function () {
 					});
 
 					return BillForward.Account.create(model)
-					.should.be.fulfilled;
+					.should.be.fulfilled.and
+					.should.eventually.have.property('id').that.equals('D12B8CF8-2E1E-4F76-925F-1B539D37B2D9');;
 				});
 			});
 		});

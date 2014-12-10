@@ -8,7 +8,9 @@ module BillForward {
     	if (!client) {
     		client = BillingEntity.getSingletonClient();
     	}
+
     	this.setClient(client);
+        this.unserialize(stateParams);
     }
 
     getClient():Client {
@@ -65,6 +67,13 @@ module BillForward {
 
     serialize():Object {
         return {};
+    }
+
+    protected unserialize(json:Object) {
+        for (var key in json) {
+            var value = json[key];
+            this[key] = value;
+        }
     }
   } 
 }

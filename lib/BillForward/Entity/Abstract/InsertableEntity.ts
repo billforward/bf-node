@@ -1,8 +1,8 @@
 module BillForward {
 
   export class InsertableEntity extends BillingEntity {
-    constructor() {
-      super();
+    constructor(stateParams:Object = {}, client:Client = null) {
+      super(stateParams, client);
     }
 
     static create(entity:InsertableEntity) {
@@ -25,7 +25,10 @@ module BillForward {
 
                 var entity;
                 try {
-                    entity = entityClass.makeEntityFromResponse(payload, client, deferred);   
+                    var results = payload.results;
+                    var assumeFirst = results[0];
+                    var stateParams = assumeFirst;
+                    entity = entityClass.makeEntityFromResponse(stateParams, client, deferred);   
                 } catch (e) {
                     deferred.reject(e);
                     return;

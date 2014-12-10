@@ -92,6 +92,7 @@ var BillForward;
                 client = BillingEntity.getSingletonClient();
             }
             this.setClient(client);
+            this.unserialize(stateParams);
         }
         BillingEntity.prototype.getClient = function () {
             return this._client;
@@ -135,6 +136,12 @@ var BillForward;
         BillingEntity.prototype.serialize = function () {
             return {};
         };
+        BillingEntity.prototype.unserialize = function (json) {
+            for (var key in json) {
+                var value = json[key];
+                this[key] = value;
+            }
+        };
         return BillingEntity;
     })();
     BillForward.BillingEntity = BillingEntity;
@@ -149,8 +156,10 @@ var BillForward;
 (function (BillForward) {
     var InsertableEntity = (function (_super) {
         __extends(InsertableEntity, _super);
-        function InsertableEntity() {
-            _super.call(this);
+        function InsertableEntity(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
         }
         InsertableEntity.create = function (entity) {
             var client = entity.getClient();
@@ -166,7 +175,10 @@ var BillForward;
                 }
                 var entity;
                 try {
-                    entity = entityClass.makeEntityFromResponse(payload, client, deferred);
+                    var results = payload.results;
+                    var assumeFirst = results[0];
+                    var stateParams = assumeFirst;
+                    entity = entityClass.makeEntityFromResponse(stateParams, client, deferred);
                 }
                 catch (e) {
                     deferred.reject(e);
@@ -209,7 +221,7 @@ var BillForward;
     var Account = (function (_super) {
         __extends(Account, _super);
         function Account() {
-            _super.call(this);
+            _super.apply(this, arguments);
         }
         Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
         return Account;
