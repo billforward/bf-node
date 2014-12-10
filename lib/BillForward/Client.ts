@@ -6,10 +6,12 @@ module BillForward {
 
     private accessToken:string;
     private urlRoot:string;
+    private logging:boolean;
 
-    constructor(accessToken:string, urlRoot:string) {
+    constructor(accessToken:string, urlRoot:string, logging:boolean = false) {
       this.accessToken = accessToken;
       this.urlRoot = urlRoot;
+      this.logging = logging;
     }
 
     getAccessToken():string {
@@ -25,8 +27,8 @@ module BillForward {
       return Client.singletonClient;
     }
 
-    static makeDefault(accessToken:string, urlRoot:string):Client {
-      var client = new Client(accessToken, urlRoot);
+    static makeDefault(accessToken:string, urlRoot:string, logging:boolean = false):Client {
+      var client = new Client(accessToken, urlRoot, logging);
       return Client.setDefault(client);
     }
 
@@ -111,6 +113,9 @@ module BillForward {
 
     private successResponse(body, statusCode, headers, deferred) {
       if (statusCode === 200) {
+        if (this.logging) {
+          console.log(body);
+        }
         deferred.resolve(body);
         return;
       }
@@ -118,7 +123,9 @@ module BillForward {
     }
 
     private errorResponse(err, deferred) {
-      // console.error(err);
+      if (this.logging) {
+        console.error(err);
+      }
       deferred.reject(err);
     }
   } 

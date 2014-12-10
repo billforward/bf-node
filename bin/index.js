@@ -1,9 +1,11 @@
 var BillForward;
 (function (BillForward) {
     var Client = (function () {
-        function Client(accessToken, urlRoot) {
+        function Client(accessToken, urlRoot, logging) {
+            if (logging === void 0) { logging = false; }
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
+            this.logging = logging;
         }
         Client.prototype.getAccessToken = function () {
             return this.accessToken;
@@ -15,8 +17,9 @@ var BillForward;
             Client.singletonClient = client;
             return Client.singletonClient;
         };
-        Client.makeDefault = function (accessToken, urlRoot) {
-            var client = new Client(accessToken, urlRoot);
+        Client.makeDefault = function (accessToken, urlRoot, logging) {
+            if (logging === void 0) { logging = false; }
+            var client = new Client(accessToken, urlRoot, logging);
             return Client.setDefault(client);
         };
         Client.getDefaultClient = function () {
@@ -56,12 +59,18 @@ var BillForward;
         };
         Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
             if (statusCode === 200) {
+                if (this.logging) {
+                    console.log(body);
+                }
                 deferred.resolve(body);
                 return;
             }
             this.errorResponse(body, deferred);
         };
         Client.prototype.errorResponse = function (err, deferred) {
+            if (this.logging) {
+                console.error(err);
+            }
             deferred.reject(err);
         };
         return Client;

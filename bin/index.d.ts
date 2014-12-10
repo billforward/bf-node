@@ -4,11 +4,12 @@ declare module BillForward {
         private static singletonClient;
         private accessToken;
         private urlRoot;
-        constructor(accessToken: string, urlRoot: string);
+        private logging;
+        constructor(accessToken: string, urlRoot: string, logging?: boolean);
         getAccessToken(): string;
         getUrlRoot(): string;
         static setDefault(client: Client): Client;
-        static makeDefault(accessToken: string, urlRoot: string): Client;
+        static makeDefault(accessToken: string, urlRoot: string, logging?: boolean): Client;
         static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
         private successResponse(body, statusCode, headers, deferred);

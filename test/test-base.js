@@ -17,6 +17,6 @@ var assert = require('assert');
 require('mocha-sinon');
 
 exports.BillForward = BillForward;
-exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot);
+exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.logging);
 exports.assert = assert
 exports.sinon = sinon;

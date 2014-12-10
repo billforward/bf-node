@@ -1,4 +1,7 @@
 module.exports = {
 	"urlRoot":     "https://api-sandbox.billforward.net:443/v1/",
-	"accessToken": "INSERT_ACCESS_TOKEN_HERE"
+	"accessToken": "INSERT_ACCESS_TOKEN_HERE",
+
+	// print API output to console
+	"logging": false
 }
