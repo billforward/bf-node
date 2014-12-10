@@ -19,7 +19,7 @@ module BillForward {
 		this._client = client;
 	}
 
-    static getByID<T extends BillingEntity>(id:string, options:Object = {}, client:Client = null):Q.Promise<T> {
+    static getByID(id:string, options:Object = {}, client:Client = null) {
     	if (!client) {
     		client = BillingEntity.getSingletonClient();
     	}
