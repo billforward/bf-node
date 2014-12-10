@@ -19,12 +19,12 @@ module.exports = function (grunt) {
           default : {
             src: ["lib/**/*.ts", "!node_modules/**/*.ts"],
             out: "bin/index.js",
-            //outDir: "bin/",
+            // outDir: "bin/",
             options: {
                 module: "commonjs",
                 declaration: true,
                 sourceMap: true,
-                //fast: 'watch',
+                // fast: 'watch',
                 watch: "lib/"
             }
           }

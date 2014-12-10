@@ -77,7 +77,7 @@ module BillForward {
       return deferred.promise;*/
       var _this = this;
 
-      var deferred = q.defer();
+      var deferred:Q.Deferred<any> = Imports.Q.defer();
 
       var callback = function(err, body, statusCode, headers) {
           if(err) {
@@ -104,7 +104,7 @@ module BillForward {
         converters: converters
       };
 
-      httpinvoke(fullPath, verb, options);
+      Imports.httpinvoke(fullPath, verb, options);
 
       return deferred.promise;
     }
@@ -118,6 +118,7 @@ module BillForward {
     }
 
     private errorResponse(err, deferred) {
+      // console.error(err);
       deferred.reject(err);
     }
   } 

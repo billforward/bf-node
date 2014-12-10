@@ -10,7 +10,7 @@ declare module BillForward {
         static setDefault(client: Client): Client;
         static makeDefault(accessToken: string, urlRoot: string): Client;
         static getDefaultClient(): Client;
-        request(verb: string, path: string, queryParams?: Object, json?: Object): any;
+        request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
         private successResponse(body, statusCode, headers, deferred);
         private errorResponse(err, deferred);
     }
@@ -18,12 +18,21 @@ declare module BillForward {
 declare module BillForward {
     class BillingEntity {
         private _client;
-        constructor(options?: Object, client?: Client);
+        constructor(stateParams?: Object, client?: Client);
         getClient(): Client;
         setClient(client: Client): void;
-        static getByID(id: string, options?: Object, client?: Client): any;
+        static getByID(id: string, options?: Object, client?: Client): Q.Promise<any>;
         static getResourcePath(): any;
         static getSingletonClient(): Client;
+        static getDerivedClassStatic(): any;
+        getDerivedClass(): any;
+    }
+}
+declare module BillForward {
+    class InsertableEntity extends BillingEntity {
+        constructor();
+        static create(entity: InsertableEntity): Q.Promise<any>;
+        static makeEntityFromResponse(payload: Object, deferred: Q.Deferred<any>): void;
     }
 }
 declare module BillForward {
@@ -36,9 +45,16 @@ declare module BillForward {
     }
 }
 declare module BillForward {
-    class Account extends BillingEntity {
+    class Account extends InsertableEntity {
         protected static _resourcePath: ResourcePath;
         constructor();
+    }
+}
+declare module BillForward {
+    class Imports {
+        static _: _.LoDashStatic;
+        static httpinvoke: any;
+        static Q: any;
     }
 }
 declare module BillForward {
@@ -50,6 +66,3 @@ declare module BillForward {
         sayHelloThenSayHelloLater(callback: any): String;
     }
 }
-declare var _: _.LoDashStatic;
-declare var httpinvoke: any;
-declare var q: any;

@@ -5,7 +5,7 @@ var path = require("path");
 // loads './config/config.json' relative to test execution directory
 var config = require('./config/config');
 
-var BillForward = require('../bin/index.js');
+var BillForward = require('../bin');
 var sinon = require("sinon");
 var chai = require('chai');
 

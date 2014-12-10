@@ -30,7 +30,7 @@ var BillForward;
             if (json === void 0) { json = {}; }
             var fullPath = this.urlRoot + path;
             var _this = this;
-            var deferred = q.defer();
+            var deferred = BillForward.Imports.Q.defer();
             var callback = function (err, body, statusCode, headers) {
                 if (err) {
                     _this.errorResponse(err, deferred);
@@ -51,7 +51,7 @@ var BillForward;
                 outputType: 'json',
                 converters: converters
             };
-            httpinvoke(fullPath, verb, options);
+            BillForward.Imports.httpinvoke(fullPath, verb, options);
             return deferred.promise;
         };
         Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
@@ -71,8 +71,8 @@ var BillForward;
 var BillForward;
 (function (BillForward) {
     var BillingEntity = (function () {
-        function BillingEntity(options, client) {
-            if (options === void 0) { options = {}; }
+        function BillingEntity(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
             if (!client) {
                 client = BillingEntity.getSingletonClient();
@@ -91,10 +91,11 @@ var BillForward;
             if (!client) {
                 client = BillingEntity.getSingletonClient();
             }
-            var apiRoute = this.getResourcePath().getPath();
+            var entityClass = this.getDerivedClassStatic();
+            var apiRoute = entityClass.getResourcePath().getPath();
             var endpoint = "/" + id;
             var fullRoute = apiRoute + endpoint;
-            var deferred = q.defer();
+            var deferred = BillForward.Imports.Q.defer();
             client.request("GET", fullRoute).then(function (payload) {
                 if (payload.results.length < 1) {
                     deferred.reject("No results");
@@ -105,15 +106,56 @@ var BillForward;
             return deferred.promise;
         };
         BillingEntity.getResourcePath = function () {
-            return this._resourcePath;
+            return this.getDerivedClassStatic()._resourcePath;
         };
         BillingEntity.getSingletonClient = function () {
             return BillForward.Client.getDefaultClient();
             ;
         };
+        BillingEntity.getDerivedClassStatic = function () {
+            return this;
+        };
+        BillingEntity.prototype.getDerivedClass = function () {
+            return this;
+        };
         return BillingEntity;
     })();
     BillForward.BillingEntity = BillingEntity;
+})(BillForward || (BillForward = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var BillForward;
+(function (BillForward) {
+    var InsertableEntity = (function (_super) {
+        __extends(InsertableEntity, _super);
+        function InsertableEntity() {
+            _super.call(this);
+        }
+        InsertableEntity.create = function (entity) {
+            var client = entity.getClient();
+            var entityClass = this.getDerivedClassStatic();
+            var apiRoute = entityClass.getResourcePath().getPath();
+            var endpoint = "/";
+            var fullRoute = apiRoute + endpoint;
+            var deferred = BillForward.Imports.Q.defer();
+            client.request("POST", fullRoute).then(function (payload) {
+                if (payload.results.length < 1) {
+                    deferred.reject("No results");
+                    return;
+                }
+                deferred.resolve(payload);
+            }).done();
+            return deferred.promise;
+        };
+        InsertableEntity.makeEntityFromResponse = function (payload, deferred) {
+        };
+        return InsertableEntity;
+    })(BillForward.BillingEntity);
+    BillForward.InsertableEntity = InsertableEntity;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -132,12 +174,6 @@ var BillForward;
     })();
     BillForward.ResourcePath = ResourcePath;
 })(BillForward || (BillForward = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var BillForward;
 (function (BillForward) {
     var Account = (function (_super) {
@@ -147,14 +183,26 @@ var BillForward;
         }
         Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
         return Account;
-    })(BillForward.BillingEntity);
+    })(BillForward.InsertableEntity);
     BillForward.Account = Account;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Imports = (function () {
+        function Imports() {
+        }
+        Imports._ = require('lodash');
+        Imports.httpinvoke = require('httpinvoke');
+        Imports.Q = require('q');
+        return Imports;
+    })();
+    BillForward.Imports = Imports;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
     var Hello = (function () {
         function Hello(opts) {
-            _.extend(this, {
+            BillForward.Imports._.extend(this, {
                 helloMessage: 'Hello World!'
             }, opts);
         }
@@ -175,8 +223,5 @@ var BillForward;
     })();
     BillForward.Hello = Hello;
 })(BillForward || (BillForward = {}));
-var _ = require('lodash');
-var httpinvoke = require('httpinvoke');
-var q = require('q');
 module.exports = BillForward;
 //# sourceMappingURL=index.js.map

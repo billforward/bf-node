@@ -8,7 +8,7 @@ module BillForward {
       // Underscore's extend functionality is a great
       // way to extend default parameters, with parameters
       // passed in when creating a new instance of a class.
-      _.extend(this, {
+      Imports._.extend(this, {
         helloMessage: 'Hello World!'
       }, opts);
     }

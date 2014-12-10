@@ -4,7 +4,7 @@ module BillForward {
 
   	private _client:Client;
 
-    constructor(options:Object = {}, client:Client = null) {
+    constructor(stateParams:Object = {}, client:Client = null) {
     	if (!client) {
     		client = BillingEntity.getSingletonClient();
     	}
@@ -24,11 +24,13 @@ module BillForward {
     		client = BillingEntity.getSingletonClient();
     	}
 
-		var apiRoute = this.getResourcePath().getPath();
+        var entityClass = this.getDerivedClassStatic();
+
+		var apiRoute = entityClass.getResourcePath().getPath();
 		var endpoint = "/"+id;
 		var fullRoute = apiRoute+endpoint;
 
-		var deferred = q.defer();
+		var deferred:Q.Deferred<any> = Imports.Q.defer();
 
 		client.request("GET", fullRoute)
 		.then(function(payload) {
@@ -46,11 +48,19 @@ module BillForward {
     }
 
     static getResourcePath() {
-    	return (<any>this)._resourcePath;
+    	return this.getDerivedClassStatic()._resourcePath;
     }
 
     static getSingletonClient():Client {
     	return Client.getDefaultClient();;
+    }
+
+    static getDerivedClassStatic():any {
+        return <any>this;
+    }
+
+    getDerivedClass():any {
+        return <any>this;
     }
   } 
 }

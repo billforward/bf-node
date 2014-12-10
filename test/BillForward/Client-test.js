@@ -14,13 +14,13 @@ describe('Client', function () {
 				unauthorisedClient = new BillForward.Client(defunctToken, urlRoot)
 			})
 	        it('should reject', function () {
-	            return unauthorisedClient.request("POST", "accounts")
+	            return unauthorisedClient.request("GET", "accounts")
 	            .should.be.rejected;
 	        });
 	    });
 	    context('authorised', function () {
 	    	it('should accept', function () {
-	            return client.request("GET", "organizations/mine")
+	            return client.request("GET", "accounts")
 	            .should.be.fulfilled;
 	        });
 	    });
