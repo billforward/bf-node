@@ -1,5 +1,5 @@
 module BillForward {
 
-  export class MutableEntity extends BillingEntity {
+  export class MutableEntity extends InsertableEntity {
   } 
 }

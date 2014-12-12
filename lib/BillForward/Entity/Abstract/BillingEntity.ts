@@ -38,7 +38,10 @@ module BillForward {
 		client.request("GET", fullRoute)
 		.then(function(payload) {
 				entityClass.getFirstEntityFromResponse(payload, client, deferred);
-			});
+			})
+        .catch(function(err) {
+            deferred.reject(err);
+            });
 
 		return deferred.promise;
 

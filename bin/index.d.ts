@@ -42,7 +42,7 @@ declare module BillForward {
     }
 }
 declare module BillForward {
-    class MutableEntity extends BillingEntity {
+    class MutableEntity extends InsertableEntity {
     }
 }
 declare module BillForward {

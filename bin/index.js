@@ -114,6 +114,8 @@ var BillForward;
             var deferred = BillForward.Imports.Q.defer();
             client.request("GET", fullRoute).then(function (payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
+            }).catch(function (err) {
+                deferred.reject(err);
             });
             return deferred.promise;
         };
@@ -209,6 +211,8 @@ var BillForward;
             var deferred = BillForward.Imports.Q.defer();
             client.request("POST", fullRoute, {}, entity.serialize()).then(function (payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
+            }).catch(function (err) {
+                deferred.reject(err);
             });
             return deferred.promise;
         };
@@ -224,7 +228,7 @@ var BillForward;
             _super.apply(this, arguments);
         }
         return MutableEntity;
-    })(BillForward.BillingEntity);
+    })(BillForward.InsertableEntity);
     BillForward.MutableEntity = MutableEntity;
 })(BillForward || (BillForward = {}));
 var BillForward;
