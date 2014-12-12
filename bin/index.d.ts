@@ -14,6 +14,7 @@ declare module BillForward {
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
         private successResponse(body, statusCode, headers, deferred);
         private errorResponse(err, deferred);
+        static handlePromiseError(err: any, deferred: any): void;
     }
 }
 declare module BillForward {

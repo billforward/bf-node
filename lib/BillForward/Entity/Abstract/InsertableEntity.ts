@@ -21,7 +21,7 @@ module BillForward {
         entityClass.getFirstEntityFromResponse(payload, client, deferred);
 			})
     .catch(function(err) {
-      deferred.reject(err);
+          Client.handlePromiseError(err, deferred);
       });
 
 		return deferred.promise;

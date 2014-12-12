@@ -40,7 +40,7 @@ module BillForward {
 				entityClass.getFirstEntityFromResponse(payload, client, deferred);
 			})
         .catch(function(err) {
-            deferred.reject(err);
+                Client.handlePromiseError(err, deferred);
             });
 
 		return deferred.promise;
@@ -68,6 +68,7 @@ module BillForward {
         var serial = {};
         var pruned = Imports._.omit(this, this._exemptFromSerialization);
         var serialized = Imports._.mapValues(pruned, function(value) {
+                if (!value) return false;
                 if ((<any>value).serialize) {
                     return (<any>value).serialize();
                 }

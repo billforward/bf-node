@@ -78,6 +78,9 @@ var BillForward;
             }
             deferred.reject(err);
         };
+        Client.handlePromiseError = function (err, deferred) {
+            deferred.reject(err);
+        };
         return Client;
     })();
     BillForward.Client = Client;
@@ -115,7 +118,7 @@ var BillForward;
             client.request("GET", fullRoute).then(function (payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
             }).catch(function (err) {
-                deferred.reject(err);
+                BillForward.Client.handlePromiseError(err, deferred);
             });
             return deferred.promise;
         };
@@ -136,6 +139,8 @@ var BillForward;
             var serial = {};
             var pruned = BillForward.Imports._.omit(this, this._exemptFromSerialization);
             var serialized = BillForward.Imports._.mapValues(pruned, function (value) {
+                if (!value)
+                    return false;
                 if (value.serialize) {
                     return value.serialize();
                 }
@@ -212,7 +217,7 @@ var BillForward;
             client.request("POST", fullRoute, {}, entity.serialize()).then(function (payload) {
                 entityClass.getFirstEntityFromResponse(payload, client, deferred);
             }).catch(function (err) {
-                deferred.reject(err);
+                BillForward.Client.handlePromiseError(err, deferred);
             });
             return deferred.promise;
         };

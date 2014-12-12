@@ -98,5 +98,9 @@ module BillForward {
       }
       deferred.reject(err);
     }
-  } 
+
+    static handlePromiseError(err, deferred) {
+      deferred.reject(err);
+    }
+  }
 }
