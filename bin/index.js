@@ -88,6 +88,7 @@ var BillForward;
         function BillingEntity(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
+            this._exemptFromSerialization = ['_client', '_exemptFromSerialization'];
             if (!client) {
                 client = BillingEntity.getSingletonClient();
             }
@@ -130,7 +131,18 @@ var BillForward;
             return this;
         };
         BillingEntity.prototype.serialize = function () {
-            return {};
+            var serial = {};
+            var pruned = BillForward.Imports._.omit(this, this._exemptFromSerialization);
+            var serialized = BillForward.Imports._.mapValues(pruned, function (value) {
+                if (value.serialize) {
+                    return value.serialize();
+                }
+                return value;
+            });
+            return serialized;
+        };
+        BillingEntity.prototype.toString = function () {
+            return JSON.stringify(this.serialize(), null, "\t");
         };
         BillingEntity.prototype.unserialize = function (json) {
             for (var key in json) {
@@ -206,6 +218,17 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var MutableEntity = (function (_super) {
+        __extends(MutableEntity, _super);
+        function MutableEntity() {
+            _super.apply(this, arguments);
+        }
+        return MutableEntity;
+    })(BillForward.BillingEntity);
+    BillForward.MutableEntity = MutableEntity;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var ResourcePath = (function () {
         function ResourcePath(path, entityName) {
             this.path = path;
@@ -230,14 +253,27 @@ var BillForward;
         }
         Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
         return Account;
-    })(BillForward.InsertableEntity);
+    })(BillForward.MutableEntity);
     BillForward.Account = Account;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Profile = (function (_super) {
+        __extends(Profile, _super);
+        function Profile() {
+            _super.apply(this, arguments);
+        }
+        Profile._resourcePath = new BillForward.ResourcePath('profiles', 'profile');
+        return Profile;
+    })(BillForward.MutableEntity);
+    BillForward.Profile = Profile;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
     var Imports = (function () {
         function Imports() {
         }
+        Imports._ = require('lodash');
         Imports.httpinvoke = require('httpinvoke');
         Imports.Q = require('q');
         return Imports;

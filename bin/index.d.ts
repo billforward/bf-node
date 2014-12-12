@@ -19,6 +19,7 @@ declare module BillForward {
 declare module BillForward {
     class BillingEntity {
         private _client;
+        private _exemptFromSerialization;
         constructor(stateParams?: Object, client?: Client);
         getClient(): Client;
         setClient(client: Client): void;
@@ -28,6 +29,7 @@ declare module BillForward {
         static getDerivedClassStatic(): any;
         getDerivedClass(): any;
         serialize(): Object;
+        toString(): string;
         protected unserialize(json: Object): void;
         protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<any>): void;
         protected static makeEntityFromPayload(payload: any, client: Client): BillingEntity;
@@ -40,6 +42,10 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class MutableEntity extends BillingEntity {
+    }
+}
+declare module BillForward {
     class ResourcePath {
         protected path: any;
         protected entityName: any;
@@ -49,12 +55,18 @@ declare module BillForward {
     }
 }
 declare module BillForward {
-    class Account extends InsertableEntity {
+    class Account extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+    }
+}
+declare module BillForward {
+    class Profile extends MutableEntity {
         protected static _resourcePath: ResourcePath;
     }
 }
 declare module BillForward {
     class Imports {
+        static _: _.LoDashStatic;
         static httpinvoke: any;
         static Q: any;
     }

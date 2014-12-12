@@ -3,6 +3,7 @@ module BillForward {
   export class BillingEntity {
 
   	private _client:Client;
+    private _exemptFromSerialization:Array<string> = ['_client', '_exemptFromSerialization'];
 
     constructor(stateParams:Object = {}, client:Client = null) {
     	if (!client) {
@@ -61,7 +62,19 @@ module BillForward {
     }
 
     serialize():Object {
-        return {};
+        var serial = {};
+        var pruned = Imports._.omit(this, this._exemptFromSerialization);
+        var serialized = Imports._.mapValues(pruned, function(value) {
+                if ((<any>value).serialize) {
+                    return (<any>value).serialize();
+                }
+                return value;
+            });
+        return serialized;
+    }
+
+    toString() : string {
+        return JSON.stringify(this.serialize(), null, "\t");
     }
 
     protected unserialize(json:Object) {
