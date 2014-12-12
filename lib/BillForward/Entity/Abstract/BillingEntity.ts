@@ -66,6 +66,10 @@ module BillForward {
         this._registeredEntities[key] = entityClass;
     }
 
+    protected registerEntityArray(key:string, entityClass:typeof BillingEntity) {
+        this._registeredEntityArrays[key] = entityClass;
+    }
+
     getDerivedClass():any {
         return <any>this;
     }
@@ -95,24 +99,31 @@ module BillForward {
     }
 
     protected addToEntity(key:string, value:any) {
+        var unserializedValue:any;
         if (Imports._.has(this._registeredEntities, key)) {
             var entityClass = this._registeredEntities[key];
-            var constructedEntity = this.buildEntity(entityClass, value);
-            this[key] = constructedEntity;
-        }/* else if (Imports._.contains(this._registeredEntities, key)) {
-            var entityClass = this._registeredEntities[key];
-            var constructedEntity = this.buildEntity(entityClass, value);
-            this[key] = constructedEntity;
-        }*/ else {
-            this[key] = value;
+            unserializedValue = this.buildEntity(entityClass, value);
+        } else if (Imports._.contains(this._registeredEntityArrays, key)) {
+            var entityClass = this._registeredEntityArrays[key];
+            unserializedValue = this.buildEntityArray(entityClass, value);
+        } else {
+            // JSON or primitive
+            unserializedValue = value;
         }
+        this[key] = unserializedValue;
     }
 
-    protected buildEntity(entityClass:typeof BillingEntity, constructArgs:any):BillingEntity {
+    protected buildEntity(entityClass:typeof BillingEntity, constructArgs:Object):BillingEntity {
         var client = this.getClient();
         var newEntity:BillingEntity = new entityClass(constructArgs, client);
         return newEntity;
     }
+
+    protected buildEntityArray(entityClass:typeof BillingEntity, constructArgs:Array<Object>):Array<BillingEntity> {
+        var client = this.getClient();
+        var entities = Imports._.map(constructArgs, this.buildEntity);
+        return entities;
+    }    
 
     protected static getFirstEntityFromResponse(payload:any, client:Client, deferred: Q.Deferred<any>) {
         try {

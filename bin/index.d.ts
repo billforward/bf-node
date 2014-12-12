@@ -35,12 +35,14 @@ declare module BillForward {
         static getSingletonClient(): Client;
         static getDerivedClassStatic(): any;
         protected registerEntity(key: string, entityClass: typeof BillingEntity): void;
+        protected registerEntityArray(key: string, entityClass: typeof BillingEntity): void;
         getDerivedClass(): any;
         serialize(): Object;
         toString(): string;
         protected unserialize(json: Object): void;
         protected addToEntity(key: string, value: any): void;
-        protected buildEntity(entityClass: typeof BillingEntity, constructArgs: any): BillingEntity;
+        protected buildEntity(entityClass: typeof BillingEntity, constructArgs: Object): BillingEntity;
+        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: Object[]): BillingEntity[];
         protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<any>): void;
         protected static makeEntityFromPayload(payload: any, client: Client): BillingEntity;
     }
@@ -71,8 +73,14 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class Address extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+    }
+}
+declare module BillForward {
     class Profile extends MutableEntity {
         protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
     }
 }
 declare module BillForward {

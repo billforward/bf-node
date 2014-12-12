@@ -136,6 +136,9 @@ var BillForward;
         BillingEntity.prototype.registerEntity = function (key, entityClass) {
             this._registeredEntities[key] = entityClass;
         };
+        BillingEntity.prototype.registerEntityArray = function (key, entityClass) {
+            this._registeredEntityArrays[key] = entityClass;
+        };
         BillingEntity.prototype.getDerivedClass = function () {
             return this;
         };
@@ -162,19 +165,29 @@ var BillForward;
             }
         };
         BillingEntity.prototype.addToEntity = function (key, value) {
+            var unserializedValue;
             if (BillForward.Imports._.has(this._registeredEntities, key)) {
                 var entityClass = this._registeredEntities[key];
-                var constructedEntity = this.buildEntity(entityClass, value);
-                this[key] = constructedEntity;
+                unserializedValue = this.buildEntity(entityClass, value);
+            }
+            else if (BillForward.Imports._.contains(this._registeredEntityArrays, key)) {
+                var entityClass = this._registeredEntityArrays[key];
+                unserializedValue = this.buildEntityArray(entityClass, value);
             }
             else {
-                this[key] = value;
+                unserializedValue = value;
             }
+            this[key] = unserializedValue;
         };
         BillingEntity.prototype.buildEntity = function (entityClass, constructArgs) {
             var client = this.getClient();
             var newEntity = new entityClass(constructArgs, client);
             return newEntity;
+        };
+        BillingEntity.prototype.buildEntityArray = function (entityClass, constructArgs) {
+            var client = this.getClient();
+            var entities = BillForward.Imports._.map(constructArgs, this.buildEntity);
+            return entities;
         };
         BillingEntity.getFirstEntityFromResponse = function (payload, client, deferred) {
             try {
@@ -290,10 +303,26 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var Address = (function (_super) {
+        __extends(Address, _super);
+        function Address() {
+            _super.apply(this, arguments);
+        }
+        Address._resourcePath = new BillForward.ResourcePath('addresses', 'address');
+        return Address;
+    })(BillForward.MutableEntity);
+    BillForward.Address = Address;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var Profile = (function (_super) {
         __extends(Profile, _super);
-        function Profile() {
-            _super.apply(this, arguments);
+        function Profile(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntityArray('addresses', BillForward.Address);
+            this.unserialize(stateParams);
         }
         Profile._resourcePath = new BillForward.ResourcePath('profiles', 'profile');
         return Profile;
