@@ -95,11 +95,15 @@ module BillForward {
     }
 
     protected addToEntity(key:string, value:any) {
-        if (Imports._.contains(this._registeredEntities, key)) {
+        if (Imports._.has(this._registeredEntities, key)) {
             var entityClass = this._registeredEntities[key];
             var constructedEntity = this.buildEntity(entityClass, value);
             this[key] = constructedEntity;
-        } else {
+        }/* else if (Imports._.contains(this._registeredEntities, key)) {
+            var entityClass = this._registeredEntities[key];
+            var constructedEntity = this.buildEntity(entityClass, value);
+            this[key] = constructedEntity;
+        }*/ else {
             this[key] = value;
         }
     }

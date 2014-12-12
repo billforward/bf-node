@@ -162,7 +162,7 @@ var BillForward;
             }
         };
         BillingEntity.prototype.addToEntity = function (key, value) {
-            if (BillForward.Imports._.contains(this._registeredEntities, key)) {
+            if (BillForward.Imports._.has(this._registeredEntities, key)) {
                 var entityClass = this._registeredEntities[key];
                 var constructedEntity = this.buildEntity(entityClass, value);
                 this[key] = constructedEntity;
