@@ -113,13 +113,21 @@ module BillForward {
         this[key] = unserializedValue;
     }
 
-    protected buildEntity(entityClass:typeof BillingEntity, constructArgs:Object):BillingEntity {
+    protected buildEntity(entityClass:typeof BillingEntity, constructArgs:any):BillingEntity {
+        if (constructArgs instanceof entityClass) {
+            // the entity has already been constructed!
+            return constructArgs;
+        }
+        var constructArgsType = typeof constructArgs;
+        if (constructArgsType !== 'object') {
+            throw "Expected either a property map or an entity of type '"+entityClass+"'. Instead received: "+constructArgsType+"; "+constructArgs;
+        }
         var client = this.getClient();
         var newEntity:BillingEntity = new entityClass(constructArgs, client);
         return newEntity;
     }
 
-    protected buildEntityArray(entityClass:typeof BillingEntity, constructArgs:Array<Object>):Array<BillingEntity> {
+    protected buildEntityArray(entityClass:typeof BillingEntity, constructArgs:Array<any>):Array<BillingEntity> {
         var client = this.getClient();
         var entities = Imports._.map(constructArgs, this.buildEntity);
         return entities;

@@ -6,16 +6,21 @@ context(testBase.getContext(), function () {
 	describe('Account', function () {
 		describe('#new', function () {
 			context('blank entity', function() {
-				it('should serialize correctly', function () {
-					var account = new BillForward.Account({});
+				var testProp = 'sup';
+				var testVal = 'yo';
 
-					var testProp = 'sup';
-					var testVal = 'yo';
+				var model;
+				before(function() {
+					var account = new BillForward.Account();
+					
 					account[testProp] = testVal;
 
-					var serialized = account.serialize();
+					model = account;
+				});
+				it('should serialize correctly', function () {
+					var serialized = model.serialize();
 
-					account.should.have.property(testProp).that.equals(testVal);
+					model.should.have.property(testProp).that.equals(testVal);
 					serialized.should.have.property(testProp).that.equals(testVal);
 
 					serialized.should.not.have.property('_client').and
@@ -23,25 +28,31 @@ context(testBase.getContext(), function () {
 				});
 			});
 			context('nested entity', function() {
-				it('should serialize correctly', function () {
-					var profile = new BillForward.Profile({});
-					var account = new BillForward.Account({});
+				var testProp = 'sup';
+				var testVal = 'yo';
 
-					var testProp = 'sup';
-					var testVal = 'yo';
+				var testDeepProp = 'Walpurgisnacht';
+				var testDeepVal = 'grief seed';
+
+				var model;
+				before(function() {
+					var profile = new BillForward.Profile();
+					var account = new BillForward.Account({
+						'profile': profile
+					});
+					
 					account[testProp] = testVal;
-					account.profile = profile;
-
-					var testDeepProp = 'Walpurgisnacht';
-					var testDeepVal = 'grief seed';
 					profile[testDeepProp] = testDeepVal;
 
-					var serialized = account.serialize();
+					model = account;
+				});
+				it('should serialize correctly', function () {
+					var serialized = model.serialize();
 
-					account.should.have.property(testProp).that.equals(testVal);
+					model.should.have.property(testProp).that.equals(testVal);
 					serialized.should.have.property(testProp).that.equals(testVal);
 
-					account.should.have.property('profile').that
+					model.should.have.property('profile').that
 					.is.an.instanceof(BillForward.Profile).and
 					.with.property('serialize');
 
@@ -57,7 +68,7 @@ context(testBase.getContext(), function () {
 					.should.not.have.property('_registeredEntities').and
 					.should.not.have.property('_registeredEntityArrays');
 
-					var deepSerialized = account.profile.serialize();
+					var deepSerialized = model.profile.serialize();
 
 					deepSerialized.should.have.property(testDeepProp).that.equals(testDeepVal);
 

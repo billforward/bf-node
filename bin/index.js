@@ -180,6 +180,13 @@ var BillForward;
             this[key] = unserializedValue;
         };
         BillingEntity.prototype.buildEntity = function (entityClass, constructArgs) {
+            if (constructArgs instanceof entityClass) {
+                return constructArgs;
+            }
+            var constructArgsType = typeof constructArgs;
+            if (constructArgsType !== 'object') {
+                throw "Expected either a property map or an entity of type '" + entityClass + "'. Instead received: " + constructArgsType + "; " + constructArgs;
+            }
             var client = this.getClient();
             var newEntity = new entityClass(constructArgs, client);
             return newEntity;

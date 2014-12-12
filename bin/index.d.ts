@@ -41,8 +41,8 @@ declare module BillForward {
         toString(): string;
         protected unserialize(json: Object): void;
         protected addToEntity(key: string, value: any): void;
-        protected buildEntity(entityClass: typeof BillingEntity, constructArgs: Object): BillingEntity;
-        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: Object[]): BillingEntity[];
+        protected buildEntity(entityClass: typeof BillingEntity, constructArgs: any): BillingEntity;
+        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: any[]): BillingEntity[];
         protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<any>): void;
         protected static makeEntityFromPayload(payload: any, client: Client): BillingEntity;
     }

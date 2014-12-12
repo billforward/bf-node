@@ -7,8 +7,12 @@ context(testBase.getContext(), function () {
 	describe('Account', function () {
 		describe('::getByID', function () {
 			context('not exist', function () {
+				var promise;
+				before(function() {
+					promise = BillForward.Account.getByID("wup");
+				});
 				it('should complain', function () {
-					return BillForward.Account.getByID("wup")
+					return promise
 					.should.be.rejected;
 				});
 			});

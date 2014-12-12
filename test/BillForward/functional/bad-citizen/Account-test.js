@@ -7,12 +7,13 @@ context(testBase.getContext(), function () {
 	describe('Account', function () {
 		describe('::create', function () {
 			context('blank entity constructed', function() {
-				var model;
+				var promise;
 				before(function() {
-					model = new BillForward.Account();
+					account = new BillForward.Account();
+					promise = BillForward.Account.create(account);
 				});
 				it('should have expected property', function () {
-					return BillForward.Account.create(model)
+					return promise
 					.should.be.fulfilled.and
 					.eventually.have.property('id');
 				});
@@ -21,7 +22,7 @@ context(testBase.getContext(), function () {
 				var testDeepProp = 'email';
 				var testDeepValue = 'sup@yo.com';
 
-				var model;
+				var promise;
 				before(function() {
 					var profile = new BillForward.Profile();
 					profile[testDeepProp] = testDeepValue;
@@ -29,10 +30,10 @@ context(testBase.getContext(), function () {
 						'profile': profile
 					});
 
-					model = account;
+					promise = BillForward.Account.create(account);
 				});
 				it('should have expected deep property', function () {
-					return BillForward.Account.create(model)
+					return promise
 					.should.be.fulfilled.and
 					.should.eventually.have.property('profile')
 					.with.property(testDeepProp).that.equals(testDeepValue);
@@ -42,7 +43,7 @@ context(testBase.getContext(), function () {
 				var testDeepProp = 'country';
 				var testDeepValue = 'Gensokyo';
 
-				var model;
+				var promise;
 				before(function() {
 					var address = new BillForward.Address({
 					    'addressLine1': 'address line 1',
@@ -65,10 +66,10 @@ context(testBase.getContext(), function () {
 						profile: profile
 					});
 
-					model = account;
+					promise = BillForward.Account.create(account);
 				});
 				it('should have expected deep property', function () {
-					return BillForward.Account.create(model)
+					return promise
 					.should.be.fulfilled.and
 					.should.eventually.have.deep.property('profile.addresses')
 						.with.property('[0]')
