@@ -24,30 +24,45 @@ module BillForward {
 		this._client = client;
 	}
 
-    static getByID(id:string, options:Object = {}, client:Client = null) {
-    	if (!client) {
-    		client = BillingEntity.getSingletonClient();
-    	}
+    protected static resolveRoute(endpoint:string = "") {
+        var entityClass = this.getDerivedClassStatic();
+
+        var apiRoute = entityClass.getResourcePath().getPath();
+        var fullRoute = apiRoute+endpoint;
+
+        return fullRoute;
+    }
+
+    protected static makeGetPromise(endpoint:string, callback, client:Client = null) {
+        if (!client) {
+            client = BillingEntity.getSingletonClient();
+        }
+
+        var deferred:Q.Deferred<any> = Imports.Q.defer();
 
         var entityClass = this.getDerivedClassStatic();
 
-		var apiRoute = entityClass.getResourcePath().getPath();
-		var endpoint = "/"+id;
-		var fullRoute = apiRoute+endpoint;
+        var fullRoute = entityClass.resolveRoute(endpoint);
 
-		var deferred:Q.Deferred<any> = Imports.Q.defer();
-
-		client.request("GET", fullRoute)
-		.then(function(payload) {
-				entityClass.getFirstEntityFromResponse(payload, client, deferred);
-			})
+        client.request("GET", fullRoute)
+        .then((payload) => {
+                callback.call(this, payload, client, deferred);
+            })
         .catch(function(err) {
                 Client.handlePromiseError(err, deferred);
             });
 
-		return deferred.promise;
+        return deferred.promise;
+    }
 
-    	// return new this();
+    static getByID(id:string, options:Object = {}, client:Client = null) {
+        var entityClass = this.getDerivedClassStatic();
+        return entityClass.makeGetPromise("/"+id, entityClass.getFirstEntityFromResponse, client);
+    }
+
+    static getAll(id:string, options:Object = {}, client:Client = null) {
+        var entityClass = this.getDerivedClassStatic();
+        return entityClass.makeGetPromise("", entityClass.getAllEntitiesFromResponse, client);
     }
 
     static getResourcePath() {
@@ -133,7 +148,7 @@ module BillForward {
         return entities;
     }    
 
-    protected static getFirstEntityFromResponse(payload:any, client:Client, deferred: Q.Deferred<any>) {
+    protected static getFirstEntityFromResponse(payload:any, client:Client, deferred: Q.Deferred<BillingEntity>) {
         try {
             if (payload.results.length<1) {
                 deferred.reject("No results returned upon API request.");
@@ -144,7 +159,7 @@ module BillForward {
             return;
         }
 
-        var entity;
+        var entity:BillingEntity;
         try {
             var results = payload.results;
             var assumeFirst = results[0];
@@ -162,7 +177,41 @@ module BillForward {
         deferred.resolve(entity);
     }
 
-    protected static makeEntityFromPayload(payload:any, client:Client) {
+    protected static getAllEntitiesFromResponse(payload:any, client:Client, deferred: Q.Deferred<Array<BillingEntity>>) {
+        try {
+            if (payload.results.length === undefined) {
+                deferred.reject("Received malformed response from API.");
+                return;
+            }
+        } catch (e) {
+            deferred.reject("Received malformed response from API.");
+            return;
+        }
+
+        var entities:Array<BillingEntity>;
+        try {
+            var results = payload.results;
+            entities = Imports._.map(results, (value:Object):any => {
+                    var entity = this.makeEntityFromPayload(value, client);
+                    if (!entity) {
+                        deferred.reject("Failed to unserialize API response into entity.");
+                        return false;
+                    }
+                    return entity;
+                });
+        } catch (e) {
+            deferred.reject(e);
+            return;
+        }
+
+        if (!entities) {
+            deferred.reject("Failed to unserialize API response into entity.");
+            return;
+        }
+        deferred.resolve(entities);
+    }
+
+    protected static makeEntityFromPayload(payload:Object, client:Client):BillingEntity {
         return new this(payload, client);
     }
   } 

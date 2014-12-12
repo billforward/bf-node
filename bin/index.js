@@ -105,23 +105,40 @@ var BillForward;
         BillingEntity.prototype.setClient = function (client) {
             this._client = client;
         };
-        BillingEntity.getByID = function (id, options, client) {
-            if (options === void 0) { options = {}; }
+        BillingEntity.resolveRoute = function (endpoint) {
+            if (endpoint === void 0) { endpoint = ""; }
+            var entityClass = this.getDerivedClassStatic();
+            var apiRoute = entityClass.getResourcePath().getPath();
+            var fullRoute = apiRoute + endpoint;
+            return fullRoute;
+        };
+        BillingEntity.makeGetPromise = function (endpoint, callback, client) {
+            var _this = this;
             if (client === void 0) { client = null; }
             if (!client) {
                 client = BillingEntity.getSingletonClient();
             }
-            var entityClass = this.getDerivedClassStatic();
-            var apiRoute = entityClass.getResourcePath().getPath();
-            var endpoint = "/" + id;
-            var fullRoute = apiRoute + endpoint;
             var deferred = BillForward.Imports.Q.defer();
+            var entityClass = this.getDerivedClassStatic();
+            var fullRoute = entityClass.resolveRoute(endpoint);
             client.request("GET", fullRoute).then(function (payload) {
-                entityClass.getFirstEntityFromResponse(payload, client, deferred);
+                callback.call(_this, payload, client, deferred);
             }).catch(function (err) {
                 BillForward.Client.handlePromiseError(err, deferred);
             });
             return deferred.promise;
+        };
+        BillingEntity.getByID = function (id, options, client) {
+            if (options === void 0) { options = {}; }
+            if (client === void 0) { client = null; }
+            var entityClass = this.getDerivedClassStatic();
+            return entityClass.makeGetPromise("/" + id, entityClass.getFirstEntityFromResponse, client);
+        };
+        BillingEntity.getAll = function (id, options, client) {
+            if (options === void 0) { options = {}; }
+            if (client === void 0) { client = null; }
+            var entityClass = this.getDerivedClassStatic();
+            return entityClass.makeGetPromise("", entityClass.getAllEntitiesFromResponse, client);
         };
         BillingEntity.getResourcePath = function () {
             return this.getDerivedClassStatic()._resourcePath;
@@ -223,6 +240,40 @@ var BillForward;
                 return;
             }
             deferred.resolve(entity);
+        };
+        BillingEntity.getAllEntitiesFromResponse = function (payload, client, deferred) {
+            var _this = this;
+            try {
+                if (payload.results.length === undefined) {
+                    deferred.reject("Received malformed response from API.");
+                    return;
+                }
+            }
+            catch (e) {
+                deferred.reject("Received malformed response from API.");
+                return;
+            }
+            var entities;
+            try {
+                var results = payload.results;
+                entities = BillForward.Imports._.map(results, function (value) {
+                    var entity = _this.makeEntityFromPayload(value, client);
+                    if (!entity) {
+                        deferred.reject("Failed to unserialize API response into entity.");
+                        return false;
+                    }
+                    return entity;
+                });
+            }
+            catch (e) {
+                deferred.reject(e);
+                return;
+            }
+            if (!entities) {
+                deferred.reject("Failed to unserialize API response into entity.");
+                return;
+            }
+            deferred.resolve(entities);
         };
         BillingEntity.makeEntityFromPayload = function (payload, client) {
             return new this(payload, client);

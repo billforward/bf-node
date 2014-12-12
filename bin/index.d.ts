@@ -30,7 +30,10 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client);
         getClient(): Client;
         setClient(client: Client): void;
-        static getByID(id: string, options?: Object, client?: Client): Q.Promise<any>;
+        protected static resolveRoute(endpoint?: string): string;
+        protected static makeGetPromise(endpoint: string, callback: any, client?: Client): Q.Promise<any>;
+        static getByID(id: string, options?: Object, client?: Client): any;
+        static getAll(id: string, options?: Object, client?: Client): any;
         static getResourcePath(): any;
         static getSingletonClient(): Client;
         static getDerivedClassStatic(): any;
@@ -43,8 +46,9 @@ declare module BillForward {
         protected addToEntity(key: string, value: any): void;
         protected buildEntity(entityClass: typeof BillingEntity, constructArgs: any): BillingEntity;
         protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: any[]): BillingEntity[];
-        protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<any>): void;
-        protected static makeEntityFromPayload(payload: any, client: Client): BillingEntity;
+        protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity>): void;
+        protected static getAllEntitiesFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity[]>): void;
+        protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
     }
 }
 declare module BillForward {
