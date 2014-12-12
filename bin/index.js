@@ -305,8 +305,11 @@ var BillForward;
 (function (BillForward) {
     var Address = (function (_super) {
         __extends(Address, _super);
-        function Address() {
-            _super.apply(this, arguments);
+        function Address(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
         }
         Address._resourcePath = new BillForward.ResourcePath('addresses', 'address');
         return Address;

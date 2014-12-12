@@ -6,16 +6,16 @@ var client = testBase.client;
 var sinon = testBase.sinon;
 
 context(testBase.getContext(), function () {
+	afterEach(function () {
+	    BillForward.Imports.httpinvoke.restore();
+	});
 	describe('Account', function () {
 		describe('::create', function () {
 			context('blank entity constructed', function() {
 				var model;
 
 				before(function() {
-					model = new BillForward.Account({});
-				});
-				after(function () {
-				    BillForward.Imports.httpinvoke.restore();
+					model = new BillForward.Account();
 				});
 				it('should succeed', function () {
 					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
@@ -33,16 +33,13 @@ context(testBase.getContext(), function () {
 
 				var model;
 				before(function() {
-					var account = new BillForward.Account({});
-					var profile = new BillForward.Profile({});
-
-					account.profile = profile;
+					var profile = new BillForward.Profile();
 					profile[testDeepProp] = testDeepValue;
+					var account = new BillForward.Account({
+						'profile': profile
+					});
 
 					model = account;
-				});
-				after(function () {
-				    BillForward.Imports.httpinvoke.restore();
 				});
 				it('should succeed', function () {
 					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
@@ -52,15 +49,53 @@ context(testBase.getContext(), function () {
 					return BillForward.Account.create(model)
 					.should.be.fulfilled.and
 					.should.eventually.have.property('profile')
-					.with.deep.property(testDeepProp).that.equals(testDeepValue);
+						.with.deep.property(testDeepProp).that.equals(testDeepValue);
+				});
+			});
+			context('nested entity array constructed', function() {
+				var testDeepProp = 'country';
+				var testDeepValue = 'Gensokyo';
+
+				var model;
+				before(function() {
+					var address = new BillForward.Address({
+					    'addressLine1': 'address line 1',
+					    'addressLine2': 'address line 2',
+					    'addressLine3': 'address line 3',
+					    'city': 'London',
+					    'province': 'London',
+					    'postcode': 'SW1 1AS',
+					    'landline': '02000000000',
+					    'primaryAddress': true
+					});
+					address[testDeepProp] = testDeepValue;
+					var profile = new BillForward.Profile({
+						'email': 'u.n.owen@was.her',
+	  					'firstName': 'U.N.',
+	  					'lastName': 'Owen',
+						'addresses': [address]
+					});
+					var account = new BillForward.Account({
+						profile: profile
+					});
+
+					model = account;
+				});
+				it('should have expected deep property', function () {
+					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
+						options.finished(false, mocks.createAccountWithProfileAndAddress, 200, options.headers);
+					});
+
+					return BillForward.Account.create(model)
+					.should.be.fulfilled.and
+					.should.eventually.have.deep.property('profile.addresses')
+						.with.property('[0]')
+						.with.property(testDeepProp).that.equals(testDeepValue);
 				});
 			});
 		});
 		describe('::getByID', function () {
 			var model;
-			after(function () {
-			    BillForward.Imports.httpinvoke.restore();
-			});
 			it('should succeed', function () {
 				sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
 					options.finished(false, mocks.getAccountByID, 200, options.headers);
@@ -179,6 +214,85 @@ var mocks = {
 						"updated": "2014-12-12T13:00:04Z",
 						"id": "E390EF21-3FFD-48F6-9B99-78DF5D136145",
 						"accountID": "BFFC035E-E803-4C12-948C-C9074256A263",
+						"organizationID": "D26698C3-D3F2-4B67-A54E-E7CECF09CFB5",
+						"name": "Account Credit",
+						"description": "Credit Notes",
+						"gateway": "credit_note",
+						"priority": 100,
+						"userEditable": false,
+						"reusable": true,
+						"deleted": false
+					}
+				]
+			}
+		]
+	},
+	createAccountWithProfileAndAddress: {
+		"executionTime": 1280537,
+		"results": [
+			{
+				"@type": "account",
+				"created": "2014-12-12T17:45:36Z",
+				"changedBy": "0B35F31B-A949-4B6D-A277-3CDFEAD11EF1",
+				"updated": "2014-12-12T17:45:36Z",
+				"id": "13F8A467-DF2B-407C-85AB-0739F80DAC57",
+				"crmID": null,
+				"organizationID": "D26698C3-D3F2-4B67-A54E-E7CECF09CFB5",
+				"successfulSubscriptions": 0,
+				"deleted": false,
+				"roles": [],
+				"profile": {
+					"created": "2014-12-12T17:45:36Z",
+					"changedBy": "0B35F31B-A949-4B6D-A277-3CDFEAD11EF1",
+					"updated": "2014-12-12T17:45:36Z",
+					"id": "695DB7CA-7824-4F8E-AF2C-4038FAA18ABF",
+					"accountID": "13F8A467-DF2B-407C-85AB-0739F80DAC57",
+					"organizationID": "D26698C3-D3F2-4B67-A54E-E7CECF09CFB5",
+					"email": "u.n.owen@was.her",
+					"firstName": "U.N.",
+					"lastName": "Owen",
+					"addresses": [
+						{
+							"created": "2014-12-12T17:45:36Z",
+							"changedBy": "0B35F31B-A949-4B6D-A277-3CDFEAD11EF1",
+							"id": "31B8496B-F9B4-4411-B82F-0DBC7D1A67AD",
+							"profileID": "695DB7CA-7824-4F8E-AF2C-4038FAA18ABF",
+							"organizationID": "D26698C3-D3F2-4B67-A54E-E7CECF09CFB5",
+							"addressLine1": "address line 1",
+							"addressLine2": "address line 2",
+							"addressLine3": "address line 3",
+							"city": "London",
+							"province": "London",
+							"country": "Gensokyo",
+							"postcode": "SW1 1AS",
+							"landline": "02000000000",
+							"primaryAddress": true,
+							"deleted": false
+						}
+					]
+				},
+				"paymentMethods": [
+					{
+						"created": "2014-12-12T17:45:36Z",
+						"changedBy": "0B35F31B-A949-4B6D-A277-3CDFEAD11EF1",
+						"updated": "2014-12-12T17:45:36Z",
+						"id": "61CEE823-EADF-4A80-95F7-99D80EBE503C",
+						"accountID": "13F8A467-DF2B-407C-85AB-0739F80DAC57",
+						"organizationID": "D26698C3-D3F2-4B67-A54E-E7CECF09CFB5",
+						"name": "Offline Payment",
+						"description": "Payments taken offline",
+						"gateway": "offline",
+						"priority": 100,
+						"userEditable": false,
+						"reusable": true,
+						"deleted": false
+					},
+					{
+						"created": "2014-12-12T17:45:36Z",
+						"changedBy": "0B35F31B-A949-4B6D-A277-3CDFEAD11EF1",
+						"updated": "2014-12-12T17:45:36Z",
+						"id": "68AD92DD-A9DC-4381-BD7B-2FA012883E36",
+						"accountID": "13F8A467-DF2B-407C-85AB-0739F80DAC57",
 						"organizationID": "D26698C3-D3F2-4B67-A54E-E7CECF09CFB5",
 						"name": "Account Credit",
 						"description": "Credit Notes",

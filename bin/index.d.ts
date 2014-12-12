@@ -75,6 +75,7 @@ declare module BillForward {
 declare module BillForward {
     class Address extends MutableEntity {
         protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
     }
 }
 declare module BillForward {
