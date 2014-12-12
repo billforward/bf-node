@@ -2,8 +2,11 @@ module BillForward {
 
   export class BillingEntity {
 
-  	private _client:Client;
-    private _exemptFromSerialization:Array<string> = ['_client', '_exemptFromSerialization'];
+  	protected _client:Client;
+    protected _exemptFromSerialization:Array<string> = ['_client', '_exemptFromSerialization', '_registeredEntities', '_registeredEntityArrays'];
+
+    protected _registeredEntities: { [classKey:string]:typeof BillingEntity } = {};
+    protected _registeredEntityArrays: { [classKey:string]:typeof BillingEntity } = {};
 
     constructor(stateParams:Object = {}, client:Client = null) {
     	if (!client) {
@@ -11,7 +14,6 @@ module BillForward {
     	}
 
     	this.setClient(client);
-        this.unserialize(stateParams);
     }
 
     getClient():Client {
@@ -60,6 +62,10 @@ module BillForward {
         return <any>this;
     }
 
+    protected registerEntity(key:string, entityClass:typeof BillingEntity) {
+        this._registeredEntities[key] = entityClass;
+    }
+
     getDerivedClass():any {
         return <any>this;
     }
@@ -84,8 +90,24 @@ module BillForward {
     protected unserialize(json:Object) {
         for (var key in json) {
             var value = json[key];
+            this.addToEntity(key, value);
+        }
+    }
+
+    protected addToEntity(key:string, value:any) {
+        if (Imports._.contains(this._registeredEntities, key)) {
+            var entityClass = this._registeredEntities[key];
+            var constructedEntity = this.buildEntity(entityClass, value);
+            this[key] = constructedEntity;
+        } else {
             this[key] = value;
         }
+    }
+
+    protected buildEntity(entityClass:typeof BillingEntity, constructArgs:any):BillingEntity {
+        var client = this.getClient();
+        var newEntity:BillingEntity = new entityClass(constructArgs, client);
+        return newEntity;
     }
 
     protected static getFirstEntityFromResponse(payload:any, client:Client, deferred: Q.Deferred<any>) {

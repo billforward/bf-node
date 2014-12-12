@@ -41,14 +41,30 @@ context(testBase.getContext(), function () {
 					account.should.have.property(testProp).that.equals(testVal);
 					serialized.should.have.property(testProp).that.equals(testVal);
 
-					account.profile.should.have.property(testDeepProp).that.equals(testDeepVal);
+					account.should.have.property('profile').that
+					.is.an.instanceof(BillForward.Profile).and
+					.with.property('serialize');
+
 					serialized.profile.should.have.property(testDeepProp).that.equals(testDeepVal);
 
 					serialized.should.not.have.property('_client').and
-					.should.not.have.property('_exemptFromSerialization');
+					.should.not.have.property('_exemptFromSerialization').and
+					.should.not.have.property('_registeredEntities').and
+					.should.not.have.property('_registeredEntityArrays');
 
-					serialized.should.not.have.property('_exemptFromSerialization').and
-					.should.not.have.property('_client');
+					serialized.profile.should.not.have.property('_client').and
+					.should.not.have.property('_exemptFromSerialization').and
+					.should.not.have.property('_registeredEntities').and
+					.should.not.have.property('_registeredEntityArrays');
+
+					var deepSerialized = account.profile.serialize();
+
+					deepSerialized.should.have.property(testDeepProp).that.equals(testDeepVal);
+
+					deepSerialized.should.not.have.property('_client').and
+					.should.not.have.property('_exemptFromSerialization').and
+					.should.not.have.property('_registeredEntities').and
+					.should.not.have.property('_registeredEntityArrays');
 				});
 			});
 		});

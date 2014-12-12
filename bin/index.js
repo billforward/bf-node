@@ -91,12 +91,13 @@ var BillForward;
         function BillingEntity(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
-            this._exemptFromSerialization = ['_client', '_exemptFromSerialization'];
+            this._exemptFromSerialization = ['_client', '_exemptFromSerialization', '_registeredEntities', '_registeredEntityArrays'];
+            this._registeredEntities = {};
+            this._registeredEntityArrays = {};
             if (!client) {
                 client = BillingEntity.getSingletonClient();
             }
             this.setClient(client);
-            this.unserialize(stateParams);
         }
         BillingEntity.prototype.getClient = function () {
             return this._client;
@@ -132,6 +133,9 @@ var BillForward;
         BillingEntity.getDerivedClassStatic = function () {
             return this;
         };
+        BillingEntity.prototype.registerEntity = function (key, entityClass) {
+            this._registeredEntities[key] = entityClass;
+        };
         BillingEntity.prototype.getDerivedClass = function () {
             return this;
         };
@@ -154,8 +158,23 @@ var BillForward;
         BillingEntity.prototype.unserialize = function (json) {
             for (var key in json) {
                 var value = json[key];
+                this.addToEntity(key, value);
+            }
+        };
+        BillingEntity.prototype.addToEntity = function (key, value) {
+            if (BillForward.Imports._.contains(this._registeredEntities, key)) {
+                var entityClass = this._registeredEntities[key];
+                var constructedEntity = this.buildEntity(entityClass, value);
+                this[key] = constructedEntity;
+            }
+            else {
                 this[key] = value;
             }
+        };
+        BillingEntity.prototype.buildEntity = function (entityClass, constructArgs) {
+            var client = this.getClient();
+            var newEntity = new entityClass(constructArgs, client);
+            return newEntity;
         };
         BillingEntity.getFirstEntityFromResponse = function (payload, client, deferred) {
             try {
@@ -257,8 +276,12 @@ var BillForward;
 (function (BillForward) {
     var Account = (function (_super) {
         __extends(Account, _super);
-        function Account() {
-            _super.apply(this, arguments);
+        function Account(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntity('profile', BillForward.Profile);
+            this.unserialize(stateParams);
         }
         Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
         return Account;
