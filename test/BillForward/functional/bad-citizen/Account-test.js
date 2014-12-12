@@ -11,9 +11,10 @@ context(testBase.getContext(), function () {
 				before(function() {
 					model = new BillForward.Account({});
 				});
-				it('should succeed', function () {
+				it('should have expected property', function () {
 					return BillForward.Account.create(model)
-					.should.be.fulfilled;
+					.should.be.fulfilled.and
+					.eventually.have.property('id');
 				});
 			});
 			context('nested entity constructed', function() {
@@ -30,7 +31,7 @@ context(testBase.getContext(), function () {
 
 					model = account;
 				});
-				it('should succeed', function () {
+				it('should have expected deep property', function () {
 					return BillForward.Account.create(model)
 					.should.be.fulfilled.and
 					.should.eventually.have.property('profile')
