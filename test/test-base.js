@@ -1,8 +1,4 @@
 var path = require("path");
-// var dir = path.join(__dirname, "config");
-//var rel = path.relative('./', dir);
-
-// loads './config/config.json' relative to test execution directory
 var config = require('./config/config');
 
 var BillForward = require('../bin');
@@ -20,6 +16,9 @@ exports.BillForward = BillForward;
 exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.logging);
 exports.assert = assert
 exports.sinon = sinon;
+// just grab Q from BillForward lol
+exports.Q = BillForward.Imports.Q;
+exports._ = BillForward.Imports._;
 
 var context = '';
 exports.getContext = function() {

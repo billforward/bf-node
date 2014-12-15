@@ -1,12 +1,13 @@
 var testBase = require('./_test-base');
 
 var BillForward = testBase.BillForward;
-var Q = BillForward.Imports.Q;
+var Q = testBase.Q;
+var _ = testBase._;
 
 context(testBase.getContext(), function () {
-	describe('Account', function () {
+	describe('Subscription', function () {
 		describe('::create', function () {
-			context('all required entities for chargeable Subscription created', function() {
+			context('given all dependent entities created', function() {
 				var models = {};
 				var promises = {};
 				before(function() {
@@ -37,7 +38,7 @@ context(testBase.getContext(), function () {
 					});
 					promises.account = BillForward.Account.create(models.account);
 
-					/*promises.creditNote = promises.account
+					promises.creditNote = promises.account
 					.then(function(account) {
 						models.creditNote = new BillForward.CreditNote({
 							'accountID': account.id, // predicated on account's first being created
@@ -45,7 +46,7 @@ context(testBase.getContext(), function () {
 							'currency': 'USD'
 						});
 						return BillForward.CreditNote.create(models.creditNote);
-					});*/
+					});
 
 					// create a unit of measure
 					models.unitOfMeasure1 = new BillForward.UnitOfMeasure({
@@ -170,9 +171,60 @@ context(testBase.getContext(), function () {
 						return BillForward.ProductRatePlan.create(models.ratePlan);
 					});
 				});
-				it('rate plan should be created', function () {
-					return promises.ratePlan
-					.should.be.fulfilled;
+				describe('the dependent entities', function () {
+					it('are created succesfully', function () {
+						return Q
+						.all(_.values(promises))
+						.should.be.fulfilled;
+					});
+				});
+				describe('the subscription', function () {
+					before(function() {
+						// make subscription..
+						// requires:
+						// - account [we have this already]
+						// - product rate plan [we have this already]
+						// - pricing component value instances (for every pricing component on the PRP)
+						// - payment method subscription links (for every payment method on the account)
+
+						promises.subscription = Q
+						.spread([
+							promises.account,
+							promises.ratePlan,
+							],
+							function(account, ratePlan) {
+								// create PaymentMethodSubscriptionLink to each payment method on account
+								models.paymentMethodLinks = _.map(account.paymentMethods, function(paymentMethod) {
+									return new BillForward.PaymentMethodSubscriptionLink({
+										'paymentMethodID': paymentMethod.id
+									});
+								});
+
+								models.pricingComponentValues = _.map(ratePlan.pricingComponents, function(pricingComponent) {
+									return new BillForward.PricingComponentValue({
+										'pricingComponentID': pricingComponent.id,
+										'value': 13 // set all to same value for this example
+									});
+								});
+
+								models.subscription = new BillForward.Subscription({
+									'type':                           'Subscription',
+									'productRatePlanID':              ratePlan.id,
+									'accountID':                      account.id,
+									'name':                           'Memorable Subscription',
+									'description':                    'Memorable Subscription Description',
+									'paymentMethodSubscriptionLinks': models.paymentMethodLinks,
+									'pricingComponentValues':         models.pricingComponentValues
+								});
+
+								return BillForward.Subscription.create(models.subscription);
+							})
+					});
+					it('is created succesfully', function () {
+						return Q
+						.all(_.values(promises))
+						.should.be.fulfilled;
+					});
 				});
 			});
 		});
