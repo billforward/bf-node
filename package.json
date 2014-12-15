@@ -6,7 +6,7 @@
     "bin": "./bin",
     "test": "./test"
   },
-  "main": "./lib/index.ts",
+  "main": "./bin/index.js",
   "author": "Alex Birch <alexander.birch@billforward.net>",
   "engines": [
     "node"
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/billforward/billforward-js.git"
+    "url": "git+ssh://git@github.com:billforward/bf-node.git"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
