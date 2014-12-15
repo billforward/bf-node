@@ -7,8 +7,10 @@ module BillForward {
 	 */
   	save() {
   		var entityClass = this.getDerivedClass();
+  		
   		var client = this.getClient();
   		var payload = this.serialize();
+
         return entityClass.makePutPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
   	}
 

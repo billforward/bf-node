@@ -55,7 +55,6 @@ declare module BillForward {
 }
 declare module BillForward {
     class InsertableEntity extends BillingEntity {
-        constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): any;
         protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
     }

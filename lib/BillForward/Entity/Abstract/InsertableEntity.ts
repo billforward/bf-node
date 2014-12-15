@@ -1,10 +1,6 @@
 module BillForward {
 
   export class InsertableEntity extends BillingEntity {
-    constructor(stateParams:Object = {}, client:Client = null) {
-      super(stateParams, client);
-    }
-
     /**
      * Asks API to persist an instance of the modelled entity.
      */

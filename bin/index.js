@@ -300,10 +300,8 @@ var BillForward;
 (function (BillForward) {
     var InsertableEntity = (function (_super) {
         __extends(InsertableEntity, _super);
-        function InsertableEntity(stateParams, client) {
-            if (stateParams === void 0) { stateParams = {}; }
-            if (client === void 0) { client = null; }
-            _super.call(this, stateParams, client);
+        function InsertableEntity() {
+            _super.apply(this, arguments);
         }
         InsertableEntity.create = function (entity) {
             var entityClass = this.getDerivedClassStatic();
