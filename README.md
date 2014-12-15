@@ -5,63 +5,42 @@ This client library provides (via Node) easy access to the BillForward API.
 
 Install
 -------------------------
-So far the library is still being architected.
+This is a private repostory, not yet published to NPM. You will need to authenticate to install this package..
 
-#####Now
-Grab `index.js` from `/bin`. Put it somewhere in your source tree.
+Add your SSH public key to your GitHub profile.
 
-#####Future
-In future we will publish the package so you can install like so:
+Install to your node application like so:
 
 ```
-npm install --no-dev BillForward --save
+npm install git+ssh://git@github.com:billforward/bf-node.git --save
 ```
-
 
 Include
 -------------------------
-So far the library is still being architected.
-
-#####Now
-
-Having installed `index.js` to your source tree, include like so:
-
-```js
-var BillForward = require('path/to/index.js');
-```
-
-#####Future
-In future, once the package is available, you would install and then include like this:
+Include like this:
 
 ```js
 var BillForward = require('BillForward');
 ```
 
-
-#####TypeScript
-
-If you're using TypeScript, you can benefit from our declarations:
-
-```js
-///<reference path='../path/to/index.d.ts' />
-///<reference path="../typings/node/node.d.ts" />
-
-import BillForward = require('BillForward');
-```
-
-You should provide a `node.d.ts` of your own version of Node. You can generate this using the node package `tsd`.
-
-
 Invoke
 -------------------------
-At the time of writing, there's not much to see. The expected syntax can be divulged though.
-
 Once BillForward is included, you can fetch an account like so:
 
 ```js
-BillForward.Account.getByID("EEEE0FD7-2075-11E3-A2A1-FA163E414B4F")
-.then(function(account) {
-	console.log(account); // the account
+var config = {
+  "urlRoot":     "https://api-sandbox.billforward.net:443/v1/",
+  "accessToken": "INSERT_ACCESS_TOKEN_HERE"
+};
+
+BillForward.Client.makeDefault(config.accessToken, config.urlRoot);
+
+BillForward.Account.getAll()        // get accounts
+.then(function(accounts) {
+  console.log(accounts[0].profile.toString());  // print profile of an account
+})
+.catch(function(err) {
+  console.log(err);
 });
 ```
 
@@ -118,6 +97,7 @@ Run one test file:
 mocha -u bdd $file
 ```
 
+#####Sublime build!
 I run test files using a custom Sublime build script:
 
 ```js
