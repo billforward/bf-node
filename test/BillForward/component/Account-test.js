@@ -7,57 +7,72 @@ var sinon = testBase.sinon;
 
 context(testBase.getContext(), function () {
 	afterEach(function () {
-	    BillForward.Imports.httpinvoke.restore();
+		if (BillForward.Imports.httpinvoke.restore) {
+			BillForward.Imports.httpinvoke.restore();
+		}
 	});
 	describe('Account', function () {
 		describe('::create', function () {
 			context('blank entity constructed', function() {
-				var model;
-
+				var promise;
 				before(function() {
-					model = new BillForward.Account();
-				});
-				it('should succeed', function () {
 					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
 						options.finished(false, mocks.createBlankAccount, 200, options.headers);
 					});
 
-					return BillForward.Account.create(model)
-					.should.be.fulfilled.and
-					.should.eventually.have.property('id').that.equals('D12B8CF8-2E1E-4F76-925F-1B539D37B2D9');;
+					var account = new BillForward.Account();
+
+					promise = BillForward.Account.create(account);
+				});
+				it('should succeed', function () {
+					return promise
+					.should.be.fulfilled;
+				});
+				it('should have expected property', function () {
+					return promise
+					.should.eventually.have.property('id')
+						.that.equals('D12B8CF8-2E1E-4F76-925F-1B539D37B2D9');;
 				});
 			});
 			context('nested entity constructed', function() {
 				var testDeepProp = 'email';
 				var testDeepValue = 'sup@yo.com';
 
-				var model;
-				before(function() {
+				var promise;
+				beforeEach(function() {
+					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
+						options.finished(false, mocks.createAccountWithProfile, 200, options.headers);
+					});
+
 					var profile = new BillForward.Profile();
 					profile[testDeepProp] = testDeepValue;
 					var account = new BillForward.Account({
 						'profile': profile
 					});
 
-					model = account;
+					promise = BillForward.Account.create(account);
 				});
 				it('should succeed', function () {
-					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-						options.finished(false, mocks.createAccountWithProfile, 200, options.headers);
-					});
-
-					return BillForward.Account.create(model)
-					.should.be.fulfilled.and
+					return promise
+					.should.be.fulfilled;
+				});
+				it('should have expected nested entity', function() {
+					return promise
 					.should.eventually.have.property('profile')
-						.with.deep.property(testDeepProp).that.equals(testDeepValue);
+						.with.deep.property(testDeepProp)
+							.that.equals(testDeepValue);
 				});
 			});
 			context('nested entity array constructed', function() {
 				var testDeepProp = 'country';
 				var testDeepValue = 'Gensokyo';
 
-				var model;
+				var promise;
 				before(function() {
+					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
+						options.finished(false, mocks.createAccountWithProfileAndAddress, 200, options.headers);
+					});
+
 					var address = new BillForward.Address({
 					    'addressLine1': 'address line 1',
 					    'addressLine2': 'address line 2',
@@ -79,31 +94,38 @@ context(testBase.getContext(), function () {
 						profile: profile
 					});
 
-					model = account;
+					promise = BillForward.Account.create(account);
+				});
+				it('should succeed', function () {
+					return promise
+					.should.be.fulfilled;
 				});
 				it('should have expected deep property', function () {
-					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-						options.finished(false, mocks.createAccountWithProfileAndAddress, 200, options.headers);
-					});
-
-					return BillForward.Account.create(model)
-					.should.be.fulfilled.and
+					return promise
 					.should.eventually.have.deep.property('profile.addresses')
 						.with.property('[0]')
-						.with.property(testDeepProp).that.equals(testDeepValue);
+						.with.property(testDeepProp)
+							.that.equals(testDeepValue);
 				});
 			});
 		});
 		describe('::getByID', function () {
-			var model;
-			it('should succeed', function () {
+			var promise;
+			before(function() {
 				sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
 					options.finished(false, mocks.getAccountByID, 200, options.headers);
 				});
 
-				return BillForward.Account.getByID("riggidy riggidy wrecked")
-				.should.be.fulfilled.and
-				.should.eventually.have.property('id').that.equals('C2CA1ED0-203B-4A8A-97B8-99EE7FA869CF');;
+				promise = BillForward.Account.getByID("riggidy riggidy wrecked")
+			});
+			it('should succeed', function () {
+				return promise
+				.should.be.fulfilled;
+			});
+			it('should succeed', function () {
+				return promise
+				.should.eventually.have.property('id')
+					.that.equals('C2CA1ED0-203B-4A8A-97B8-99EE7FA869CF');;
 			});
 		});
 	});

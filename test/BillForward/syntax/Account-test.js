@@ -17,17 +17,22 @@ context(testBase.getContext(), function () {
 
 					model = account;
 				});
-				it('should serialize correctly', function () {
-					var serialized = model.serialize();
+				describe('the entity', function() {
+					it('should have expected properties', function () {
+						var serialized = model.serialize();
 
-					model.should.have.property(testProp).that.equals(testVal);
-					serialized.should.have.property(testProp).that.equals(testVal);
+						model.should.have.property(testProp).that.equals(testVal);
+						serialized.should.have.property(testProp).that.equals(testVal);
+					});
+					it('should not have unexpected properties', function () {
+						var serialized = model.serialize();
 
-					serialized.should.not.have.property('_client').and
-					.should.not.have.property('_exemptFromSerialization');
+						serialized.should.not.have.property('_client').and
+						.should.not.have.property('_exemptFromSerialization');
+					});
 				});
 			});
-			context('nested entity', function() {
+			context('with nested entity', function() {
 				var testProp = 'sup';
 				var testVal = 'yo';
 
@@ -35,6 +40,7 @@ context(testBase.getContext(), function () {
 				var testDeepVal = 'grief seed';
 
 				var model;
+				var serialized;
 				before(function() {
 					var profile = new BillForward.Profile();
 					var account = new BillForward.Account({
@@ -45,37 +51,51 @@ context(testBase.getContext(), function () {
 					profile[testDeepProp] = testDeepVal;
 
 					model = account;
+					serialized = model.serialize();
 				});
-				it('should serialize correctly', function () {
-					var serialized = model.serialize();
+				describe('the parent entity', function() {
+					it('should have expected properties', function () {
+						model.should.have.property(testProp).that.equals(testVal);
+						serialized.should.have.property(testProp).that.equals(testVal);
 
-					model.should.have.property(testProp).that.equals(testVal);
-					serialized.should.have.property(testProp).that.equals(testVal);
+						model.should.have.property('profile').that
+						.is.an.instanceof(BillForward.Profile).and
+						.with.property('serialize');
+					});
+					it('should not have unexpected properties', function () {
+						serialized.should.not.have.property('_client').and
+						.should.not.have.property('_exemptFromSerialization').and
+						.should.not.have.property('_registeredEntities').and
+						.should.not.have.property('_registeredEntityArrays');
+					});
+				});
+				describe('the nested entity', function() {
+					it('should have expected properties', function () {
+						serialized.profile.should.have.property(testDeepProp).that.equals(testDeepVal);
+					});
+					it('should not have unexpected properties', function () {
+						serialized.profile.should.not.have.property('_client').and
+						.should.not.have.property('_exemptFromSerialization').and
+						.should.not.have.property('_registeredEntities').and
+						.should.not.have.property('_registeredEntityArrays');
+					});
+				});
+				describe('the deeply nested entity', function() {
+					var deepSerialized;
+					before(function() {
+						deepSerialized = model.profile.serialize();
+					});
+					it('should have expected properties', function () {
+						serialized.profile.should.have.property(testDeepProp).that.equals(testDeepVal);
+					});
+					it('should not have unexpected properties', function () {
+						deepSerialized.should.have.property(testDeepProp).that.equals(testDeepVal);
 
-					model.should.have.property('profile').that
-					.is.an.instanceof(BillForward.Profile).and
-					.with.property('serialize');
-
-					serialized.profile.should.have.property(testDeepProp).that.equals(testDeepVal);
-
-					serialized.should.not.have.property('_client').and
-					.should.not.have.property('_exemptFromSerialization').and
-					.should.not.have.property('_registeredEntities').and
-					.should.not.have.property('_registeredEntityArrays');
-
-					serialized.profile.should.not.have.property('_client').and
-					.should.not.have.property('_exemptFromSerialization').and
-					.should.not.have.property('_registeredEntities').and
-					.should.not.have.property('_registeredEntityArrays');
-
-					var deepSerialized = model.profile.serialize();
-
-					deepSerialized.should.have.property(testDeepProp).that.equals(testDeepVal);
-
-					deepSerialized.should.not.have.property('_client').and
-					.should.not.have.property('_exemptFromSerialization').and
-					.should.not.have.property('_registeredEntities').and
-					.should.not.have.property('_registeredEntityArrays');
+						deepSerialized.should.not.have.property('_client').and
+						.should.not.have.property('_exemptFromSerialization').and
+						.should.not.have.property('_registeredEntities').and
+						.should.not.have.property('_registeredEntityArrays');
+					});
 				});
 			});
 		});
