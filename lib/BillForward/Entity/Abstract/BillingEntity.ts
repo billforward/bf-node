@@ -142,7 +142,7 @@ module BillForward {
             throw "Expected either a property map or an entity of type '"+entityClass+"'. Instead received: "+constructArgsType+"; "+constructArgs;
         }
         var client = this.getClient();
-        var newEntity:BillingEntity = new entityClass(constructArgs, client);
+        var newEntity:BillingEntity = entityClass.makeEntityFromPayload(constructArgs, client);
         return newEntity;
     }
 
@@ -168,7 +168,8 @@ module BillForward {
             var results = payload.results;
             var assumeFirst = results[0];
             var stateParams = assumeFirst;
-            entity = this.makeEntityFromPayload(stateParams, client);
+            var entityClass = this.getDerivedClassStatic();
+            entity = entityClass.makeEntityFromPayload(stateParams, client);
         } catch (e) {
             deferred.reject(e);
             return;
@@ -196,13 +197,14 @@ module BillForward {
         try {
             var results = payload.results;
             entities = Imports._.map(results, (value:Object):any => {
-                    var entity = this.makeEntityFromPayload(value, client);
-                    if (!entity) {
-                        deferred.reject("Failed to unserialize API response into entity.");
-                        return false;
-                    }
-                    return entity;
-                });
+                var entityClass = this.getDerivedClassStatic();
+                var entity = entityClass.makeEntityFromPayload(value, client);
+                if (!entity) {
+                    deferred.reject("Failed to unserialize API response into entity.");
+                    return false;
+                }
+                return entity;
+            });
         } catch (e) {
             deferred.reject(e);
             return;

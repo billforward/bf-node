@@ -96,7 +96,7 @@ module BillForward {
       if (this.logging) {
         console.error(err);
       }
-      deferred.reject(err);
+      Client.handlePromiseError(err, deferred);
     }
 
     static handlePromiseError(err, deferred) {

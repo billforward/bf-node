@@ -76,7 +76,7 @@ var BillForward;
             if (this.logging) {
                 console.error(err);
             }
-            deferred.reject(err);
+            Client.handlePromiseError(err, deferred);
         };
         Client.handlePromiseError = function (err, deferred) {
             deferred.reject(err);
@@ -206,7 +206,7 @@ var BillForward;
                 throw "Expected either a property map or an entity of type '" + entityClass + "'. Instead received: " + constructArgsType + "; " + constructArgs;
             }
             var client = this.getClient();
-            var newEntity = new entityClass(constructArgs, client);
+            var newEntity = entityClass.makeEntityFromPayload(constructArgs, client);
             return newEntity;
         };
         BillingEntity.prototype.buildEntityArray = function (entityClass, constructArgs) {
@@ -230,7 +230,8 @@ var BillForward;
                 var results = payload.results;
                 var assumeFirst = results[0];
                 var stateParams = assumeFirst;
-                entity = this.makeEntityFromPayload(stateParams, client);
+                var entityClass = this.getDerivedClassStatic();
+                entity = entityClass.makeEntityFromPayload(stateParams, client);
             }
             catch (e) {
                 deferred.reject(e);
@@ -258,7 +259,8 @@ var BillForward;
             try {
                 var results = payload.results;
                 entities = BillForward.Imports._.map(results, function (value) {
-                    var entity = _this.makeEntityFromPayload(value, client);
+                    var entityClass = _this.getDerivedClassStatic();
+                    var entity = entityClass.makeEntityFromPayload(value, client);
                     if (!entity) {
                         deferred.reject("Failed to unserialize API response into entity.");
                         return false;
