@@ -89,16 +89,20 @@ module BillForward {
         return <any>this;
     }
 
+    static serializeProperty(value:any):any {
+        // if (!value) return false;
+        if (value instanceof Array) {
+            return Imports._.map(value, BillingEntity.serializeProperty);
+        }
+        if (value instanceof BillingEntity) {
+            return value.serialize();
+        }
+        return value;
+    }
+
     serialize():Object {
-        var serial = {};
         var pruned = Imports._.omit(this, this._exemptFromSerialization);
-        var serialized = Imports._.mapValues(pruned, function(value) {
-                if (!value) return false;
-                if ((<any>value).serialize) {
-                    return (<any>value).serialize();
-                }
-                return value;
-            });
+        var serialized = Imports._.mapValues(pruned, BillingEntity.serializeProperty);
         return serialized;
     }
 

@@ -40,6 +40,7 @@ declare module BillForward {
         protected registerEntity(key: string, entityClass: typeof BillingEntity): void;
         protected registerEntityArray(key: string, entityClass: typeof BillingEntity): void;
         getDerivedClass(): any;
+        static serializeProperty(value: any): any;
         serialize(): Object;
         toString(): string;
         protected unserialize(json: Object): void;

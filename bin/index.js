@@ -159,17 +159,18 @@ var BillForward;
         BillingEntity.prototype.getDerivedClass = function () {
             return this;
         };
+        BillingEntity.serializeProperty = function (value) {
+            if (value instanceof Array) {
+                return BillForward.Imports._.map(value, BillingEntity.serializeProperty);
+            }
+            if (value instanceof BillingEntity) {
+                return value.serialize();
+            }
+            return value;
+        };
         BillingEntity.prototype.serialize = function () {
-            var serial = {};
             var pruned = BillForward.Imports._.omit(this, this._exemptFromSerialization);
-            var serialized = BillForward.Imports._.mapValues(pruned, function (value) {
-                if (!value)
-                    return false;
-                if (value.serialize) {
-                    return value.serialize();
-                }
-                return value;
-            });
+            var serialized = BillForward.Imports._.mapValues(pruned, BillingEntity.serializeProperty);
             return serialized;
         };
         BillingEntity.prototype.toString = function () {
