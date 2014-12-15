@@ -5,26 +5,21 @@ module BillForward {
       super(stateParams, client);
     }
 
+    /**
+     * Asks API to persist an instance of the modelled entity.
+     */
     static create(entity:InsertableEntity) {
-    	var client:Client = entity.getClient();
-
     	var entityClass = this.getDerivedClassStatic();
 
-    	var apiRoute = entityClass.getResourcePath().getPath();
-		var endpoint = "/";
-		var fullRoute = apiRoute+endpoint;
+      var client:Client = entity.getClient();
+      var payload = entity.serialize();
 
-		var deferred: Q.Deferred<any> = Imports.Q.defer();
+      return entityClass.makePostPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+    }
 
-		client.request("POST", fullRoute, {}, entity.serialize())
-		.then(function(payload) {
-        entityClass.getFirstEntityFromResponse(payload, client, deferred);
-			})
-    .catch(function(err) {
-          Client.handlePromiseError(err, deferred);
-      });
-
-		return deferred.promise;
+    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, callback, client:Client = null) {
+        var entityClass = this.getDerivedClassStatic();
+        return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, callback, client);
     }
   } 
 }

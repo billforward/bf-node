@@ -33,7 +33,7 @@ module BillForward {
         return fullRoute;
     }
 
-    protected static makeGetPromise(endpoint:string, callback, client:Client = null) {
+    protected static makeHttpPromise(verb:string, endpoint:string, queryParams:Object, payload:Object, callback, client:Client = null) {
         if (!client) {
             client = BillingEntity.getSingletonClient();
         }
@@ -44,7 +44,7 @@ module BillForward {
 
         var fullRoute = entityClass.resolveRoute(endpoint);
 
-        client.request("GET", fullRoute)
+        client.request(verb, fullRoute, queryParams, payload)
         .then((payload) => {
                 callback.call(this, payload, client, deferred);
             })
@@ -55,14 +55,19 @@ module BillForward {
         return deferred.promise;
     }
 
-    static getByID(id:string, options:Object = {}, client:Client = null) {
+    protected static makeGetPromise(endpoint:string, queryParams:Object, callback, client:Client = null) {
         var entityClass = this.getDerivedClassStatic();
-        return entityClass.makeGetPromise("/"+id, entityClass.getFirstEntityFromResponse, client);
+        return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, callback, client);
     }
 
-    static getAll(id:string, options:Object = {}, client:Client = null) {
+    static getByID(id:string, queryParams:Object = {}, client:Client = null) {
         var entityClass = this.getDerivedClassStatic();
-        return entityClass.makeGetPromise("", entityClass.getAllEntitiesFromResponse, client);
+        return entityClass.makeGetPromise("/"+id, queryParams, entityClass.getFirstEntityFromResponse, client);
+    }
+
+    static getAll(id:string, queryParams:Object = {}, client:Client = null) {
+        var entityClass = this.getDerivedClassStatic();
+        return entityClass.makeGetPromise("", queryParams, entityClass.getAllEntitiesFromResponse, client);
     }
 
     static getResourcePath() {
