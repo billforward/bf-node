@@ -378,6 +378,21 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var CreditNote = (function (_super) {
+        __extends(CreditNote, _super);
+        function CreditNote(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        CreditNote._resourcePath = new BillForward.ResourcePath('credit-notes', 'creditNote');
+        return CreditNote;
+    })(BillForward.MutableEntity);
+    BillForward.CreditNote = CreditNote;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var PaymentMethod = (function (_super) {
         __extends(PaymentMethod, _super);
         function PaymentMethod(stateParams, client) {
@@ -420,6 +435,21 @@ var BillForward;
         return Role;
     })(BillForward.InsertableEntity);
     BillForward.Role = Role;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Amendment = (function (_super) {
+        __extends(Amendment, _super);
+        function Amendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        Amendment._resourcePath = new BillForward.ResourcePath('amendments', 'amendment');
+        return Amendment;
+    })(BillForward.InsertableEntity);
+    BillForward.Amendment = Amendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -494,6 +524,22 @@ var BillForward;
         return APIConfiguration;
     })(BillForward.MutableEntity);
     BillForward.APIConfiguration = APIConfiguration;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Organisation = (function (_super) {
+        __extends(Organisation, _super);
+        function Organisation(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntityArray('apiConfigurations', BillForward.APIConfiguration);
+            this.unserialize(stateParams);
+        }
+        Organisation._resourcePath = new BillForward.ResourcePath('organizations', 'organization');
+        return Organisation;
+    })(BillForward.MutableEntity);
+    BillForward.Organisation = Organisation;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -682,6 +728,66 @@ var BillForward;
         return Subscription;
     })(BillForward.MutableEntity);
     BillForward.Subscription = Subscription;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var AuthorizeNetToken = (function (_super) {
+        __extends(AuthorizeNetToken, _super);
+        function AuthorizeNetToken(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        AuthorizeNetToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/authorize-net', 'authorizeNetToken');
+        return AuthorizeNetToken;
+    })(BillForward.MutableEntity);
+    BillForward.AuthorizeNetToken = AuthorizeNetToken;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var BraintreeToken = (function (_super) {
+        __extends(BraintreeToken, _super);
+        function BraintreeToken(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        BraintreeToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/braintree', 'braintree_token');
+        return BraintreeToken;
+    })(BillForward.MutableEntity);
+    BillForward.BraintreeToken = BraintreeToken;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var StripeACHToken = (function (_super) {
+        __extends(StripeACHToken, _super);
+        function StripeACHToken(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        StripeACHToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/stripe-ACH', 'stripe_ach_token');
+        return StripeACHToken;
+    })(BillForward.MutableEntity);
+    BillForward.StripeACHToken = StripeACHToken;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var StripeToken = (function (_super) {
+        __extends(StripeToken, _super);
+        function StripeToken(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        StripeToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/stripe', 'stripe_token');
+        return StripeToken;
+    })(BillForward.MutableEntity);
+    BillForward.StripeToken = StripeToken;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {

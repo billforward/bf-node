@@ -83,6 +83,12 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class CreditNote extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
     class PaymentMethod extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
@@ -96,6 +102,12 @@ declare module BillForward {
 }
 declare module BillForward {
     class Role extends InsertableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class Amendment extends InsertableEntity {
+        protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
     }
 }
@@ -122,6 +134,12 @@ declare module BillForward {
 }
 declare module BillForward {
     class APIConfiguration extends MutableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class Organisation extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
     }
 }
@@ -193,6 +211,30 @@ declare module BillForward {
 }
 declare module BillForward {
     class Subscription extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class AuthorizeNetToken extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class BraintreeToken extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class StripeACHToken extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class StripeToken extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
     }
