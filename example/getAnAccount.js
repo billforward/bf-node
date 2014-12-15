@@ -1,4 +1,4 @@
-var BillForward = require('../../bin');
+var BillForward = require('../bin');
 
 var config = {
 	"urlRoot":     "https://api-sandbox.billforward.net:443/v1/",

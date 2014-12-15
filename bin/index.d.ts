@@ -113,6 +113,18 @@ declare module BillForward {
     class Amendment extends InsertableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        applyType(type: string): void;
+        discard(): any;
+    }
+}
+declare module BillForward {
+    class AmendmentDiscardAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class CancellationAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
     }
 }
 declare module BillForward {

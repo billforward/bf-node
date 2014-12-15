@@ -460,10 +460,50 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
+        Amendment.prototype.applyType = function (type) {
+            this['@type'] = type;
+        };
+        Amendment.prototype.discard = function () {
+            var amendment = new BillForward.AmendmentDiscardAmendment({
+                'amendmentToDiscardID': this.id,
+                'subscriptionID': this.subscriptionID
+            });
+            return BillForward.AmendmentDiscardAmendment.create(amendment);
+        };
         Amendment._resourcePath = new BillForward.ResourcePath('amendments', 'amendment');
         return Amendment;
     })(BillForward.InsertableEntity);
     BillForward.Amendment = Amendment;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var AmendmentDiscardAmendment = (function (_super) {
+        __extends(AmendmentDiscardAmendment, _super);
+        function AmendmentDiscardAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.applyType('AmendmentDiscardAmendment');
+            this.unserialize(stateParams);
+        }
+        return AmendmentDiscardAmendment;
+    })(BillForward.Amendment);
+    BillForward.AmendmentDiscardAmendment = AmendmentDiscardAmendment;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var CancellationAmendment = (function (_super) {
+        __extends(CancellationAmendment, _super);
+        function CancellationAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.applyType('CancellationAmendment');
+            this.unserialize(stateParams);
+        }
+        return CancellationAmendment;
+    })(BillForward.Amendment);
+    BillForward.CancellationAmendment = CancellationAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {

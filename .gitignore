@@ -21,3 +21,5 @@ node_modules
 lib/.baseDir.ts
 
 test/config/config.js
+
+example/scratch.js
