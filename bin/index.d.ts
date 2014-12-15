@@ -83,7 +83,116 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class PaymentMethod extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
     class Profile extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class Role extends InsertableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class Invoice extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class InvoiceLine extends MutableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class InvoicePayment extends MutableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class TaxLine extends InsertableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class APIConfiguration extends MutableEntity {
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class ComponentChange extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class PricingComponent extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class PricingComponentTier extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class PricingComponentValue extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class PricingComponentValueChange extends InsertableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class PricingComponentValueMigrationAmendmentMapping extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class UnitOfMeasure extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class Product extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class ProductRatePlan extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class TaxationLink extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class PaymentMethodSubscriptionLink extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
+    class Subscription extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
     }

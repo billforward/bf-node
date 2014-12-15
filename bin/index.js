@@ -351,6 +351,8 @@ var BillForward;
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
             _super.call(this, stateParams, client);
+            this.registerEntityArray('roles', BillForward.Role);
+            this.registerEntityArray('paymentMethods', BillForward.PaymentMethod);
             this.registerEntity('profile', BillForward.Profile);
             this.unserialize(stateParams);
         }
@@ -376,6 +378,21 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var PaymentMethod = (function (_super) {
+        __extends(PaymentMethod, _super);
+        function PaymentMethod(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        PaymentMethod._resourcePath = new BillForward.ResourcePath('payment-methods', 'paymentMethod');
+        return PaymentMethod;
+    })(BillForward.MutableEntity);
+    BillForward.PaymentMethod = PaymentMethod;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var Profile = (function (_super) {
         __extends(Profile, _super);
         function Profile(stateParams, client) {
@@ -389,6 +406,282 @@ var BillForward;
         return Profile;
     })(BillForward.MutableEntity);
     BillForward.Profile = Profile;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Role = (function (_super) {
+        __extends(Role, _super);
+        function Role(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        return Role;
+    })(BillForward.InsertableEntity);
+    BillForward.Role = Role;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Invoice = (function (_super) {
+        __extends(Invoice, _super);
+        function Invoice(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntityArray('invoiceLines', BillForward.InvoiceLine);
+            this.registerEntityArray('taxLines', BillForward.TaxLine);
+            this.registerEntityArray('invoicePayments', BillForward.InvoicePayment);
+            this.unserialize(stateParams);
+        }
+        Invoice._resourcePath = new BillForward.ResourcePath('invoices', 'invoice');
+        return Invoice;
+    })(BillForward.MutableEntity);
+    BillForward.Invoice = Invoice;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var InvoiceLine = (function (_super) {
+        __extends(InvoiceLine, _super);
+        function InvoiceLine(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        return InvoiceLine;
+    })(BillForward.MutableEntity);
+    BillForward.InvoiceLine = InvoiceLine;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var InvoicePayment = (function (_super) {
+        __extends(InvoicePayment, _super);
+        function InvoicePayment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        return InvoicePayment;
+    })(BillForward.MutableEntity);
+    BillForward.InvoicePayment = InvoicePayment;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var TaxLine = (function (_super) {
+        __extends(TaxLine, _super);
+        function TaxLine(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        return TaxLine;
+    })(BillForward.InsertableEntity);
+    BillForward.TaxLine = TaxLine;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var APIConfiguration = (function (_super) {
+        __extends(APIConfiguration, _super);
+        function APIConfiguration(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        return APIConfiguration;
+    })(BillForward.MutableEntity);
+    BillForward.APIConfiguration = APIConfiguration;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var ComponentChange = (function (_super) {
+        __extends(ComponentChange, _super);
+        function ComponentChange(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        ComponentChange._resourcePath = new BillForward.ResourcePath('', 'ComponentChange');
+        return ComponentChange;
+    })(BillForward.MutableEntity);
+    BillForward.ComponentChange = ComponentChange;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var PricingComponent = (function (_super) {
+        __extends(PricingComponent, _super);
+        function PricingComponent(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntityArray('tiers', BillForward.PricingComponentTier);
+            this.unserialize(stateParams);
+        }
+        PricingComponent._resourcePath = new BillForward.ResourcePath('pricing-components', 'PricingComponent');
+        return PricingComponent;
+    })(BillForward.MutableEntity);
+    BillForward.PricingComponent = PricingComponent;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var PricingComponentTier = (function (_super) {
+        __extends(PricingComponentTier, _super);
+        function PricingComponentTier(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        PricingComponentTier._resourcePath = new BillForward.ResourcePath('pricing-component-tiers', 'pricingComponentTier');
+        return PricingComponentTier;
+    })(BillForward.MutableEntity);
+    BillForward.PricingComponentTier = PricingComponentTier;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var PricingComponentValue = (function (_super) {
+        __extends(PricingComponentValue, _super);
+        function PricingComponentValue(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        PricingComponentValue._resourcePath = new BillForward.ResourcePath('pricing-component-values', 'PricingComponentValue');
+        return PricingComponentValue;
+    })(BillForward.MutableEntity);
+    BillForward.PricingComponentValue = PricingComponentValue;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var PricingComponentValueChange = (function (_super) {
+        __extends(PricingComponentValueChange, _super);
+        function PricingComponentValueChange(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        PricingComponentValueChange._resourcePath = new BillForward.ResourcePath('pricing-component-value-changes', 'PricingComponentValueChange');
+        return PricingComponentValueChange;
+    })(BillForward.InsertableEntity);
+    BillForward.PricingComponentValueChange = PricingComponentValueChange;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var PricingComponentValueMigrationAmendmentMapping = (function (_super) {
+        __extends(PricingComponentValueMigrationAmendmentMapping, _super);
+        function PricingComponentValueMigrationAmendmentMapping(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        PricingComponentValueMigrationAmendmentMapping._resourcePath = new BillForward.ResourcePath('', 'PricingComponentValueMigrationAmendmentMapping');
+        return PricingComponentValueMigrationAmendmentMapping;
+    })(BillForward.MutableEntity);
+    BillForward.PricingComponentValueMigrationAmendmentMapping = PricingComponentValueMigrationAmendmentMapping;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var UnitOfMeasure = (function (_super) {
+        __extends(UnitOfMeasure, _super);
+        function UnitOfMeasure(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        UnitOfMeasure._resourcePath = new BillForward.ResourcePath('units-of-measure', 'unitOfMeasure');
+        return UnitOfMeasure;
+    })(BillForward.MutableEntity);
+    BillForward.UnitOfMeasure = UnitOfMeasure;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Product = (function (_super) {
+        __extends(Product, _super);
+        function Product(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        Product._resourcePath = new BillForward.ResourcePath('products', 'product');
+        return Product;
+    })(BillForward.MutableEntity);
+    BillForward.Product = Product;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var ProductRatePlan = (function (_super) {
+        __extends(ProductRatePlan, _super);
+        function ProductRatePlan(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntityArray('taxation', BillForward.TaxationLink);
+            this.registerEntityArray('pricingComponents', BillForward.PricingComponent);
+            this.registerEntity('product', BillForward.Product);
+            this.unserialize(stateParams);
+        }
+        ProductRatePlan._resourcePath = new BillForward.ResourcePath('product-rate-plans', 'productRatePlan');
+        return ProductRatePlan;
+    })(BillForward.MutableEntity);
+    BillForward.ProductRatePlan = ProductRatePlan;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var TaxationLink = (function (_super) {
+        __extends(TaxationLink, _super);
+        function TaxationLink(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        TaxationLink._resourcePath = new BillForward.ResourcePath('taxation-links', 'TaxationLink');
+        return TaxationLink;
+    })(BillForward.MutableEntity);
+    BillForward.TaxationLink = TaxationLink;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var PaymentMethodSubscriptionLink = (function (_super) {
+        __extends(PaymentMethodSubscriptionLink, _super);
+        function PaymentMethodSubscriptionLink(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        PaymentMethodSubscriptionLink._resourcePath = new BillForward.ResourcePath('payment-method-subscription-links', 'PaymentMethodSubscriptionLink');
+        return PaymentMethodSubscriptionLink;
+    })(BillForward.MutableEntity);
+    BillForward.PaymentMethodSubscriptionLink = PaymentMethodSubscriptionLink;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var Subscription = (function (_super) {
+        __extends(Subscription, _super);
+        function Subscription(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.registerEntityArray('pricingComponentValueChanges', BillForward.PricingComponentValueChange);
+            this.registerEntityArray('pricingComponentValues', BillForward.PricingComponentValue);
+            this.registerEntityArray('paymentMethodSubscriptionLinks', BillForward.PaymentMethodSubscriptionLink);
+            this.registerEntity('productRatePlan', BillForward.ProductRatePlan);
+            this.unserialize(stateParams);
+        }
+        Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
+        return Subscription;
+    })(BillForward.MutableEntity);
+    BillForward.Subscription = Subscription;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
