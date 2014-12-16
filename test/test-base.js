@@ -31,15 +31,33 @@ var WebhookListener = (function(){
 	function WebhookListener() {
 		// this.queue = [];
 		this.subscribers = [];
+		this.readyDeferred = Q.defer();
+	};
+	WebhookListener.prototype.getReadyDeferred = function(callback) {
+		return this.readyDeferred;
 	};
 	WebhookListener.prototype.subscribe = function(callback) {
 		// console.log('subscribed');
 		this.subscribers.push(callback);
+		return this.readyDeferred.promise;
+	};
+	WebhookListener.prototype.unsubscribe = function(callback) {
+		// console.log('subscribed');
+		_.pull(this.subscribers, callback);
+	};
+	WebhookListener.prototype.parse = function(webhook) {
+		if (webhook.entity)
+		webhook.entity = JSON.parse(webhook.entity);
+		if (webhook.changes)
+		webhook.changes = JSON.parse(webhook.changes);
+		return webhook;
 	};
 	WebhookListener.prototype.enqueue = function(webhook) {
+		var parsed = this.parse(webhook);
+		
 		// console.log('enqueued');
 		// this.queue.push(webhook);
-		this.notifySubscribers(webhook);
+		this.notifySubscribers(parsed);
 	};
 	WebhookListener.prototype.notifySubscribers = function(item) {
 		// console.log(item);
@@ -54,7 +72,7 @@ var listener = new WebhookListener();
 var app = express();
 app.use(bodyParser.json()); // for parsing application/json
 app.post('/webhook', function (req, res) {
-	console.log("Invoked!");
+	// console.log("Invoked!");
 	// console.log(req.body);
 	listener.enqueue(req.body);
 	// res.json(req.body);
@@ -71,6 +89,7 @@ app.use(function(err, req, res, next){
 
 app.listen(config.webhookPort, function() {
 	console.log('listening for webhooks on port: '+config.webhookPort);
+	listener.getReadyDeferred().resolve();
 });
 
 var keepAlive = config.keepAlive;

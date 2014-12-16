@@ -57,12 +57,14 @@ declare module BillForward {
 }
 declare module BillForward {
     class InsertableEntity extends BillingEntity {
+        constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): any;
         protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
     }
 }
 declare module BillForward {
     class MutableEntity extends InsertableEntity {
+        constructor(stateParams?: Object, client?: Client);
         save(): any;
         protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
     }
@@ -231,6 +233,7 @@ declare module BillForward {
     class Subscription extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        activate(): any;
     }
 }
 declare module BillForward {

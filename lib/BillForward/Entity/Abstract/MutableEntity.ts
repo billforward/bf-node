@@ -1,22 +1,31 @@
 module BillForward {
 
   export class MutableEntity extends InsertableEntity {
+    constructor(stateParams:Object = {}, client:Client = null) {
+      super(stateParams, client);
+    }
+
   	/**
-	 * Asks API to update existing instance of this entity,
-	 * to match the current properties with which it is modelled.
-	 */
+  	 * Asks API to update existing instance of this entity,
+  	 * to match the current properties with which it is modelled.
+  	 */
   	save() {
-  		var entityClass = this.getDerivedClass();
+      // console.log('saving');
+      var entityClass = this.getDerivedClass();
+  		// var entityClass = (<any>this).constructor;
   		
   		var client = this.getClient();
   		var payload = this.serialize();
 
-        return entityClass.makePutPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+      // console.log(entityClass);
+      // console.log(entityClass.makePutPromise);
+
+      return entityClass.makePutPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
   	}
 
   	protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, callback, client:Client = null) {
-        var entityClass = this.getDerivedClassStatic();
-        return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, callback, client);
+      var entityClass = this.getDerivedClassStatic();
+      return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, callback, client);
     }
   } 
 }

@@ -80,7 +80,7 @@ module BillForward {
         console.log(JSON.stringify(json, null, "\t"));
       }
 
-      if(verb === 'POST') {
+      if(verb === 'POST' || verb === 'PUT') {
         options.input = json;
         options.inputType = 'json';
         options.headers['Content-Type'] = 'application/json';

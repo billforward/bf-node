@@ -12,5 +12,14 @@ module BillForward {
         this.registerEntity('productRatePlan', ProductRatePlan);
         this.unserialize(stateParams);
     }
+
+    /**
+     * Attempts to put subscription in 'state: "AwaitingPayment"'
+     * @return Q.Promise<Subscription> The updated Subscription
+     */
+    activate() {
+        (<any>this).state = 'AwaitingPayment';
+        return this.save();
+    }
   }
 }

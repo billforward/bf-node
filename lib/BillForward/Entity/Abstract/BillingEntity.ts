@@ -91,7 +91,7 @@ module BillForward {
     }
 
     getDerivedClass():any {
-        return <any>this;
+        return (<any>this).constructor;
     }
 
     static serializeProperty(value:any):any {
@@ -107,6 +107,9 @@ module BillForward {
 
     serialize():Object {
         var pruned = Imports._.omit(this, this._exemptFromSerialization);
+        var pruned = Imports._.omit(pruned, function(property) {
+                return property instanceof Function;
+            });
         var serialized = Imports._.mapValues(pruned, BillingEntity.serializeProperty);
         return serialized;
     }
@@ -223,7 +226,8 @@ module BillForward {
     }
 
     protected static makeEntityFromPayload(payload:Object, client:Client):BillingEntity {
-        return new this(payload, client);
+        var entityClass = this.getDerivedClassStatic();
+        return new entityClass(payload, client);
     }
   } 
 }

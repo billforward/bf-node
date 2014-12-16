@@ -63,7 +63,7 @@ var BillForward;
             if (this.requestLogging) {
                 console.log(JSON.stringify(json, null, "\t"));
             }
-            if (verb === 'POST') {
+            if (verb === 'POST' || verb === 'PUT') {
                 options.input = json;
                 options.inputType = 'json';
                 options.headers['Content-Type'] = 'application/json';
@@ -175,7 +175,7 @@ var BillForward;
             this._registeredEntityArrays[key] = entityClass;
         };
         BillingEntity.prototype.getDerivedClass = function () {
-            return this;
+            return this.constructor;
         };
         BillingEntity.serializeProperty = function (value) {
             if (value instanceof Array) {
@@ -188,6 +188,9 @@ var BillForward;
         };
         BillingEntity.prototype.serialize = function () {
             var pruned = BillForward.Imports._.omit(this, this._exemptFromSerialization);
+            var pruned = BillForward.Imports._.omit(pruned, function (property) {
+                return property instanceof Function;
+            });
             var serialized = BillForward.Imports._.mapValues(pruned, BillingEntity.serializeProperty);
             return serialized;
         };
@@ -297,7 +300,8 @@ var BillForward;
             deferred.resolve(entities);
         };
         BillingEntity.makeEntityFromPayload = function (payload, client) {
-            return new this(payload, client);
+            var entityClass = this.getDerivedClassStatic();
+            return new entityClass(payload, client);
         };
         return BillingEntity;
     })();
@@ -313,8 +317,10 @@ var BillForward;
 (function (BillForward) {
     var InsertableEntity = (function (_super) {
         __extends(InsertableEntity, _super);
-        function InsertableEntity() {
-            _super.apply(this, arguments);
+        function InsertableEntity(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
         }
         InsertableEntity.create = function (entity) {
             var entityClass = this.getDerivedClassStatic();
@@ -335,8 +341,10 @@ var BillForward;
 (function (BillForward) {
     var MutableEntity = (function (_super) {
         __extends(MutableEntity, _super);
-        function MutableEntity() {
-            _super.apply(this, arguments);
+        function MutableEntity(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
         }
         MutableEntity.prototype.save = function () {
             var entityClass = this.getDerivedClass();
@@ -791,6 +799,10 @@ var BillForward;
             this.registerEntity('productRatePlan', BillForward.ProductRatePlan);
             this.unserialize(stateParams);
         }
+        Subscription.prototype.activate = function () {
+            this.state = 'AwaitingPayment';
+            return this.save();
+        };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;
     })(BillForward.MutableEntity);
