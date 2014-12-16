@@ -3,7 +3,7 @@ var testBase = require('./_test-base');
 var BillForward = testBase.BillForward;
 
 context(testBase.getContext(), function () {
-	describe('Subscription', function () {
+	describe('Account', function () {
 		describe('::create', function () {
 			context('blank entity constructed', function() {
 				var promise;

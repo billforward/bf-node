@@ -1,5 +1,4 @@
 module.exports = function (grunt) {
-    // grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
@@ -40,7 +39,6 @@ module.exports = function (grunt) {
         }
     });
  
-    //grunt.registerTask('default', ['connect', 'open', 'watch']);
    grunt.registerTask("default", ["watch", "ts", 'connect', 'open']);
 
 }
