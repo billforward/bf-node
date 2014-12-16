@@ -228,34 +228,30 @@ context(testBase.getContext(), function () {
 					});
 					context('Listening for webhooks', function() {
 				  		this.timeout(keepAlive);
-				  		describe('The expected webhook', function() {
+						describe('The expected webhook', function() {
 							var callback;
 							var promise;
 							before(function() {
 								var deferred = Q.defer();
+								promise = deferred.promise;
+
+								callback = function(webhook, subscription) {
+									try {
+										if (webhook.domain === 'Invoice')
+										if (webhook.action === 'Unpaid')
+										if (webhook.entity.subscriptionID === subscription.id)
+										deferred.resolve(webhook);
+									} catch (e) {
+									}
+								};
 
 								promises.subscription
 								.then(function(subscription) {
-									callback = function(webhook) {
-										// var pretty = JSON.stringify(webhook, null, "\t");
-										// console.log(pretty);
-										try {
-											if (webhook.domain === 'Invoice')
-											if (webhook.action === 'Unpaid')
-											if (webhook.entity.subscriptionID === subscription.id)
-											deferred.resolve(webhook);
-										} catch (e) {
-										}
-									};
-
-									return webhookListener.subscribe(callback)
+									return webhookListener.subscribe(callback, subscription)
 									.then(function() {
 										return subscription.activate();
 									});
 								});
-								//promise = Q.delay(keepAlive);
-
-								promise = deferred.promise;
 							});
 							after(function() {
 								webhookListener.unsubscribe(callback);
@@ -264,7 +260,7 @@ context(testBase.getContext(), function () {
 								return promise.should.be.fulfilled;
 							});
 						});
-				  	});
+					});
 				});
 			});
 		});

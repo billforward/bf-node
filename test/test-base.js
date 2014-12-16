@@ -38,7 +38,12 @@ var WebhookListener = (function(){
 	};
 	WebhookListener.prototype.subscribe = function(callback) {
 		// console.log('subscribed');
-		this.subscribers.push(callback);
+		// console.log(this.subscribers);
+		var args = _.values(arguments).slice(1);
+		this.subscribers.push({
+			callback: callback,
+			args: args
+		});
 		return this.readyDeferred.promise;
 	};
 	WebhookListener.prototype.unsubscribe = function(callback) {
@@ -61,8 +66,8 @@ var WebhookListener = (function(){
 	};
 	WebhookListener.prototype.notifySubscribers = function(item) {
 		// console.log(item);
-		_.forEach(this.subscribers, function(callback) {
-			callback(item);
+		_.forEach(this.subscribers, function(subscriber) {
+			subscriber.callback.apply(subscriber.callback, [item].concat(subscriber.args));
 		});
 	};
 	return WebhookListener;
