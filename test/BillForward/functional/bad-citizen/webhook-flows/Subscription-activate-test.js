@@ -6,6 +6,7 @@ var Q = testBase.Q;
 var _ = testBase._;
 var keepAlive = testBase.keepAlive;
 var webhookListener = testBase.webhookListener;
+var WebHookFilter = testBase.WebHookFilter;
 
 context(testBase.getContext(), function () {
 	describe('Subscription', function () {
@@ -230,39 +231,28 @@ context(testBase.getContext(), function () {
 				  		this.timeout(keepAlive);
 						describe('The subscription', function() {
 							var callbacks;
-							var defers;
+							var webhookFilters;
 							before(function() {
-								defers = {
-									paymentAwaited: Q.defer(),
-									unpaidInvoiceRaised: Q.defer()
-								};
-
-								callbacks = {
-									paymentAwaited: function(webhook, subscription) {
-										try {
-											if (webhook.domain === 'Subscription')
-											if (webhook.action === 'AwaitingPayment')
-											if (webhook.entity.id === subscription.id)
-											defers.paymentAwaited.resolve(webhook);
-										} catch (e) {
-										}
-									},
-									unpaidInvoiceRaised: function(webhook, subscription) {
-										try {
-											if (webhook.domain === 'Invoice')
-											if (webhook.action === 'Unpaid')
-											if (webhook.entity.subscriptionID === subscription.id)
-											defers.unpaidInvoiceRaised.resolve(webhook);
-										} catch (e) {
-										}
-									}
+								webhookFilters = {
+									paymentAwaited: new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Subscription')
+										if (webhook.action === 'AwaitingPayment')
+										if (webhook.entity.id === subscription.id)
+										return true;
+									}),
+									unpaidInvoiceRaised:  new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Invoice')
+										if (webhook.action === 'Unpaid')
+										if (webhook.entity.subscriptionID === subscription.id)
+										return true;
+									})
 								};
 
 								promises.subscription
 								.then(function(subscription) {
-									return webhookListener.subscribe(callbacks.paymentAwaited, subscription)
+									return webhookListener.subscribe(webhookFilters.paymentAwaited, subscription)
 									.then(function() {
-										return webhookListener.subscribe(callbacks.unpaidInvoiceRaised, subscription);
+										return webhookListener.subscribe(webhookFilters.unpaidInvoiceRaised, subscription);
 									})
 									.then(function() {
 										return subscription.activate();
@@ -275,11 +265,11 @@ context(testBase.getContext(), function () {
 								});
 							});
 							it("changes state", function() {
-								return defers.paymentAwaited.promise
+								return webhookFilters.paymentAwaited.getPromise()
 								.should.be.fulfilled;
 							});
 							it("raises invoice", function() {
-								return defers.unpaidInvoiceRaised.promise
+								return webhookFilters.unpaidInvoiceRaised.getPromise()
 								.should.be.fulfilled;
 							});
 						});

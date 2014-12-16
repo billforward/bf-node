@@ -27,6 +27,25 @@ exports.Q = Q;
 exports._ = _;
 
 // situational
+var WebHookFilter = (function(webhook) {
+	function WebHookFilter(filter) {
+		this.filter = filter;
+		this.deferred = Q.defer();
+	};
+	WebHookFilter.prototype.getPromise = function() {
+		return this.deferred.promise;
+	}
+	WebHookFilter.prototype.callFilter = function() {
+		try {
+			var args = _.values(arguments);
+			if (this.filter.apply(this.filter, args))
+			this.deferred.resolve(args);
+		} catch(e) {
+		}
+	}
+	return WebHookFilter;
+})();
+
 var WebhookListener = (function(){
 	function WebhookListener() {
 		// this.queue = [];
@@ -57,6 +76,11 @@ var WebhookListener = (function(){
 		webhook.changes = JSON.parse(webhook.changes);
 		return webhook;
 	};
+	WebhookListener.prototype.resolveUponMatch = function(webhookFilter) {
+		return (function(webhook) {
+			
+		})(webhook);
+	};
 	WebhookListener.prototype.enqueue = function(webhook) {
 		var parsed = this.parse(webhook);
 		
@@ -67,7 +91,11 @@ var WebhookListener = (function(){
 	WebhookListener.prototype.notifySubscribers = function(item) {
 		// console.log(item);
 		_.forEach(this.subscribers, function(subscriber) {
-			subscriber.callback.apply(subscriber.callback, [item].concat(subscriber.args));
+			if (subscriber.callback instanceof WebHookFilter) {
+				subscriber.callback.callFilter.apply(subscriber.callback, [item].concat(subscriber.args));
+			} else {
+				subscriber.callback.apply(subscriber.callback, [item].concat(subscriber.args));
+			}
 		});
 	};
 	return WebhookListener;
@@ -100,6 +128,7 @@ app.listen(config.webhookPort, function() {
 var keepAlive = config.keepAlive;
 exports.keepAlive = keepAlive;
 exports.webhookListener = listener;
+exports.WebHookFilter = WebHookFilter;
 
 var context = '';
 exports.getContext = function() {
