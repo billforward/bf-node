@@ -228,7 +228,7 @@ context(testBase.getContext(), function () {
 					});
 					context('Listening for webhooks', function() {
 				  		this.timeout(keepAlive);
-				  		describe('The webhook server', function() {
+				  		describe('The expected webhook', function() {
 							var callback;
 							var promise;
 							before(function() {
@@ -260,7 +260,7 @@ context(testBase.getContext(), function () {
 							after(function() {
 								webhookListener.unsubscribe(callback);
 							});
-							it("is fulfilled", function() {
+							it("is returned", function() {
 								return promise.should.be.fulfilled;
 							});
 						});
