@@ -226,38 +226,61 @@ context(testBase.getContext(), function () {
 						.all(_.values(promises))
 						.should.be.fulfilled;
 					});
-					context('Listening for webhooks', function() {
+					context('Webhooks permitting', function() {
 				  		this.timeout(keepAlive);
-						describe('The expected webhook', function() {
-							var callback;
-							var promise;
+						describe('The subscription', function() {
+							var callbacks;
+							var defers;
 							before(function() {
-								var deferred = Q.defer();
-								promise = deferred.promise;
+								defers = {
+									paymentAwaited: Q.defer(),
+									unpaidInvoiceRaised: Q.defer()
+								};
 
-								callback = function(webhook, subscription) {
-									try {
-										if (webhook.domain === 'Invoice')
-										if (webhook.action === 'Unpaid')
-										if (webhook.entity.subscriptionID === subscription.id)
-										deferred.resolve(webhook);
-									} catch (e) {
+								callbacks = {
+									paymentAwaited: function(webhook, subscription) {
+										try {
+											if (webhook.domain === 'Subscription')
+											if (webhook.action === 'AwaitingPayment')
+											if (webhook.entity.id === subscription.id)
+											defers.paymentAwaited.resolve(webhook);
+										} catch (e) {
+										}
+									},
+									unpaidInvoiceRaised: function(webhook, subscription) {
+										try {
+											if (webhook.domain === 'Invoice')
+											if (webhook.action === 'Unpaid')
+											if (webhook.entity.subscriptionID === subscription.id)
+											defers.unpaidInvoiceRaised.resolve(webhook);
+										} catch (e) {
+										}
 									}
 								};
 
 								promises.subscription
 								.then(function(subscription) {
-									return webhookListener.subscribe(callback, subscription)
+									return webhookListener.subscribe(callbacks.paymentAwaited, subscription)
+									.then(function() {
+										return webhookListener.subscribe(callbacks.unpaidInvoiceRaised, subscription);
+									})
 									.then(function() {
 										return subscription.activate();
 									});
 								});
 							});
 							after(function() {
-								webhookListener.unsubscribe(callback);
+								_.forEach(callbacks, function(callback) {
+									webhookListener.unsubscribe(callback);
+								});
 							});
-							it("is returned", function() {
-								return promise.should.be.fulfilled;
+							it("changes state", function() {
+								return defers.paymentAwaited.promise
+								.should.be.fulfilled;
+							});
+							it("raises invoice", function() {
+								return defers.unpaidInvoiceRaised.promise
+								.should.be.fulfilled;
 							});
 						});
 					});
