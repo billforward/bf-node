@@ -13,7 +13,7 @@ var assert = require('assert');
 require('mocha-sinon');
 
 exports.BillForward = BillForward;
-exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.logging);
+exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.requestLogging, config.responseLogging, config.errorLogging);
 exports.assert = assert
 exports.sinon = sinon;
 // just grab Q from BillForward lol

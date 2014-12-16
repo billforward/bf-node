@@ -1,11 +1,15 @@
 var BillForward;
 (function (BillForward) {
     var Client = (function () {
-        function Client(accessToken, urlRoot, logging) {
-            if (logging === void 0) { logging = false; }
+        function Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging) {
+            if (requestLogging === void 0) { requestLogging = false; }
+            if (responseLogging === void 0) { responseLogging = false; }
+            if (errorLogging === void 0) { errorLogging = false; }
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
-            this.logging = logging;
+            this.requestLogging = requestLogging;
+            this.responseLogging = responseLogging;
+            this.errorLogging = errorLogging;
         }
         Client.prototype.getAccessToken = function () {
             return this.accessToken;
@@ -17,9 +21,11 @@ var BillForward;
             Client.singletonClient = client;
             return Client.singletonClient;
         };
-        Client.makeDefault = function (accessToken, urlRoot, logging) {
-            if (logging === void 0) { logging = false; }
-            var client = new Client(accessToken, urlRoot, logging);
+        Client.makeDefault = function (accessToken, urlRoot, requestLogging, responseLogging, errorLogging) {
+            if (requestLogging === void 0) { requestLogging = false; }
+            if (responseLogging === void 0) { responseLogging = false; }
+            if (errorLogging === void 0) { errorLogging = false; }
+            var client = new Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging);
             return Client.setDefault(client);
         };
         Client.getDefaultClient = function () {
@@ -54,6 +60,9 @@ var BillForward;
                 outputType: 'json',
                 converters: converters
             };
+            if (this.requestLogging) {
+                console.log(JSON.stringify(json, null, "\t"));
+            }
             if (verb === 'POST') {
                 options.input = json;
                 options.inputType = 'json';
@@ -64,7 +73,7 @@ var BillForward;
         };
         Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
             if (statusCode === 200) {
-                if (this.logging) {
+                if (this.responseLogging) {
                     console.log(JSON.stringify(body, null, "\t"));
                 }
                 deferred.resolve(body);
@@ -73,10 +82,14 @@ var BillForward;
             this.errorResponse(body, deferred);
         };
         Client.prototype.errorResponse = function (err, deferred) {
-            if (this.logging) {
-                console.error(err);
+            var parsed = err;
+            if (this.errorLogging) {
+                if (err instanceof Object) {
+                    parsed = JSON.stringify(err);
+                }
+                console.error(parsed);
             }
-            Client.handlePromiseError(err, deferred);
+            Client.handlePromiseError(parsed, deferred);
         };
         Client.handlePromiseError = function (err, deferred) {
             deferred.reject(err);

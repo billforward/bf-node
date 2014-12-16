@@ -6,12 +6,18 @@ module BillForward {
 
     private accessToken:string;
     private urlRoot:string;
-    private logging:boolean;
 
-    constructor(accessToken:string, urlRoot:string, logging:boolean = false) {
+    private requestLogging:boolean;
+    private responseLogging:boolean;
+    private errorLogging:boolean;
+
+    constructor(accessToken:string, urlRoot:string, requestLogging:boolean = false, responseLogging:boolean = false, errorLogging:boolean = false) {
       this.accessToken = accessToken;
       this.urlRoot = urlRoot;
-      this.logging = logging;
+      
+      this.requestLogging = requestLogging;
+      this.responseLogging = responseLogging;
+      this.errorLogging = errorLogging;
     }
 
     getAccessToken():string {
@@ -27,8 +33,8 @@ module BillForward {
       return Client.singletonClient;
     }
 
-    static makeDefault(accessToken:string, urlRoot:string, logging:boolean = false):Client {
-      var client = new Client(accessToken, urlRoot, logging);
+    static makeDefault(accessToken:string, urlRoot:string, requestLogging:boolean = false, responseLogging:boolean = false, errorLogging:boolean = false):Client {
+      var client = new Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging);
       return Client.setDefault(client);
     }
 
@@ -70,6 +76,10 @@ module BillForward {
         converters: converters
       };
 
+      if (this.requestLogging) {
+        console.log(JSON.stringify(json, null, "\t"));
+      }
+
       if(verb === 'POST') {
         options.input = json;
         options.inputType = 'json';
@@ -83,7 +93,7 @@ module BillForward {
 
     private successResponse(body, statusCode, headers, deferred) {
       if (statusCode === 200) {
-        if (this.logging) {
+        if (this.responseLogging) {
           console.log(JSON.stringify(body, null, "\t"));
         }
         deferred.resolve(body);
@@ -93,10 +103,14 @@ module BillForward {
     }
 
     private errorResponse(err, deferred) {
-      if (this.logging) {
-        console.error(err);
+      var parsed = err;
+      if (this.errorLogging) {
+        if (err instanceof Object) {
+          parsed = JSON.stringify(err);
+        }
+        console.error(parsed);
       }
-      Client.handlePromiseError(err, deferred);
+      Client.handlePromiseError(parsed, deferred);
     }
 
     static handlePromiseError(err, deferred) {

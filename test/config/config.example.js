@@ -3,5 +3,7 @@ module.exports = {
 	"accessToken": "INSERT_ACCESS_TOKEN_HERE",
 
 	// print API output to console
-	"logging": false
+	"requestLogging": false,
+	"responseLogging": false,
+	"errorLogging": false
 }
