@@ -1,49 +1,5 @@
-var path = require("path");
-var config = require('./config/config');
-
-var BillForward = require('../bin');
-var models = require('./models')(BillForward);
-
-var sinon = require("sinon");
-var chai = require('chai');
-var express = require('express');
-var bodyParser = require('body-parser');
-
-chai.use(require("chai-as-promised"));
-chai.use(require("sinon-chai"));
-chai.should();
-
-var assert = require('assert');
-require('mocha-sinon');
-
-// just grab Q from BillForward lol
-var Q = BillForward.Imports.Q;
-var _ = BillForward.Imports._;
-
-exports.BillForward = BillForward;
-exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.requestLogging, config.responseLogging, config.errorLogging);
-exports.models = models;
-
-exports.assert = assert
-exports.sinon = sinon;
-
-exports.Q = Q;
-exports._ = _;
-
-var context = '';
-exports.getContext = function() {
-	return context;
-};
-
-exports.setContext = function(newContext) {
-	context = newContext;
-};
-
-var enableWebhooksTests = config.enableWebhooksTests;
-exports.enableWebhooksTests = enableWebhooksTests;
-
-// situational
-if (enableWebhooksTests) {
+module.exports = function(Q, _, config) {
+	var utils = {};
 	var WebHookFilter = (function(webhook) {
 		function WebHookFilter(filter) {
 			this.filter = filter;
@@ -119,6 +75,9 @@ if (enableWebhooksTests) {
 	})();
 	var listener = new WebhookListener();
 
+	var bodyParser = require('body-parser');
+	var express = require('express');
+
 	var app = express();
 	app.use(bodyParser.json()); // for parsing application/json
 	app.post('/webhook', function (req, res) {
@@ -147,12 +106,15 @@ if (enableWebhooksTests) {
 
 	var globalKeepAlive = 2000;
 
-	exports.getIncrementedGlobalKeepAlive = function() {
+	var getIncrementedGlobalKeepAlive = function() {
 		// one more long-running test is being added to the test-run
 		globalKeepAlive += keepAlive;
 		return globalKeepAlive;
 	};;
 
-	exports.webhookListener = listener;
-	exports.WebHookFilter = WebHookFilter;
-}
+	utils.webhookListener = listener;
+	utils.WebHookFilter = WebHookFilter;
+	utils.getIncrementedGlobalKeepAlive = getIncrementedGlobalKeepAlive;
+
+	return utils;
+};
