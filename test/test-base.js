@@ -2,6 +2,8 @@ var path = require("path");
 var config = require('./config/config');
 
 var BillForward = require('../bin');
+var models = require('./models')(BillForward);
+
 var sinon = require("sinon");
 var chai = require('chai');
 var express = require('express');
@@ -20,6 +22,8 @@ var _ = BillForward.Imports._;
 
 exports.BillForward = BillForward;
 exports.client = BillForward.Client.makeDefault(config.accessToken, config.urlRoot, config.requestLogging, config.responseLogging, config.errorLogging);
+exports.models = models;
+
 exports.assert = assert
 exports.sinon = sinon;
 
@@ -126,7 +130,10 @@ app.listen(config.webhookPort, function() {
 });
 
 var keepAlive = config.keepAlive;
+var enableWebhooksTests = config.enableWebhooksTests;
 exports.keepAlive = keepAlive;
+exports.enableWebhooksTests = enableWebhooksTests;
+
 exports.webhookListener = listener;
 exports.WebHookFilter = WebHookFilter;
 

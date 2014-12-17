@@ -7,6 +7,8 @@ module.exports = {
 	"responseLogging": false,
 	"errorLogging": false,
 
+	// whether or not we want to run tests which depend on webhooks' being configured
+	"enableWebhooksTests": false,
 	// listen during tests for webhooks incoming to localhost on this port
 	"webhookPort": 4649,
 	// wait maximally this amount of time (ms) for webhooks to arrive during functional test

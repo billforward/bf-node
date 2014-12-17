@@ -1,6 +1,7 @@
 var testBase = require('./_test-base');
 
 var BillForward = testBase.BillForward;
+var testModels = testBase.models;
 
 var Q = testBase.Q;
 var _ = testBase._;
@@ -19,25 +20,7 @@ context(testBase.getContext(), function () {
 					// requires (optionally):
 					// - profile
 					// - - addresses
-
-					models.address = new BillForward.Address({
-					    'addressLine1': 'address line 1',
-					    'addressLine2': 'address line 2',
-					    'addressLine3': 'address line 3',
-					    'city': 'London',
-					    'country': 'Gensokyo',
-					    'province': 'London',
-					    'postcode': 'SW1 1AS',
-					    'landline': '02000000000',
-					    'primaryAddress': true
-					});
-					models.profile = new BillForward.Profile({
-						'email': 'u.n.owen@was.her',
-	  					'firstName': 'U.N.',
-	  					'lastName': 'Owen',
-						'addresses': [models.address]
-					});
-					models.account = new BillForward.Account();
+					models.account = testModels.Account();
 					promises.account = BillForward.Account.create(models.account);
 
 					promises.creditNote = promises.account
@@ -51,31 +34,16 @@ context(testBase.getContext(), function () {
 					});
 
 					// create a unit of measure
-					models.unitOfMeasure1 = new BillForward.UnitOfMeasure({
-						'name': 'CPU',
-						'displayedAs': 'Cycles',
-						'roundingScheme': 'UP',
-					});
+					models.unitOfMeasure1 = testModels.UnitOfMeasure();
 					promises.unitOfMeasure1 = BillForward.UnitOfMeasure.create(models.unitOfMeasure1)
 
 					// create another unit of measure
-					models.unitOfMeasure2 = new BillForward.UnitOfMeasure({
-						'name': 'Bandwidth',
-						'displayedAs': 'Mbps',
-						'roundingScheme': 'UP',
-					});
+					models.unitOfMeasure2 = testModels.UnitOfMeasure2();
 					promises.unitOfMeasure2 = BillForward.UnitOfMeasure.create(models.unitOfMeasure2)
 
 
 					// create a product
-					models.product = new BillForward.Product({
-						'productType': 'recurring',
-						'state': 'prod',
-						'name': 'Monthly recurring',
-						'description': 'Purchaseables to which customer has a non-renewing, monthly entitlement',
-						'durationPeriod': 'months',
-						'duration': 1
-					});
+					models.product = testModels.Product();
 					promises.product = BillForward.Product.create(models.product)
 
 
@@ -86,47 +54,9 @@ context(testBase.getContext(), function () {
 					// - pricing components..
 					// .. - which require pricing component tiers
 
-					models.component1Tiers = [
-						new BillForward.PricingComponentTier({
-							'lowerThreshold': 0,
-							'upperThreshold': 0,
-							'pricingType': 'unit',
-							'price': 0
-						}),
-						new BillForward.PricingComponentTier({
-							'lowerThreshold': 1,
-							'upperThreshold': 10,
-							'pricingType': 'unit',
-							'price': 1
-						}),
-						new BillForward.PricingComponentTier({
-							'lowerThreshold': 11,
-							'upperThreshold': 1000,
-							'pricingType': 'unit',
-							'price': 0.5
-						})
-					];
+					models.component1Tiers = testModels.PricingComponentTiers();
 
-					models.component2Tiers = [
-						new BillForward.PricingComponentTier({
-							'lowerThreshold': 0,
-							'upperThreshold': 0,
-							'pricingType': 'unit',
-							'price': 0
-						}),
-						new BillForward.PricingComponentTier({
-							'lowerThreshold': 1,
-							'upperThreshold': 10,
-							'pricingType': 'unit',
-							'price': 0.10
-						}),
-						new BillForward.PricingComponentTier({
-							'lowerThreshold': 11,
-							'upperThreshold': 1000,
-							'pricingType': 'unit',
-							'price': 0.05
-						})
-					];
+					models.component2Tiers = testModels.PricingComponentTiers2();
 
 					promises.ratePlan = Q
 					.spread([
@@ -227,7 +157,7 @@ context(testBase.getContext(), function () {
 						.all(_.values(promises))
 						.should.be.fulfilled;
 					});
-					context('Webhooks permitting', function() {
+					(context)('Webhooks permitting', function() {
 				  		this.timeout(keepAlive);
 						describe('The subscription', function() {
 							var callbacks;
