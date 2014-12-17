@@ -303,6 +303,10 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             return new entityClass(payload, client);
         };
+        BillingEntity.makeBillForwardDate = function (date) {
+            var asISO = date.toISOString();
+            return asISO;
+        };
         return BillingEntity;
     })();
     BillForward.BillingEntity = BillingEntity;
@@ -475,11 +479,13 @@ var BillForward;
 (function (BillForward) {
     var Amendment = (function (_super) {
         __extends(Amendment, _super);
-        function Amendment(stateParams, client) {
+        function Amendment(stateParams, client, skipUnserialize) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
+            if (skipUnserialize === void 0) { skipUnserialize = false; }
             _super.call(this, stateParams, client);
-            this.unserialize(stateParams);
+            if (!skipUnserialize)
+                this.unserialize(stateParams);
         }
         Amendment.prototype.applyType = function (type) {
             this['@type'] = type;
@@ -518,10 +524,35 @@ var BillForward;
         function CancellationAmendment(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
-            _super.call(this, stateParams, client);
+            _super.call(this, stateParams, client, true);
             this.applyType('CancellationAmendment');
             this.unserialize(stateParams);
         }
+        CancellationAmendment.cancelSubscription = function (subscription, serviceEnd, actioningTime) {
+            if (serviceEnd === void 0) { serviceEnd = 'AtPeriodEnd'; }
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            var amendment = new CancellationAmendment({
+                'subscriptionID': subscription.id,
+                'serviceEnd': serviceEnd
+            });
+            var date = null;
+            if (actioningTime instanceof Date) {
+                date = BillForward.BillingEntity.makeBillForwardDate(actioningTime);
+            }
+            else if (actioningTime === 'AtPeriodEnd') {
+                if (subscription.currentPeriodEnd) {
+                    date = subscription.currentPeriodEnd;
+                }
+                else {
+                    throw 'Cannot set actioning time to period end, because the subscription does not declare a period end.';
+                }
+            }
+            if (date) {
+                amendment.actioningTime = date;
+            }
+            var promise = CancellationAmendment.create(amendment);
+            return promise;
+        };
         return CancellationAmendment;
     })(BillForward.Amendment);
     BillForward.CancellationAmendment = CancellationAmendment;
@@ -802,6 +833,11 @@ var BillForward;
         Subscription.prototype.activate = function () {
             this.state = 'AwaitingPayment';
             return this.save();
+        };
+        Subscription.prototype.cancel = function (serviceEnd, actioningTime) {
+            if (serviceEnd === void 0) { serviceEnd = 'AtPeriodEnd'; }
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.CancellationAmendment.cancelSubscription(this, serviceEnd, actioningTime);
         };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;

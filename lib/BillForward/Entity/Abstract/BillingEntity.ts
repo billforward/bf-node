@@ -229,5 +229,11 @@ module BillForward {
         var entityClass = this.getDerivedClassStatic();
         return new entityClass(payload, client);
     }
+
+    public static makeBillForwardDate(date:Date) {
+        var asISO = date.toISOString();
+        //var removeMilli = asISO.slice(0, -5)+"Z";
+        return asISO;
+    }
   } 
 }

@@ -2,9 +2,11 @@ module BillForward {
   export class Amendment extends InsertableEntity {
     protected static _resourcePath = new ResourcePath('amendments', 'amendment');
 
-    constructor(stateParams:Object = {}, client:Client = null) {
+    constructor(stateParams:Object = {}, client:Client = null, skipUnserialize:boolean = false) {
         super(stateParams, client);
         
+        // derived amendments should tell their base class to skip unserialization
+        if (!skipUnserialize)
         this.unserialize(stateParams);
     }
 

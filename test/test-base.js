@@ -145,6 +145,14 @@ if (enableWebhooksTests) {
 	var keepAlive = config.keepAlive;
 	exports.keepAlive = keepAlive;
 
+	var globalKeepAlive = 2000;
+
+	exports.getIncrementedGlobalKeepAlive = function() {
+		// one more long-running test is being added to the test-run
+		globalKeepAlive += keepAlive;
+		return globalKeepAlive;
+	};;
+
 	exports.webhookListener = listener;
 	exports.WebHookFilter = WebHookFilter;
 }

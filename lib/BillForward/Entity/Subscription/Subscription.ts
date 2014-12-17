@@ -21,5 +21,15 @@ module BillForward {
         (<any>this).state = 'AwaitingPayment';
         return this.save();
     }
+
+    /**
+     * Cancels subscription at a specified time.
+     * @param string ENUM['Immediate', 'AtPeriodEnd'] (Default: 'AtPeriodEnd') Specifies whether the service will end immediately on cancellation or if it will continue until the end of the current period.
+     * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
+     * @return Q.Promise<CancellationAmendment> The created cancellation amendment.
+     */
+    cancel(serviceEnd:any = 'AtPeriodEnd', actioningTime:any = 'Immediate') {
+      return CancellationAmendment.cancelSubscription(this, serviceEnd, actioningTime);
+    }
   }
 }

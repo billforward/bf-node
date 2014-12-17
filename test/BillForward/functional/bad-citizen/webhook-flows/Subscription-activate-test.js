@@ -7,9 +7,10 @@ var Q = testBase.Q;
 var _ = testBase._;
 
 if (testBase.enableWebhooksTests) {
-	var keepAlive = testBase.keepAlive;
+	// var keepAlive = testBase.keepAlive;
 	var webhookListener = testBase.webhookListener;
 	var WebHookFilter = testBase.WebHookFilter;
+	var getNewTimeout = testBase.getIncrementedGlobalKeepAlive;
 }
 
 context(testBase.getContext(), function () {
@@ -161,7 +162,7 @@ context(testBase.getContext(), function () {
 						.should.be.fulfilled;
 					});
 					(testBase.enableWebhooksTests ? context : context.skip)('Webhooks permitting', function() {
-				  		this.timeout(keepAlive);
+				  		this.timeout(getNewTimeout());
 						describe('The subscription', function() {
 							var callbacks;
 							var webhookFilters;
@@ -170,6 +171,12 @@ context(testBase.getContext(), function () {
 									paymentAwaited: new WebHookFilter(function(webhook, subscription) {
 										if (webhook.domain === 'Subscription')
 										if (webhook.action === 'AwaitingPayment')
+										if (webhook.entity.id === subscription.id)
+										return true;
+									}),
+									paymentPaid: new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Subscription')
+										if (webhook.action === 'Paid')
 										if (webhook.entity.id === subscription.id)
 										return true;
 									}),
@@ -188,22 +195,62 @@ context(testBase.getContext(), function () {
 										return webhookListener.subscribe(webhookFilters.unpaidInvoiceRaised, subscription);
 									})
 									.then(function() {
+										return webhookListener.subscribe(webhookFilters.paymentPaid, subscription);
+									})
+									.then(function() {
 										return subscription.activate();
 									});
 								});
 							});
 							after(function() {
-								_.forEach(callbacks, function(callback) {
-									webhookListener.unsubscribe(callback);
-								});
+								_.forEach(callbacks, webhookListener.unsubscribe);
 							});
-							it("changes state", function() {
+							it("changes state to 'AwaitingPayment'", function() {
 								return webhookFilters.paymentAwaited.getPromise()
 								.should.be.fulfilled;
 							});
 							it("raises invoice", function() {
 								return webhookFilters.unpaidInvoiceRaised.getPromise()
 								.should.be.fulfilled;
+							});
+							it("changes state to 'Paid'", function() {
+								return webhookFilters.paymentPaid.getPromise()
+								.should.be.fulfilled;
+							});
+							context("once active", function() {
+								this.timeout(getNewTimeout());
+								var parentClosure = {
+									callbacks: callbacks,
+									webhookFilters: webhookFilters
+								};
+
+								var callbacks;
+								var webhookFilters;
+								before(function() {
+									webhookFilters = {
+										cancelled: new WebHookFilter(function(webhook, subscription) {
+											if (webhook.domain === 'Subscription')
+											if (webhook.action === 'Cancelled')
+											if (webhook.entity.id === subscription.id)
+											return true;
+										})
+									};
+
+									promises.subscription
+									.then(function(subscription) {
+										return webhookListener.subscribe(webhookFilters.cancelled, subscription)
+										.then(function() {
+											return subscription.cancel();
+										});
+									});
+								});
+								after(function() {
+									_.forEach(callbacks, webhookListener.unsubscribe);
+								});
+								it("changes state to 'Cancelled'", function() {
+									return webhookFilters.cancelled.getPromise()
+									.should.be.fulfilled;
+								});
 							});
 						});
 					});

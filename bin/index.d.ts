@@ -53,6 +53,7 @@ declare module BillForward {
         protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity>): void;
         protected static getAllEntitiesFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity[]>): void;
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
+        static makeBillForwardDate(date: Date): string;
     }
 }
 declare module BillForward {
@@ -116,7 +117,7 @@ declare module BillForward {
 declare module BillForward {
     class Amendment extends InsertableEntity {
         protected static _resourcePath: ResourcePath;
-        constructor(stateParams?: Object, client?: Client);
+        constructor(stateParams?: Object, client?: Client, skipUnserialize?: boolean);
         applyType(type: string): void;
         discard(): any;
     }
@@ -129,6 +130,7 @@ declare module BillForward {
 declare module BillForward {
     class CancellationAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
+        static cancelSubscription(subscription: Subscription, serviceEnd?: any, actioningTime?: any): any;
     }
 }
 declare module BillForward {
@@ -234,6 +236,7 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
+        cancel(serviceEnd?: any, actioningTime?: any): any;
     }
 }
 declare module BillForward {
