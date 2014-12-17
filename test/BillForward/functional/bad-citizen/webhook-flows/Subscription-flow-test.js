@@ -5,6 +5,7 @@ var testModels = testBase.models;
 
 var Q = testBase.Q;
 var _ = testBase._;
+var moment = testBase.moment;
 
 if (testBase.enableWebhooksTests) {
 	// var keepAlive = testBase.keepAlive;
@@ -164,6 +165,9 @@ context(testBase.getContext(), function () {
 					(testBase.enableWebhooksTests ? context : context.skip)('Webhooks permitting', function() {
 				  		this.timeout(getNewTimeout());
 						describe('The subscription', function() {
+							var parentClosure = {
+								promises: promises
+							};
 							var callbacks;
 							var webhookFilters;
 							before(function() {
@@ -188,7 +192,7 @@ context(testBase.getContext(), function () {
 									})
 								};
 
-								promises.subscription
+								parentClosure.promises.subscription
 								.then(function(subscription) {
 									return webhookListener.subscribe(webhookFilters.paymentAwaited, subscription)
 									.then(function() {
@@ -219,10 +223,9 @@ context(testBase.getContext(), function () {
 							});
 							context("once active", function() {
 								this.timeout(getNewTimeout());
-								var parentClosure = {
-									callbacks: callbacks,
-									webhookFilters: webhookFilters
-								};
+
+								// var actioningTime = moment().add(1, 'month').toDate();
+								var actioningTime = moment().toDate();
 
 								var callbacks;
 								var webhookFilters;
@@ -236,11 +239,11 @@ context(testBase.getContext(), function () {
 										})
 									};
 
-									promises.subscription
+									parentClosure.promises.subscription
 									.then(function(subscription) {
 										return webhookListener.subscribe(webhookFilters.cancelled, subscription)
 										.then(function() {
-											return subscription.cancel();
+											return subscription.cancel("AtPeriodEnd", actioningTime);
 										});
 									});
 								});
@@ -251,6 +254,16 @@ context(testBase.getContext(), function () {
 									return webhookFilters.cancelled.getPromise()
 									.should.be.fulfilled;
 								});
+								/*context("future cancellation queued", function() {
+									this.timeout(getNewTimeout());
+									var parentClosure = {
+										callbacks: callbacks,
+										webhookFilters: webhookFilters,
+										parentClosure: parentClosure
+									};
+
+
+								});*/
 							});
 						});
 					});

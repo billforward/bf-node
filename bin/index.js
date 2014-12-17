@@ -528,8 +528,8 @@ var BillForward;
             this.applyType('CancellationAmendment');
             this.unserialize(stateParams);
         }
-        CancellationAmendment.cancelSubscription = function (subscription, serviceEnd, actioningTime) {
-            if (serviceEnd === void 0) { serviceEnd = 'AtPeriodEnd'; }
+        CancellationAmendment.construct = function (subscription, serviceEnd, actioningTime) {
+            if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             var amendment = new CancellationAmendment({
                 'subscriptionID': subscription.id,
@@ -550,12 +550,16 @@ var BillForward;
             if (date) {
                 amendment.actioningTime = date;
             }
-            var promise = CancellationAmendment.create(amendment);
-            return promise;
+            return amendment;
         };
         return CancellationAmendment;
     })(BillForward.Amendment);
     BillForward.CancellationAmendment = CancellationAmendment;
+    (function (ServiceEndTime) {
+        ServiceEndTime[ServiceEndTime["AtPeriodEnd"] = 0] = "AtPeriodEnd";
+        ServiceEndTime[ServiceEndTime["Immediate"] = 1] = "Immediate";
+    })(BillForward.ServiceEndTime || (BillForward.ServiceEndTime = {}));
+    var ServiceEndTime = BillForward.ServiceEndTime;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -835,9 +839,11 @@ var BillForward;
             return this.save();
         };
         Subscription.prototype.cancel = function (serviceEnd, actioningTime) {
-            if (serviceEnd === void 0) { serviceEnd = 'AtPeriodEnd'; }
+            if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            return BillForward.CancellationAmendment.cancelSubscription(this, serviceEnd, actioningTime);
+            var amendment = BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime);
+            var promise = BillForward.CancellationAmendment.create(amendment);
+            return promise;
         };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;

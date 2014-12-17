@@ -130,7 +130,11 @@ declare module BillForward {
 declare module BillForward {
     class CancellationAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
-        static cancelSubscription(subscription: Subscription, serviceEnd?: any, actioningTime?: any): any;
+        static construct(subscription: Subscription, serviceEnd?: ServiceEndTime, actioningTime?: any): CancellationAmendment;
+    }
+    enum ServiceEndTime {
+        AtPeriodEnd = 0,
+        Immediate = 1,
     }
 }
 declare module BillForward {
@@ -236,7 +240,7 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
-        cancel(serviceEnd?: any, actioningTime?: any): any;
+        cancel(serviceEnd?: ServiceEndTime, actioningTime?: any): any;
     }
 }
 declare module BillForward {
