@@ -3,11 +3,15 @@ var testBase = require('./_test-base');
 var BillForward = testBase.BillForward;
 
 var Q = testBase.Q;
-var keepAlive = testBase.keepAlive;
-var webhookListener = testBase.webhookListener;
+
+if (testBase.enableWebhooksTests) {
+	var keepAlive = testBase.keepAlive;
+	var webhookListener = testBase.webhookListener;
+	// var WebHookFilter = testBase.WebHookFilter;
+}
 
 context(testBase.getContext(), function () {
-	context('Listening for webhooks', function() {
+	(testBase.enableWebhooksTests ? context : context.skip)('Listening for webhooks', function() {
   		this.timeout(keepAlive);
   		context('Webhook triggered manually', function() {
 			describe('The webhook server', function() {

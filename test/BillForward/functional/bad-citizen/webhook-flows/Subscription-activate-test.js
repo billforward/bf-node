@@ -5,9 +5,12 @@ var testModels = testBase.models;
 
 var Q = testBase.Q;
 var _ = testBase._;
-var keepAlive = testBase.keepAlive;
-var webhookListener = testBase.webhookListener;
-var WebHookFilter = testBase.WebHookFilter;
+
+if (testBase.enableWebhooksTests) {
+	var keepAlive = testBase.keepAlive;
+	var webhookListener = testBase.webhookListener;
+	var WebHookFilter = testBase.WebHookFilter;
+}
 
 context(testBase.getContext(), function () {
 	describe('Subscription', function () {
@@ -157,7 +160,7 @@ context(testBase.getContext(), function () {
 						.all(_.values(promises))
 						.should.be.fulfilled;
 					});
-					(context)('Webhooks permitting', function() {
+					(testBase.enableWebhooksTests ? context : context.skip)('Webhooks permitting', function() {
 				  		this.timeout(keepAlive);
 						describe('The subscription', function() {
 							var callbacks;
