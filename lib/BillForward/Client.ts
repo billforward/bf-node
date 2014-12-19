@@ -48,7 +48,7 @@ module BillForward {
     request(verb:string, path:string, queryParams:Object = {}, json:Object = {}) {
       var queryString = "";
       if (!Imports._.isEmpty(queryParams)) {
-        queryString = "?"+Imports._.map(queryParams, function(value:any, key:string) {
+        queryString = "?"+Imports._.map(<any>queryParams, function(value:any, key:string) {
           return encodeURIComponent(key)+"="+encodeURIComponent(value);
         }).join("&");
       }
