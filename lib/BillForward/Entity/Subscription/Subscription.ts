@@ -36,7 +36,18 @@ module BillForward {
         return promise;
     }
 
-    usePaymentMethodsFromAccount(account:Account) {
+    usePaymentMethodsFromAccountByID(accountID:string) {
+        return Account.getByID(accountID)
+        .then((account:Account) => {
+            return this.usePaymentMethodsFromAccount(account);
+            });
+    }
+
+    usePaymentMethodsFromAccount(account:Account = null) {
+        if (!account) {
+            return this.usePaymentMethodsFromAccountByID((<any>this).accountID);
+        }
+
         if (!(<any>this).paymentMethodSubscriptionLinks)
         (<any>this).paymentMethodSubscriptionLinks = [];
 
@@ -52,6 +63,31 @@ module BillForward {
         });
 
         (<any>this).paymentMethodSubscriptionLinks = (<any>this).paymentMethodSubscriptionLinks.concat(newLinks);
+        return this;
+    }
+
+    setValuesOfPricingComponentsByName(componentNamesToValues: { [componentName: string]:Number }) {
+        return this.useValuesForNamedPricingComponentsOnRatePlanByID((<any>this).productRatePlanID, componentNamesToValues);
+    }
+
+    useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID:string, componentNamesToValues: { [componentName: string]:Number }) {
+        return ProductRatePlan.getByID(ratePlanID)
+        .then((ratePlan:ProductRatePlan) => {
+            return this.useValuesForNamedPricingComponentsOnRatePlan(ratePlan, componentNamesToValues);
+            });
+    }
+
+    useValuesForNamedPricingComponentsOnRatePlan(ratePlan:ProductRatePlan, componentNamesToValues: { [componentName: string]:Number }) {
+        var componentIDsAgainstValues = Imports._.map(componentNamesToValues, function(currentValue, currentName) {
+            var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents, function(component) {
+                return (<any>component).name === currentName;
+            });
+            return new PricingComponentValue({
+                pricingComponentID: (<any>matchedComponent).id,
+                value: currentValue
+                });
+        });
+        (<any>this).pricingComponentValues = componentIDsAgainstValues;
         return this;
     }
   }

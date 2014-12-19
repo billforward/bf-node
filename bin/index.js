@@ -851,7 +851,17 @@ var BillForward;
             var promise = BillForward.CancellationAmendment.create(amendment);
             return promise;
         };
+        Subscription.prototype.usePaymentMethodsFromAccountByID = function (accountID) {
+            var _this = this;
+            return BillForward.Account.getByID(accountID).then(function (account) {
+                return _this.usePaymentMethodsFromAccount(account);
+            });
+        };
         Subscription.prototype.usePaymentMethodsFromAccount = function (account) {
+            if (account === void 0) { account = null; }
+            if (!account) {
+                return this.usePaymentMethodsFromAccountByID(this.accountID);
+            }
             if (!this.paymentMethodSubscriptionLinks)
                 this.paymentMethodSubscriptionLinks = [];
             BillForward.Imports._.each(this.paymentMethodSubscriptionLinks, function (paymentMethodSubscriptionLink) {
@@ -863,6 +873,28 @@ var BillForward;
                 });
             });
             this.paymentMethodSubscriptionLinks = this.paymentMethodSubscriptionLinks.concat(newLinks);
+            return this;
+        };
+        Subscription.prototype.setValuesOfPricingComponentsByName = function (componentNamesToValues) {
+            return this.useValuesForNamedPricingComponentsOnRatePlanByID(this.productRatePlanID, componentNamesToValues);
+        };
+        Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlanByID = function (ratePlanID, componentNamesToValues) {
+            var _this = this;
+            return BillForward.ProductRatePlan.getByID(ratePlanID).then(function (ratePlan) {
+                return _this.useValuesForNamedPricingComponentsOnRatePlan(ratePlan, componentNamesToValues);
+            });
+        };
+        Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlan = function (ratePlan, componentNamesToValues) {
+            var componentIDsAgainstValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
+                var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (component) {
+                    return component.name === currentName;
+                });
+                return new BillForward.PricingComponentValue({
+                    pricingComponentID: matchedComponent.id,
+                    value: currentValue
+                });
+            });
+            this.pricingComponentValues = componentIDsAgainstValues;
             return this;
         };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');

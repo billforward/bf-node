@@ -241,7 +241,17 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
         cancel(serviceEnd?: ServiceEndTime, actioningTime?: any): any;
-        usePaymentMethodsFromAccount(account: Account): Subscription;
+        usePaymentMethodsFromAccountByID(accountID: string): any;
+        usePaymentMethodsFromAccount(account?: Account): any;
+        setValuesOfPricingComponentsByName(componentNamesToValues: {
+            [x: string]: Number;
+        }): any;
+        useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID: string, componentNamesToValues: {
+            [x: string]: Number;
+        }): any;
+        useValuesForNamedPricingComponentsOnRatePlan(ratePlan: ProductRatePlan, componentNamesToValues: {
+            [x: string]: Number;
+        }): Subscription;
     }
 }
 declare module BillForward {
