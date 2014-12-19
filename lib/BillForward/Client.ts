@@ -46,18 +46,24 @@ module BillForward {
     }
 
     request(verb:string, path:string, queryParams:Object = {}, json:Object = {}) {
-      var fullPath = this.urlRoot+path;
-      var _this = this;
+      var queryString = "";
+      if (!Imports._.isEmpty(queryParams)) {
+        queryString = "?"+Imports._.map(queryParams, function(value:any, key:string) {
+          return encodeURIComponent(key)+"="+encodeURIComponent(value);
+        }).join("&");
+      }
+
+      var fullPath = this.urlRoot+path+queryString;
 
       var deferred:Q.Deferred<any> = Imports.Q.defer();
 
-      var callback = function(err, body, statusCode, headers) {
+      var callback = (err, body, statusCode, headers) => {
           if(err) {
-            _this.errorResponse(err, deferred);
+            this.errorResponse(err, deferred);
             return;
           }
           // console.log('Success', body, statusCode, headers);
-          _this.successResponse(body, statusCode, headers, deferred);
+          this.successResponse(body, statusCode, headers, deferred);
       };
 
       var headers = {

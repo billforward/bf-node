@@ -35,10 +35,16 @@ var BillForward;
             return Client.singletonClient;
         };
         Client.prototype.request = function (verb, path, queryParams, json) {
+            var _this = this;
             if (queryParams === void 0) { queryParams = {}; }
             if (json === void 0) { json = {}; }
-            var fullPath = this.urlRoot + path;
-            var _this = this;
+            var queryString = "";
+            if (!BillForward.Imports._.isEmpty(queryParams)) {
+                queryString = "?" + BillForward.Imports._.map(queryParams, function (value, key) {
+                    return encodeURIComponent(key) + "=" + encodeURIComponent(value);
+                }).join("&");
+            }
+            var fullPath = this.urlRoot + path + queryString;
             var deferred = BillForward.Imports.Q.defer();
             var callback = function (err, body, statusCode, headers) {
                 if (err) {
