@@ -65,7 +65,7 @@ module BillForward {
         return entityClass.makeGetPromise("/"+id, queryParams, entityClass.getFirstEntityFromResponse, client);
     }
 
-    static getAll(id:string, queryParams:Object = {}, client:Client = null) {
+    static getAll(queryParams:Object = {}, client:Client = null) {
         var entityClass = this.getDerivedClassStatic();
         return entityClass.makeGetPromise("", queryParams, entityClass.getAllEntitiesFromResponse, client);
     }

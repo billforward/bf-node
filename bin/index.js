@@ -158,7 +158,7 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             return entityClass.makeGetPromise("/" + id, queryParams, entityClass.getFirstEntityFromResponse, client);
         };
-        BillingEntity.getAll = function (id, queryParams, client) {
+        BillingEntity.getAll = function (queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();

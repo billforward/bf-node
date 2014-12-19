@@ -36,7 +36,7 @@ declare module BillForward {
         protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): Q.Promise<any>;
         protected static makeGetPromise(endpoint: string, queryParams: Object, callback: any, client?: Client): any;
         static getByID(id: string, queryParams?: Object, client?: Client): any;
-        static getAll(id: string, queryParams?: Object, client?: Client): any;
+        static getAll(queryParams?: Object, client?: Client): any;
         static getResourcePath(): any;
         static getSingletonClient(): Client;
         static getDerivedClassStatic(): any;
