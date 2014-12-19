@@ -49,7 +49,7 @@ module.exports = function(BillForward) {
 			'productType': 'recurring',
 			'state': 'prod',
 			'name': 'Monthly recurring',
-			'description': 'Purchaseables to which customer has a non-renewing, monthly entitlement',
+			'description': 'Purchaseables to which customer has an automatically-renewing, monthly entitlement',
 			'durationPeriod': 'months',
 			'duration': 1
 		});

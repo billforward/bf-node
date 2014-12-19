@@ -241,6 +241,7 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
         cancel(serviceEnd?: ServiceEndTime, actioningTime?: any): any;
+        usePaymentMethodsFromAccount(account: Account): Subscription;
     }
 }
 declare module BillForward {

@@ -35,5 +35,24 @@ module BillForward {
         var promise = CancellationAmendment.create(amendment);
         return promise;
     }
+
+    usePaymentMethodsFromAccount(account:Account) {
+        if (!(<any>this).paymentMethodSubscriptionLinks)
+        (<any>this).paymentMethodSubscriptionLinks = [];
+
+        // set existing subscription links as deleted
+        Imports._.each((<any>this).paymentMethodSubscriptionLinks, function(paymentMethodSubscriptionLink:any) {
+            paymentMethodSubscriptionLink.deleted = true;
+        });
+
+        var newLinks = Imports._.map((<any>account).paymentMethods, function(paymentMethod:any) {
+            return new PaymentMethodSubscriptionLink({
+                paymentMethodID: paymentMethod.id
+            });
+        });
+
+        (<any>this).paymentMethodSubscriptionLinks = (<any>this).paymentMethodSubscriptionLinks.concat(newLinks);
+        return this;
+    }
   }
 }

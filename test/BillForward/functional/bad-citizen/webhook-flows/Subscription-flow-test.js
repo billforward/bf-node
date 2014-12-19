@@ -100,7 +100,7 @@ context(testBase.getContext(), function () {
 
 						models.ratePlan = new BillForward.ProductRatePlan({
 							'currency': 'USD',
-							'name': 'Sound Plan',
+							'name': 'Gold Membership',
 							'pricingComponents': models.pricingComponents,
 							'productID': product.id,
 						});

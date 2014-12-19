@@ -851,6 +851,20 @@ var BillForward;
             var promise = BillForward.CancellationAmendment.create(amendment);
             return promise;
         };
+        Subscription.prototype.usePaymentMethodsFromAccount = function (account) {
+            if (!this.paymentMethodSubscriptionLinks)
+                this.paymentMethodSubscriptionLinks = [];
+            BillForward.Imports._.each(this.paymentMethodSubscriptionLinks, function (paymentMethodSubscriptionLink) {
+                paymentMethodSubscriptionLink.deleted = true;
+            });
+            var newLinks = BillForward.Imports._.map(account.paymentMethods, function (paymentMethod) {
+                return new BillForward.PaymentMethodSubscriptionLink({
+                    paymentMethodID: paymentMethod.id
+                });
+            });
+            this.paymentMethodSubscriptionLinks = this.paymentMethodSubscriptionLinks.concat(newLinks);
+            return this;
+        };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;
     })(BillForward.MutableEntity);
