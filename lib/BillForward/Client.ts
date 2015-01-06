@@ -55,6 +55,10 @@ module BillForward {
 
       var fullPath = this.urlRoot+path+queryString;
 
+      if (this.requestLogging) {
+        console.log(fullPath);
+      }
+
       var deferred:Q.Deferred<any> = Imports.Q.defer();
 
       var callback = (err, body, statusCode, headers) => {
@@ -70,7 +74,7 @@ module BillForward {
         'Authorization': 'Bearer '+this.accessToken
       };
 
-      var converters = {
+      /*var converters = {
         'text json': JSON.parse,
         'json text': JSON.stringify
       };
@@ -80,19 +84,36 @@ module BillForward {
         finished: callback,
         outputType: 'json',
         converters: converters
+      };*/
+
+      var options:any = {
+        headers: headers
       };
 
       if (this.requestLogging) {
         console.log(JSON.stringify(json, null, "\t"));
       }
 
+      var callVerb = verb.toLowerCase();
+
+      var callArgs = [fullPath, options];
+
       if(verb === 'POST' || verb === 'PUT') {
-        options.input = json;
+        /*options.input = json;
         options.inputType = 'json';
-        options.headers['Content-Type'] = 'application/json';
+        options.headers['Content-Type'] = 'application/json';*/
+
+        callVerb += "Json";
+        callArgs.splice(1, 0, json);
       }
 
-      Imports.httpinvoke(fullPath, verb, options);
+      Imports.restler[callVerb].apply(this, callArgs)
+      .on('success', (data, response) => {
+          this.successResponse(data, 200, {}, deferred);
+        })
+      .on('fail', (data, response) => {
+          this.errorResponse(data, deferred);
+        });
 
       return deferred.promise;
     }

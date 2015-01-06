@@ -45,6 +45,9 @@ var BillForward;
                 }).join("&");
             }
             var fullPath = this.urlRoot + path + queryString;
+            if (this.requestLogging) {
+                console.log(fullPath);
+            }
             var deferred = BillForward.Imports.Q.defer();
             var callback = function (err, body, statusCode, headers) {
                 if (err) {
@@ -56,25 +59,23 @@ var BillForward;
             var headers = {
                 'Authorization': 'Bearer ' + this.accessToken
             };
-            var converters = {
-                'text json': JSON.parse,
-                'json text': JSON.stringify
-            };
             var options = {
-                headers: headers,
-                finished: callback,
-                outputType: 'json',
-                converters: converters
+                headers: headers
             };
             if (this.requestLogging) {
                 console.log(JSON.stringify(json, null, "\t"));
             }
+            var callVerb = verb.toLowerCase();
+            var callArgs = [fullPath, options];
             if (verb === 'POST' || verb === 'PUT') {
-                options.input = json;
-                options.inputType = 'json';
-                options.headers['Content-Type'] = 'application/json';
+                callVerb += "Json";
+                callArgs.splice(1, 0, json);
             }
-            BillForward.Imports.httpinvoke(fullPath, verb, options);
+            BillForward.Imports.restler[callVerb].apply(this, callArgs).on('success', function (data, response) {
+                _this.successResponse(data, 200, {}, deferred);
+            }).on('fail', function (data, response) {
+                _this.errorResponse(data, deferred);
+            });
             return deferred.promise;
         };
         Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
@@ -968,7 +969,7 @@ var BillForward;
         function Imports() {
         }
         Imports._ = require('lodash');
-        Imports.httpinvoke = require('httpinvoke');
+        Imports.restler = require('restler');
         Imports.Q = require('q');
         return Imports;
     })();

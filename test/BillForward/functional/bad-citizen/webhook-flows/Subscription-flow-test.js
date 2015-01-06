@@ -12,6 +12,8 @@ if (testBase.enableWebhooksTests) {
 	var webhookListener = testBase.webhookListener;
 	var WebHookFilter = testBase.WebHookFilter;
 	var getNewTimeout = testBase.getIncrementedGlobalKeepAlive;
+} else {
+	getNewTimeout = function() {};
 }
 
 context(testBase.getContext(), function () {
