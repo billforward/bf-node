@@ -859,22 +859,30 @@ var BillForward;
             });
         };
         Subscription.prototype.usePaymentMethodsFromAccount = function (account) {
+            var _this = this;
             if (account === void 0) { account = null; }
             if (!account) {
                 return this.usePaymentMethodsFromAccountByID(this.accountID);
             }
-            if (!this.paymentMethodSubscriptionLinks)
-                this.paymentMethodSubscriptionLinks = [];
-            BillForward.Imports._.each(this.paymentMethodSubscriptionLinks, function (paymentMethodSubscriptionLink) {
-                paymentMethodSubscriptionLink.deleted = true;
+            return Q.Promise(function (resolve, reject, notify) {
+                try {
+                    if (!_this.paymentMethodSubscriptionLinks)
+                        _this.paymentMethodSubscriptionLinks = [];
+                    BillForward.Imports._.each(_this.paymentMethodSubscriptionLinks, function (paymentMethodSubscriptionLink) {
+                        paymentMethodSubscriptionLink.deleted = true;
+                    });
+                    var newLinks = BillForward.Imports._.map(account.paymentMethods, function (paymentMethod) {
+                        return new BillForward.PaymentMethodSubscriptionLink({
+                            paymentMethodID: paymentMethod.id
+                        });
+                    });
+                    _this.paymentMethodSubscriptionLinks = _this.paymentMethodSubscriptionLinks.concat(newLinks);
+                    resolve(_this);
+                }
+                catch (e) {
+                    reject(e);
+                }
             });
-            var newLinks = BillForward.Imports._.map(account.paymentMethods, function (paymentMethod) {
-                return new BillForward.PaymentMethodSubscriptionLink({
-                    paymentMethodID: paymentMethod.id
-                });
-            });
-            this.paymentMethodSubscriptionLinks = this.paymentMethodSubscriptionLinks.concat(newLinks);
-            return this;
         };
         Subscription.prototype.setValuesOfPricingComponentsByName = function (componentNamesToValues) {
             return this.useValuesForNamedPricingComponentsOnRatePlanByID(this.productRatePlanID, componentNamesToValues);
@@ -886,17 +894,25 @@ var BillForward;
             });
         };
         Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlan = function (ratePlan, componentNamesToValues) {
-            var componentIDsAgainstValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
-                var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (component) {
-                    return component.name === currentName;
-                });
-                return new BillForward.PricingComponentValue({
-                    pricingComponentID: matchedComponent.id,
-                    value: currentValue
-                });
+            var _this = this;
+            return Q.Promise(function (resolve, reject, notify) {
+                try {
+                    var componentIDsAgainstValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
+                        var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (component) {
+                            return component.name === currentName;
+                        });
+                        return new BillForward.PricingComponentValue({
+                            pricingComponentID: matchedComponent.id,
+                            value: currentValue
+                        });
+                    });
+                    _this.pricingComponentValues = componentIDsAgainstValues;
+                    resolve(_this);
+                }
+                catch (e) {
+                    reject(e);
+                }
             });
-            this.pricingComponentValues = componentIDsAgainstValues;
-            return this;
         };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;

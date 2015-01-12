@@ -36,59 +36,71 @@ module BillForward {
         return promise;
     }
 
-    usePaymentMethodsFromAccountByID(accountID:string) {
+    usePaymentMethodsFromAccountByID(accountID:string):Q.Promise<Subscription> {
         return Account.getByID(accountID)
         .then((account:Account) => {
             return this.usePaymentMethodsFromAccount(account);
             });
     }
 
-    usePaymentMethodsFromAccount(account:Account = null) {
+    usePaymentMethodsFromAccount(account:Account = null):Q.Promise<Subscription> {
         if (!account) {
             return this.usePaymentMethodsFromAccountByID((<any>this).accountID);
         }
 
-        if (!(<any>this).paymentMethodSubscriptionLinks)
-        (<any>this).paymentMethodSubscriptionLinks = [];
+        return <Q.Promise<Subscription>>Q.Promise((resolve, reject, notify) => {
+            try {
+                if (!(<any>this).paymentMethodSubscriptionLinks)
+                (<any>this).paymentMethodSubscriptionLinks = [];
 
-        // set existing subscription links as deleted
-        Imports._.each((<any>this).paymentMethodSubscriptionLinks, function(paymentMethodSubscriptionLink:any) {
-            paymentMethodSubscriptionLink.deleted = true;
+                // set existing subscription links as deleted
+                Imports._.each((<any>this).paymentMethodSubscriptionLinks, function(paymentMethodSubscriptionLink:any) {
+                    paymentMethodSubscriptionLink.deleted = true;
+                });
+
+                var newLinks = Imports._.map((<any>account).paymentMethods, function(paymentMethod:any) {
+                    return new PaymentMethodSubscriptionLink({
+                        paymentMethodID: paymentMethod.id
+                    });
+                });
+
+                (<any>this).paymentMethodSubscriptionLinks = (<any>this).paymentMethodSubscriptionLinks.concat(newLinks);
+                resolve(<any>this);
+            } catch(e) {
+                reject(e);
+            }
         });
-
-        var newLinks = Imports._.map((<any>account).paymentMethods, function(paymentMethod:any) {
-            return new PaymentMethodSubscriptionLink({
-                paymentMethodID: paymentMethod.id
-            });
-        });
-
-        (<any>this).paymentMethodSubscriptionLinks = (<any>this).paymentMethodSubscriptionLinks.concat(newLinks);
-        return this;
     }
 
-    setValuesOfPricingComponentsByName(componentNamesToValues: { [componentName: string]:Number }) {
+    setValuesOfPricingComponentsByName(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
         return this.useValuesForNamedPricingComponentsOnRatePlanByID((<any>this).productRatePlanID, componentNamesToValues);
     }
 
-    useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID:string, componentNamesToValues: { [componentName: string]:Number }) {
+    useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID:string, componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
         return ProductRatePlan.getByID(ratePlanID)
         .then((ratePlan:ProductRatePlan) => {
             return this.useValuesForNamedPricingComponentsOnRatePlan(ratePlan, componentNamesToValues);
             });
     }
 
-    useValuesForNamedPricingComponentsOnRatePlan(ratePlan:ProductRatePlan, componentNamesToValues: { [componentName: string]:Number }) {
-        var componentIDsAgainstValues = Imports._.map(componentNamesToValues, function(currentValue, currentName) {
-            var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents, function(component) {
-                return (<any>component).name === currentName;
-            });
-            return new PricingComponentValue({
-                pricingComponentID: (<any>matchedComponent).id,
-                value: currentValue
+    useValuesForNamedPricingComponentsOnRatePlan(ratePlan:ProductRatePlan, componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
+        return <Q.Promise<Subscription>>Q.Promise((resolve, reject, notify) => {
+            try {
+                var componentIDsAgainstValues = Imports._.map(componentNamesToValues, function(currentValue, currentName) {
+                    var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents, function(component) {
+                        return (<any>component).name === currentName;
+                    });
+                    return new PricingComponentValue({
+                        pricingComponentID: (<any>matchedComponent).id,
+                        value: currentValue
+                        });
                 });
+                (<any>this).pricingComponentValues = componentIDsAgainstValues;
+                resolve(<any>this);
+            } catch(e) {
+                reject(e);
+            }
         });
-        (<any>this).pricingComponentValues = componentIDsAgainstValues;
-        return this;
     }
   }
 }

@@ -241,17 +241,17 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
         cancel(serviceEnd?: ServiceEndTime, actioningTime?: any): any;
-        usePaymentMethodsFromAccountByID(accountID: string): any;
-        usePaymentMethodsFromAccount(account?: Account): any;
+        usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
+        usePaymentMethodsFromAccount(account?: Account): Q.Promise<Subscription>;
         setValuesOfPricingComponentsByName(componentNamesToValues: {
             [x: string]: Number;
-        }): any;
+        }): Q.Promise<Subscription>;
         useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID: string, componentNamesToValues: {
             [x: string]: Number;
-        }): any;
+        }): Q.Promise<Subscription>;
         useValuesForNamedPricingComponentsOnRatePlan(ratePlan: ProductRatePlan, componentNamesToValues: {
             [x: string]: Number;
-        }): Subscription;
+        }): Q.Promise<Subscription>;
     }
 }
 declare module BillForward {
