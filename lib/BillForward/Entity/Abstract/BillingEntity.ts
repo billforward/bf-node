@@ -233,10 +233,10 @@ module BillForward {
     /**
      * Fetches (if necessary) entity by ID from API.
      * Otherwise returns entity as-is.
-     * @param mixed ENUM[string id, static entity] Reference to the entity. <id>: Fetches entity by ID. <entity>: Returns entity as-is.
+     * @param mixed ENUM[string id, BillingEntity entity] Reference to the entity. <id>: Fetches entity by ID. <entity>: Returns entity as-is.
      * @return static The gotten entity.
      */
-    static fetchIfNecessary(entityReference): Q.Promise<BillingEntity> {
+    static fetchIfNecessary(entityReference:any): Q.Promise<BillingEntity> {
         return <Q.Promise<BillingEntity>>Q.Promise((resolve, reject) => {
             try {
                 var entityClass = this.getDerivedClassStatic();

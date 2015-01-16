@@ -28,12 +28,12 @@ module BillForward {
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
      * @return Q.Promise<CancellationAmendment> The created cancellation amendment.
      */
-    cancel(serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate') {
-        var amendment = CancellationAmendment.construct(this, serviceEnd, actioningTime);
-
-        // create amendment using API
-        var promise = CancellationAmendment.create(amendment);
-        return promise;
+    cancel(serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate'):Q.Promise<CancellationAmendment> {
+        return CancellationAmendment.construct(this, serviceEnd, actioningTime)
+        .then((amendment:CancellationAmendment) => {
+            // create amendment using API
+            return CancellationAmendment.create(amendment);
+            });
     }
 
     usePaymentMethodsFromAccountByID(accountID:string):Q.Promise<Subscription> {

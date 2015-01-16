@@ -30,8 +30,8 @@ module BillForward {
      * @param mixed[NULL, string subscriptionID, Bf_Subscription subscription] (Default: NULL) Reference to subscription (required only for 'AtPeriodEnd' time).
      * @return string The BillForward-formatted time.
      */
-    static parseActioningTime(actioningTime, subscription = null): Q.Promise<BillingEntity> {
-        return <Q.Promise<BillingEntity>>Q.Promise((resolve, reject) => {
+    static parseActioningTime(actioningTime, subscription = null): Q.Promise<string> {
+        return <Q.Promise<string>>Q.Promise((resolve, reject) => {
             try {
                 var date:any = null; // defaults to Immediate
                 if (actioningTime instanceof Date) {
@@ -62,11 +62,11 @@ module BillForward {
      * @param mixed[NULL, string subscriptionID, Bf_Subscription subscription] (Default: NULL) Reference to subscription (required only for 'AtPeriodEnd' time).
      * @return static The modified Bf_Amendment model.
      */
-    applyActioningTime(actioningTime): Q.Promise<BillingEntity> {
+    applyActioningTime(actioningTime, subscription = null): Q.Promise<BillingEntity> {
         return <Q.Promise<BillingEntity>>Q.Promise((resolve, reject) => {
             try {
                 var entityClass = this.getDerivedClass();
-                return resolve(entityClass.parseActioningTime(actioningTime, (<any>this).subscriptionID)
+                return resolve(entityClass.parseActioningTime(actioningTime, subscription)
                 .then((parsedActioningTime) => {
                     // if null, defaults to 'Immediate'
                     if (parsedActioningTime !== null) {

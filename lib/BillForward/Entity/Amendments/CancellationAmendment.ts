@@ -10,32 +10,27 @@ module BillForward {
 
 		/**
 		 * Cancels subscription at a specified time.
+		 * @param mixed ENUM[string id, Subscription entity] Reference to the subscription. <id>: Fetches subscription by ID. <Subscription>: Uses subscription as-is.
 		 * @param string ENUM['Immediate', 'AtPeriodEnd'] (Default: 'AtPeriodEnd') Specifies whether the service will end immediately on cancellation or if it will continue until the end of the current period.
 		 * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
 		 * @return CancellationAmendment The created cancellation amendment.
 		 */
-		static construct(subscription:Subscription, serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate'):CancellationAmendment {
-			var amendment = new CancellationAmendment({
-				'subscriptionID': (<any>subscription).id,
-				'serviceEnd': serviceEnd
+		static construct(subscription:any, serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate'): Q.Promise<CancellationAmendment> {
+        	return <Q.Promise<CancellationAmendment>>Q.Promise((resolve, reject) => {
+		        try {
+		        	return resolve(Subscription.fetchIfNecessary(subscription)
+		        	.then((subscription:Subscription) => {
+		        		var amendment = new CancellationAmendment({
+							'subscriptionID': (<any>subscription).id,
+							'serviceEnd': serviceEnd
+						});
+
+						return amendment.applyActioningTime(actioningTime, subscription);
+		        		}));
+				} catch (e) {
+	                return reject(e);
+	            }
 			});
-
-			var date:any = null; // defaults to Immediate
-			if (actioningTime instanceof Date) {
-				date = BillingEntity.makeBillForwardDate(actioningTime);
-			} else if (actioningTime === 'AtPeriodEnd') {
-				if ((<any>subscription).currentPeriodEnd) {
-					date = (<any>subscription).currentPeriodEnd;
-				} else {
-					throw 'Cannot set actioning time to period end, because the subscription does not declare a period end.';
-				}
-			}
-
-			if (date) {
-				(<any>amendment).actioningTime = date;
-			}
-
-			return amendment;
 		}
 	}
 	

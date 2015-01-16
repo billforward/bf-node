@@ -121,8 +121,8 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client, skipUnserialize?: boolean);
         applyType(type: string): void;
         discard(): any;
-        static parseActioningTime(actioningTime: any, subscription?: any): Q.Promise<BillingEntity>;
-        applyActioningTime(actioningTime: any): Q.Promise<BillingEntity>;
+        static parseActioningTime(actioningTime: any, subscription?: any): Q.Promise<string>;
+        applyActioningTime(actioningTime: any, subscription?: any): Q.Promise<BillingEntity>;
     }
 }
 declare module BillForward {
@@ -133,7 +133,7 @@ declare module BillForward {
 declare module BillForward {
     class CancellationAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
-        static construct(subscription: Subscription, serviceEnd?: ServiceEndState, actioningTime?: any): CancellationAmendment;
+        static construct(subscription: any, serviceEnd?: ServiceEndState, actioningTime?: any): Q.Promise<CancellationAmendment>;
     }
     enum ServiceEndState {
         AtPeriodEnd = 0,
@@ -248,7 +248,7 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
-        cancel(serviceEnd?: ServiceEndState, actioningTime?: any): any;
+        cancel(serviceEnd?: ServiceEndState, actioningTime?: any): Q.Promise<CancellationAmendment>;
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
         usePaymentMethodsFromAccount(account?: Account): Q.Promise<Subscription>;
         setValuesOfPricingComponentsByName(componentNamesToValues: {

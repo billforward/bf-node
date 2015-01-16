@@ -550,12 +550,13 @@ var BillForward;
                 }
             });
         };
-        Amendment.prototype.applyActioningTime = function (actioningTime) {
+        Amendment.prototype.applyActioningTime = function (actioningTime, subscription) {
             var _this = this;
+            if (subscription === void 0) { subscription = null; }
             return Q.Promise(function (resolve, reject) {
                 try {
                     var entityClass = _this.getDerivedClass();
-                    return resolve(entityClass.parseActioningTime(actioningTime, _this.subscriptionID).then(function (parsedActioningTime) {
+                    return resolve(entityClass.parseActioningTime(actioningTime, subscription).then(function (parsedActioningTime) {
                         if (parsedActioningTime !== null) {
                             _this.actioningTime = parsedActioningTime;
                         }
@@ -601,26 +602,20 @@ var BillForward;
         CancellationAmendment.construct = function (subscription, serviceEnd, actioningTime) {
             if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            var amendment = new CancellationAmendment({
-                'subscriptionID': subscription.id,
-                'serviceEnd': serviceEnd
+            return Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) {
+                        var amendment = new CancellationAmendment({
+                            'subscriptionID': subscription.id,
+                            'serviceEnd': serviceEnd
+                        });
+                        return amendment.applyActioningTime(actioningTime, subscription);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
-            var date = null;
-            if (actioningTime instanceof Date) {
-                date = BillForward.BillingEntity.makeBillForwardDate(actioningTime);
-            }
-            else if (actioningTime === 'AtPeriodEnd') {
-                if (subscription.currentPeriodEnd) {
-                    date = subscription.currentPeriodEnd;
-                }
-                else {
-                    throw 'Cannot set actioning time to period end, because the subscription does not declare a period end.';
-                }
-            }
-            if (date) {
-                amendment.actioningTime = date;
-            }
-            return amendment;
         };
         return CancellationAmendment;
     })(BillForward.Amendment);
@@ -926,9 +921,9 @@ var BillForward;
         Subscription.prototype.cancel = function (serviceEnd, actioningTime) {
             if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            var amendment = BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime);
-            var promise = BillForward.CancellationAmendment.create(amendment);
-            return promise;
+            return BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime).then(function (amendment) {
+                return BillForward.CancellationAmendment.create(amendment);
+            });
         };
         Subscription.prototype.usePaymentMethodsFromAccountByID = function (accountID) {
             var _this = this;
