@@ -31,7 +31,7 @@ module BillForward {
      * @return string The BillForward-formatted time.
      */
     static parseActioningTime(actioningTime, subscription = null): Q.Promise<string> {
-        return <Q.Promise<string>>Q.Promise((resolve, reject) => {
+        return <Q.Promise<string>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var date:any = null; // defaults to Immediate
                 if (actioningTime instanceof Date) {
@@ -63,7 +63,7 @@ module BillForward {
      * @return static The modified Bf_Amendment model.
      */
     applyActioningTime(actioningTime, subscription = null): Q.Promise<BillingEntity> {
-        return <Q.Promise<BillingEntity>>Q.Promise((resolve, reject) => {
+        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var entityClass = this.getDerivedClass();
                 return resolve(entityClass.parseActioningTime(actioningTime, subscription)

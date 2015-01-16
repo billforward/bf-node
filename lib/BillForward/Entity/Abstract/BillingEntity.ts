@@ -214,7 +214,7 @@ module BillForward {
      * @return static The gotten entity.
      */
     static fetchIfNecessary(entityReference:any): Q.Promise<BillingEntity> {
-        return <Q.Promise<BillingEntity>>Q.Promise((resolve, reject) => {
+        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var entityClass = this.getDerivedClassStatic();
                 if (typeof entityReference === "string") {
@@ -234,8 +234,8 @@ module BillForward {
 
     static makeBillForwardDate(date:Date) {
         var asISO = date.toISOString();
-        //var removeMilli = asISO.slice(0, -5)+"Z";
-        return asISO;
+        var removeMilli = asISO.slice(0, -5)+"Z";
+        return removeMilli;
     }
   } 
 }

@@ -16,7 +16,7 @@ module BillForward {
 		 * @return CancellationAmendment The created cancellation amendment.
 		 */
 		static construct(subscription:any, serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate'): Q.Promise<CancellationAmendment> {
-        	return <Q.Promise<CancellationAmendment>>Q.Promise((resolve, reject) => {
+        	return <Q.Promise<CancellationAmendment>>Imports.Q.Promise((resolve, reject) => {
 		        try {
 		        	return resolve(Subscription.fetchIfNecessary(subscription)
 		        	.then((subscription:Subscription) => {

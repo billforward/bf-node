@@ -304,7 +304,7 @@ var BillForward;
         };
         BillingEntity.fetchIfNecessary = function (entityReference) {
             var _this = this;
-            return Q.Promise(function (resolve, reject) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var entityClass = _this.getDerivedClassStatic();
                     if (typeof entityReference === "string") {
@@ -322,7 +322,8 @@ var BillForward;
         };
         BillingEntity.makeBillForwardDate = function (date) {
             var asISO = date.toISOString();
-            return asISO;
+            var removeMilli = asISO.slice(0, -5) + "Z";
+            return removeMilli;
         };
         return BillingEntity;
     })();
@@ -518,7 +519,7 @@ var BillForward;
         };
         Amendment.parseActioningTime = function (actioningTime, subscription) {
             if (subscription === void 0) { subscription = null; }
-            return Q.Promise(function (resolve, reject) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var date = null;
                     if (actioningTime instanceof Date) {
@@ -547,7 +548,7 @@ var BillForward;
         Amendment.prototype.applyActioningTime = function (actioningTime, subscription) {
             var _this = this;
             if (subscription === void 0) { subscription = null; }
-            return Q.Promise(function (resolve, reject) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var entityClass = _this.getDerivedClass();
                     return resolve(entityClass.parseActioningTime(actioningTime, subscription).then(function (parsedActioningTime) {
@@ -596,7 +597,7 @@ var BillForward;
         CancellationAmendment.construct = function (subscription, serviceEnd, actioningTime) {
             if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            return Q.Promise(function (resolve, reject) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) {
                         var amendment = new CancellationAmendment({
@@ -928,7 +929,7 @@ var BillForward;
         Subscription.prototype.usePaymentMethodsFromAccount = function (account) {
             var _this = this;
             if (account === void 0) { account = null; }
-            return Q.Promise(function (resolve, reject) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     if (!account) {
                         return resolve(_this.usePaymentMethodsFromAccountByID(_this.accountID));
@@ -962,7 +963,7 @@ var BillForward;
         };
         Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlan = function (ratePlan, componentNamesToValues) {
             var _this = this;
-            return Q.Promise(function (resolve, reject) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var componentIDsAgainstValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
                         var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (component) {

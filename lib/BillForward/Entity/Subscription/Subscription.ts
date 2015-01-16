@@ -44,7 +44,7 @@ module BillForward {
     }
 
     usePaymentMethodsFromAccount(account:Account = null):Q.Promise<Subscription> {
-        return <Q.Promise<Subscription>>Q.Promise((resolve, reject) => {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
                 if (!account) {
                     return resolve(this.usePaymentMethodsFromAccountByID((<any>this).accountID));
@@ -84,7 +84,7 @@ module BillForward {
     }
 
     useValuesForNamedPricingComponentsOnRatePlan(ratePlan:ProductRatePlan, componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
-        return <Q.Promise<Subscription>>Q.Promise((resolve, reject) => {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var componentIDsAgainstValues = Imports._.map(componentNamesToValues, function(currentValue, currentName) {
                     var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents, function(component) {
