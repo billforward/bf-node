@@ -106,7 +106,13 @@ var BillForward;
             var parsed = input;
             if (this.errorLogging) {
                 if (input instanceof Object) {
-                    parsed = JSON.stringify(input, null, "\t");
+                    var jsonParse;
+                    try {
+                        jsonParse = JSON.stringify(input, null, "\t");
+                        parsed = jsonParse;
+                    }
+                    catch (e) {
+                    }
                 }
                 console.error(parsed);
             }
@@ -143,36 +149,43 @@ var BillForward;
             var fullRoute = apiRoute + endpoint;
             return fullRoute;
         };
-        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, callback, client) {
+        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client) {
             var _this = this;
             if (client === void 0) { client = null; }
-            if (!client) {
-                client = BillingEntity.getSingletonClient();
-            }
-            var deferred = BillForward.Imports.Q.defer();
-            var entityClass = this.getDerivedClassStatic();
-            var fullRoute = entityClass.resolveRoute(endpoint);
-            client.request(verb, fullRoute, queryParams, payload).then(function (payload) {
-                callback.call(_this, payload, client, deferred);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    if (!client) {
+                        client = BillingEntity.getSingletonClient();
+                    }
+                    var entityClass = _this.getDerivedClassStatic();
+                    var fullRoute = entityClass.resolveRoute(endpoint);
+                    return resolve(client.request(verb, fullRoute, queryParams, payload));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
-            return deferred.promise;
         };
-        BillingEntity.makeGetPromise = function (endpoint, queryParams, callback, client) {
+        BillingEntity.makeGetPromise = function (endpoint, queryParams, client) {
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, callback, client);
+            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client);
         };
         BillingEntity.getByID = function (id, queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeGetPromise("/" + id, queryParams, entityClass.getFirstEntityFromResponse, client);
+            return entityClass.makeGetPromise("/" + id, queryParams, client).then(function (payload) {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+            });
         };
         BillingEntity.getAll = function (queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeGetPromise("", queryParams, entityClass.getAllEntitiesFromResponse, client);
+            return entityClass.makeGetPromise("", queryParams, client).then(function (payload) {
+                return entityClass.getAllEntitiesFromResponse(payload, client);
+            });
         };
         BillingEntity.getResourcePath = function () {
             return this.getDerivedClassStatic()._resourcePath;
@@ -251,69 +264,39 @@ var BillForward;
             var entities = BillForward.Imports._.map(constructArgs, this.buildEntity);
             return entities;
         };
-        BillingEntity.getFirstEntityFromResponse = function (payload, client, deferred) {
-            try {
-                if (payload.results.length < 1) {
-                    deferred.reject("No results returned upon API request.");
-                    return;
-                }
-            }
-            catch (e) {
-                deferred.reject("Received malformed response from API.");
-                return;
-            }
+        BillingEntity.getFirstEntityFromResponse = function (payload, client) {
+            if (!payload.results || !payload.results.length)
+                throw "Received malformed response from API.";
+            if (payload.results.length < 1)
+                throw "No results returned upon API request.";
             var entity;
-            try {
-                var results = payload.results;
-                var assumeFirst = results[0];
-                var stateParams = assumeFirst;
-                var entityClass = this.getDerivedClassStatic();
-                entity = entityClass.makeEntityFromPayload(stateParams, client);
-            }
-            catch (e) {
-                deferred.reject(e);
-                return;
-            }
-            if (!entity) {
-                deferred.reject("Failed to unserialize API response into entity.");
-                return;
-            }
-            deferred.resolve(entity);
+            var results = payload.results;
+            var assumeFirst = results[0];
+            var stateParams = assumeFirst;
+            var entityClass = this.getDerivedClassStatic();
+            entity = entityClass.makeEntityFromPayload(stateParams, client);
+            if (!entity)
+                throw "Failed to unserialize API response into entity.";
+            return entity;
         };
-        BillingEntity.getAllEntitiesFromResponse = function (payload, client, deferred) {
+        BillingEntity.getAllEntitiesFromResponse = function (payload, client) {
             var _this = this;
-            try {
-                if (payload.results.length === undefined) {
-                    deferred.reject("Received malformed response from API.");
-                    return;
-                }
-            }
-            catch (e) {
-                deferred.reject("Received malformed response from API.");
-                return;
-            }
+            if (!payload.results || !payload.results.length)
+                throw "Received malformed response from API.";
+            if (payload.results.length < 1)
+                throw "No results returned upon API request.";
             var entities;
-            try {
-                var results = payload.results;
-                entities = BillForward.Imports._.map(results, function (value) {
-                    var entityClass = _this.getDerivedClassStatic();
-                    var entity = entityClass.makeEntityFromPayload(value, client);
-                    if (!entity) {
-                        deferred.reject("Failed to unserialize API response into entity.");
-                        return false;
-                    }
-                    return entity;
-                });
-            }
-            catch (e) {
-                deferred.reject(e);
-                return;
-            }
-            if (!entities) {
-                deferred.reject("Failed to unserialize API response into entity.");
-                return;
-            }
-            deferred.resolve(entities);
+            var results = payload.results;
+            entities = BillForward.Imports._.map(results, function (value) {
+                var entityClass = _this.getDerivedClassStatic();
+                var entity = entityClass.makeEntityFromPayload(value, client);
+                if (!entity)
+                    throw "Failed to unserialize API response into entity.";
+                return entity;
+            });
+            if (!entities)
+                throw "Failed to unserialize API response into entity.";
+            return entities;
         };
         BillingEntity.makeEntityFromPayload = function (payload, client) {
             var entityClass = this.getDerivedClassStatic();
@@ -364,12 +347,14 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             var client = entity.getClient();
             var payload = entity.serialize();
-            return entityClass.makePostPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+            return entityClass.makePostPromise("/", null, payload, client).then(function (payload) {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+            });
         };
-        InsertableEntity.makePostPromise = function (endpoint, queryParams, payload, callback, client) {
+        InsertableEntity.makePostPromise = function (endpoint, queryParams, payload, client) {
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, callback, client);
+            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client);
         };
         return InsertableEntity;
     })(BillForward.BillingEntity);

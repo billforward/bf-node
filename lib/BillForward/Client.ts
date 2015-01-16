@@ -115,8 +115,6 @@ module BillForward {
     }
 
     static mockableRequestWrapper(callVerb:string, callArgs:Array<any>):any {
-      // var deferred:Q.Deferred<any> = Imports.Q.defer();
-
       return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
         try {
           Imports.restler[callVerb].apply(this, callArgs)
@@ -136,8 +134,6 @@ module BillForward {
             return reject(e);
         }
       });
-
-      // return deferred.promise;
     }
 
     private successResponse(obj:any):any {
@@ -158,7 +154,12 @@ module BillForward {
       var parsed = input;
       if (this.errorLogging) {
         if (input instanceof Object) {
-          parsed = JSON.stringify(input, null, "\t");
+          var jsonParse;
+          try {
+            jsonParse = JSON.stringify(input, null, "\t");
+            parsed = jsonParse;
+          } catch(e) {
+          }
         }
         console.error(parsed);
       }

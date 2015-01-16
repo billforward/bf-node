@@ -33,8 +33,8 @@ declare module BillForward {
         getClient(): Client;
         setClient(client: Client): void;
         protected static resolveRoute(endpoint?: string): string;
-        protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): Q.Promise<any>;
-        protected static makeGetPromise(endpoint: string, queryParams: Object, callback: any, client?: Client): any;
+        protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<any>;
+        protected static makeGetPromise(endpoint: string, queryParams: Object, client?: Client): any;
         static getByID(id: string, queryParams?: Object, client?: Client): any;
         static getAll(queryParams?: Object, client?: Client): any;
         static getResourcePath(): any;
@@ -50,8 +50,8 @@ declare module BillForward {
         protected addToEntity(key: string, value: any): void;
         protected buildEntity(entityClass: typeof BillingEntity, constructArgs: any): BillingEntity;
         protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: any[]): BillingEntity[];
-        protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity>): void;
-        protected static getAllEntitiesFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity[]>): void;
+        protected static getFirstEntityFromResponse(payload: any, client: Client): BillingEntity;
+        protected static getAllEntitiesFromResponse(payload: any, client: Client): BillingEntity[];
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
         static fetchIfNecessary(entityReference: any): Q.Promise<BillingEntity>;
         static makeBillForwardDate(date: Date): string;
@@ -61,7 +61,7 @@ declare module BillForward {
     class InsertableEntity extends BillingEntity {
         constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): any;
-        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
+        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): any;
     }
 }
 declare module BillForward {
