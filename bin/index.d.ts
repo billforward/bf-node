@@ -14,9 +14,9 @@ declare module BillForward {
         static makeDefault(accessToken: string, urlRoot: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
         static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
-        private successResponse(body, statusCode, headers, deferred);
-        private errorResponse(err, deferred);
-        static handlePromiseError(err: any, deferred: any): void;
+        static mockableRequestWrapper(callVerb: string, callArgs: any[]): any;
+        private successResponse(obj);
+        private errorResponse(input);
     }
 }
 declare module BillForward {

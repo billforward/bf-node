@@ -48,14 +48,6 @@ var BillForward;
             if (this.requestLogging) {
                 console.log(fullPath);
             }
-            var deferred = BillForward.Imports.Q.defer();
-            var callback = function (err, body, statusCode, headers) {
-                if (err) {
-                    _this.errorResponse(err, deferred);
-                    return;
-                }
-                _this.successResponse(body, statusCode, headers, deferred);
-            };
             var headers = {
                 'Authorization': 'Bearer ' + this.accessToken
             };
@@ -71,35 +63,54 @@ var BillForward;
                 callVerb += "Json";
                 callArgs.splice(1, 0, json);
             }
-            BillForward.Imports.restler[callVerb].apply(this, callArgs).on('success', function (data, response) {
-                _this.successResponse(data, 200, {}, deferred);
-            }).on('fail', function (data, response) {
-                _this.errorResponse(data, deferred);
+            return Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
+                return _this.successResponse(obj);
+            }).catch(function (obj) {
+                return _this.errorResponse(obj);
             });
-            return deferred.promise;
         };
-        Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
-            if (statusCode === 200) {
-                if (this.responseLogging) {
-                    console.log(JSON.stringify(body, null, "\t"));
+        Client.mockableRequestWrapper = function (callVerb, callArgs) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
+                        resolve({
+                            data: data,
+                            response: response
+                        });
+                    }).on('fail', function (data, response) {
+                        reject({
+                            data: data,
+                            response: response
+                        });
+                    });
                 }
-                deferred.resolve(body);
-                return;
-            }
-            this.errorResponse(body, deferred);
+                catch (e) {
+                    return reject(e);
+                }
+            });
         };
-        Client.prototype.errorResponse = function (err, deferred) {
-            var parsed = err;
+        Client.prototype.successResponse = function (obj) {
+            if (!obj || !obj.data || !obj.response) {
+                return this.errorResponse(obj);
+            }
+            if (obj.response.statusCode === 200) {
+                if (this.responseLogging) {
+                    console.log(JSON.stringify(obj.data, null, "\t"));
+                }
+                return obj.data;
+            }
+            return this.errorResponse(obj);
+        };
+        Client.prototype.errorResponse = function (input) {
+            var parsed = input;
             if (this.errorLogging) {
-                if (err instanceof Object) {
-                    parsed = JSON.stringify(err);
+                if (input instanceof Object) {
+                    parsed = JSON.stringify(input, null, "\t");
                 }
                 console.error(parsed);
             }
-            Client.handlePromiseError(parsed, deferred);
-        };
-        Client.handlePromiseError = function (err, deferred) {
-            deferred.reject(err);
+            throw parsed;
         };
         return Client;
     })();
@@ -143,8 +154,6 @@ var BillForward;
             var fullRoute = entityClass.resolveRoute(endpoint);
             client.request(verb, fullRoute, queryParams, payload).then(function (payload) {
                 callback.call(_this, payload, client, deferred);
-            }).catch(function (err) {
-                BillForward.Client.handlePromiseError(err, deferred);
             });
             return deferred.promise;
         };

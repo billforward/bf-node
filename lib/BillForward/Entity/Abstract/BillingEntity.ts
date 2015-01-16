@@ -47,9 +47,6 @@ module BillForward {
         client.request(verb, fullRoute, queryParams, payload)
         .then((payload) => {
                 callback.call(this, payload, client, deferred);
-            })
-        .catch(function(err) {
-                Client.handlePromiseError(err, deferred);
             });
 
         return deferred.promise;
