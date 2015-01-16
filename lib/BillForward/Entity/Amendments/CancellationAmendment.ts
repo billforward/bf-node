@@ -14,7 +14,7 @@ module BillForward {
 		 * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
 		 * @return CancellationAmendment The created cancellation amendment.
 		 */
-		static construct(subscription:Subscription, serviceEnd:ServiceEndTime = ServiceEndTime.AtPeriodEnd, actioningTime:any = 'Immediate'):CancellationAmendment {
+		static construct(subscription:Subscription, serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate'):CancellationAmendment {
 			var amendment = new CancellationAmendment({
 				'subscriptionID': (<any>subscription).id,
 				'serviceEnd': serviceEnd
@@ -39,7 +39,7 @@ module BillForward {
 		}
 	}
 	
-	export enum ServiceEndTime {
+	export enum ServiceEndState {
 		AtPeriodEnd,
 		Immediate
 	}

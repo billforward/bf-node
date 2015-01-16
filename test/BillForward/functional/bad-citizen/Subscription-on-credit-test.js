@@ -172,7 +172,7 @@ context(testBase.getContext(), function () {
 					});
 				});
 				describe('the dependent entities', function () {
-					it('are created succesfully', function () {
+					it('are created successfully', function () {
 						return Q
 						.all(_.values(promises))
 						.should.be.fulfilled;

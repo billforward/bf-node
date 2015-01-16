@@ -310,6 +310,24 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             return new entityClass(payload, client);
         };
+        BillingEntity.fetchIfNecessary = function (entityReference) {
+            var _this = this;
+            return Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClassStatic();
+                    if (typeof entityReference === "string") {
+                        return resolve(entityClass.getByID(entityReference));
+                    }
+                    if (entityReference instanceof entityClass) {
+                        return resolve(entityReference);
+                    }
+                    throw "Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.";
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         BillingEntity.makeBillForwardDate = function (date) {
             var asISO = date.toISOString();
             return asISO;
@@ -504,6 +522,51 @@ var BillForward;
             });
             return BillForward.AmendmentDiscardAmendment.create(amendment);
         };
+        Amendment.parseActioningTime = function (actioningTime, subscription) {
+            if (subscription === void 0) { subscription = null; }
+            return Q.Promise(function (resolve, reject) {
+                try {
+                    var date = null;
+                    if (actioningTime instanceof Date) {
+                        date = BillForward.BillingEntity.makeBillForwardDate(actioningTime);
+                    }
+                    else if (actioningTime === 'AtPeriodEnd') {
+                        if (!subscription) {
+                            throw 'Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.';
+                        }
+                        return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) {
+                            if (subscription.currentPeriodEnd) {
+                                return subscription.currentPeriodEnd;
+                            }
+                            else {
+                                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
+                            }
+                        }));
+                    }
+                    return resolve(date);
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Amendment.prototype.applyActioningTime = function (actioningTime) {
+            var _this = this;
+            return Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClass();
+                    return resolve(entityClass.parseActioningTime(actioningTime, _this.subscriptionID).then(function (parsedActioningTime) {
+                        if (parsedActioningTime !== null) {
+                            _this.actioningTime = parsedActioningTime;
+                        }
+                        return _this;
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Amendment._resourcePath = new BillForward.ResourcePath('amendments', 'amendment');
         return Amendment;
     })(BillForward.InsertableEntity);
@@ -562,11 +625,26 @@ var BillForward;
         return CancellationAmendment;
     })(BillForward.Amendment);
     BillForward.CancellationAmendment = CancellationAmendment;
-    (function (ServiceEndTime) {
-        ServiceEndTime[ServiceEndTime["AtPeriodEnd"] = 0] = "AtPeriodEnd";
-        ServiceEndTime[ServiceEndTime["Immediate"] = 1] = "Immediate";
-    })(BillForward.ServiceEndTime || (BillForward.ServiceEndTime = {}));
-    var ServiceEndTime = BillForward.ServiceEndTime;
+    (function (ServiceEndState) {
+        ServiceEndState[ServiceEndState["AtPeriodEnd"] = 0] = "AtPeriodEnd";
+        ServiceEndState[ServiceEndState["Immediate"] = 1] = "Immediate";
+    })(BillForward.ServiceEndState || (BillForward.ServiceEndState = {}));
+    var ServiceEndState = BillForward.ServiceEndState;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var UpdateComponentValueAmendment = (function (_super) {
+        __extends(UpdateComponentValueAmendment, _super);
+        function UpdateComponentValueAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client, true);
+            this.applyType('UpdateComponentValueAmendment');
+            this.unserialize(stateParams);
+        }
+        return UpdateComponentValueAmendment;
+    })(BillForward.Amendment);
+    BillForward.UpdateComponentValueAmendment = UpdateComponentValueAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -861,11 +939,11 @@ var BillForward;
         Subscription.prototype.usePaymentMethodsFromAccount = function (account) {
             var _this = this;
             if (account === void 0) { account = null; }
-            if (!account) {
-                return this.usePaymentMethodsFromAccountByID(this.accountID);
-            }
-            return Q.Promise(function (resolve, reject, notify) {
+            return Q.Promise(function (resolve, reject) {
                 try {
+                    if (!account) {
+                        return resolve(_this.usePaymentMethodsFromAccountByID(_this.accountID));
+                    }
                     if (!_this.paymentMethodSubscriptionLinks)
                         _this.paymentMethodSubscriptionLinks = [];
                     BillForward.Imports._.each(_this.paymentMethodSubscriptionLinks, function (paymentMethodSubscriptionLink) {
@@ -877,10 +955,10 @@ var BillForward;
                         });
                     });
                     _this.paymentMethodSubscriptionLinks = _this.paymentMethodSubscriptionLinks.concat(newLinks);
-                    resolve(_this);
+                    return resolve(_this);
                 }
                 catch (e) {
-                    reject(e);
+                    return reject(e);
                 }
             });
         };
@@ -895,7 +973,7 @@ var BillForward;
         };
         Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlan = function (ratePlan, componentNamesToValues) {
             var _this = this;
-            return Q.Promise(function (resolve, reject, notify) {
+            return Q.Promise(function (resolve, reject) {
                 try {
                     var componentIDsAgainstValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
                         var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (component) {
@@ -907,10 +985,10 @@ var BillForward;
                         });
                     });
                     _this.pricingComponentValues = componentIDsAgainstValues;
-                    resolve(_this);
+                    return resolve(_this);
                 }
                 catch (e) {
-                    reject(e);
+                    return reject(e);
                 }
             });
         };

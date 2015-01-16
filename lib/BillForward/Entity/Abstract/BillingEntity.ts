@@ -230,7 +230,32 @@ module BillForward {
         return new entityClass(payload, client);
     }
 
-    public static makeBillForwardDate(date:Date) {
+    /**
+     * Fetches (if necessary) entity by ID from API.
+     * Otherwise returns entity as-is.
+     * @param mixed ENUM[string id, static entity] Reference to the entity. <id>: Fetches entity by ID. <entity>: Returns entity as-is.
+     * @return static The gotten entity.
+     */
+    static fetchIfNecessary(entityReference): Q.Promise<BillingEntity> {
+        return <Q.Promise<BillingEntity>>Q.Promise((resolve, reject) => {
+            try {
+                var entityClass = this.getDerivedClassStatic();
+                if (typeof entityReference === "string") {
+                    // fetch entity by ID
+                    return resolve(entityClass.getByID(entityReference));
+                }
+                if (entityReference instanceof entityClass) {
+                    // is already a usable entity
+                    return resolve(<any>entityReference);
+                }
+                throw "Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.";
+            } catch (e) {
+                return reject(e);
+            }
+        });
+    }
+
+    static makeBillForwardDate(date:Date) {
         var asISO = date.toISOString();
         //var removeMilli = asISO.slice(0, -5)+"Z";
         return asISO;

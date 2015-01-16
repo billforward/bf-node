@@ -53,6 +53,7 @@ declare module BillForward {
         protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity>): void;
         protected static getAllEntitiesFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity[]>): void;
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
+        static fetchIfNecessary(entityReference: any): Q.Promise<BillingEntity>;
         static makeBillForwardDate(date: Date): string;
     }
 }
@@ -120,6 +121,8 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client, skipUnserialize?: boolean);
         applyType(type: string): void;
         discard(): any;
+        static parseActioningTime(actioningTime: any, subscription?: any): Q.Promise<BillingEntity>;
+        applyActioningTime(actioningTime: any): Q.Promise<BillingEntity>;
     }
 }
 declare module BillForward {
@@ -130,11 +133,16 @@ declare module BillForward {
 declare module BillForward {
     class CancellationAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
-        static construct(subscription: Subscription, serviceEnd?: ServiceEndTime, actioningTime?: any): CancellationAmendment;
+        static construct(subscription: Subscription, serviceEnd?: ServiceEndState, actioningTime?: any): CancellationAmendment;
     }
-    enum ServiceEndTime {
+    enum ServiceEndState {
         AtPeriodEnd = 0,
         Immediate = 1,
+    }
+}
+declare module BillForward {
+    class UpdateComponentValueAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
     }
 }
 declare module BillForward {
@@ -240,7 +248,7 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
-        cancel(serviceEnd?: ServiceEndTime, actioningTime?: any): any;
+        cancel(serviceEnd?: ServiceEndState, actioningTime?: any): any;
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
         usePaymentMethodsFromAccount(account?: Account): Q.Promise<Subscription>;
         setValuesOfPricingComponentsByName(componentNamesToValues: {

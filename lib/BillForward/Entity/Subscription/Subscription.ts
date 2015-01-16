@@ -28,7 +28,7 @@ module BillForward {
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
      * @return Q.Promise<CancellationAmendment> The created cancellation amendment.
      */
-    cancel(serviceEnd:ServiceEndTime = ServiceEndTime.AtPeriodEnd, actioningTime:any = 'Immediate') {
+    cancel(serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate') {
         var amendment = CancellationAmendment.construct(this, serviceEnd, actioningTime);
 
         // create amendment using API
@@ -44,12 +44,12 @@ module BillForward {
     }
 
     usePaymentMethodsFromAccount(account:Account = null):Q.Promise<Subscription> {
-        if (!account) {
-            return this.usePaymentMethodsFromAccountByID((<any>this).accountID);
-        }
-
-        return <Q.Promise<Subscription>>Q.Promise((resolve, reject, notify) => {
+        return <Q.Promise<Subscription>>Q.Promise((resolve, reject) => {
             try {
+                if (!account) {
+                    return resolve(this.usePaymentMethodsFromAccountByID((<any>this).accountID));
+                }
+
                 if (!(<any>this).paymentMethodSubscriptionLinks)
                 (<any>this).paymentMethodSubscriptionLinks = [];
 
@@ -65,9 +65,9 @@ module BillForward {
                 });
 
                 (<any>this).paymentMethodSubscriptionLinks = (<any>this).paymentMethodSubscriptionLinks.concat(newLinks);
-                resolve(<any>this);
+                return resolve(<any>this);
             } catch(e) {
-                reject(e);
+                return reject(e);
             }
         });
     }
@@ -84,7 +84,7 @@ module BillForward {
     }
 
     useValuesForNamedPricingComponentsOnRatePlan(ratePlan:ProductRatePlan, componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
-        return <Q.Promise<Subscription>>Q.Promise((resolve, reject, notify) => {
+        return <Q.Promise<Subscription>>Q.Promise((resolve, reject) => {
             try {
                 var componentIDsAgainstValues = Imports._.map(componentNamesToValues, function(currentValue, currentName) {
                     var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents, function(component) {
@@ -96,9 +96,9 @@ module BillForward {
                         });
                 });
                 (<any>this).pricingComponentValues = componentIDsAgainstValues;
-                resolve(<any>this);
+                return resolve(<any>this);
             } catch(e) {
-                reject(e);
+                return reject(e);
             }
         });
     }
