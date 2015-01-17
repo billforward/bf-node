@@ -104,6 +104,8 @@ var BillForward;
         };
         Client.prototype.errorResponse = function (input) {
             var parsed = input;
+            if (input.data)
+                parsed = input.data;
             if (this.errorLogging) {
                 if (input instanceof Object) {
                     var jsonParse;
@@ -374,12 +376,14 @@ var BillForward;
             var entityClass = this.getDerivedClass();
             var client = this.getClient();
             var payload = this.serialize();
-            return entityClass.makePutPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+            return entityClass.makePutPromise("/", null, payload, client).then(function (payload) {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+            });
         };
-        MutableEntity.makePutPromise = function (endpoint, queryParams, payload, callback, client) {
+        MutableEntity.makePutPromise = function (endpoint, queryParams, payload, client) {
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, callback, client);
+            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
         };
         return MutableEntity;
     })(BillForward.InsertableEntity);

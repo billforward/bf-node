@@ -68,7 +68,7 @@ declare module BillForward {
     class MutableEntity extends InsertableEntity {
         constructor(stateParams?: Object, client?: Client);
         save(): any;
-        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
+        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): any;
     }
 }
 declare module BillForward {

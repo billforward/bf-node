@@ -152,6 +152,8 @@ module BillForward {
 
     private errorResponse(input:any):any {
       var parsed = input;
+      if (input.data)
+      parsed = input.data;
       if (this.errorLogging) {
         if (input instanceof Object) {
           var jsonParse;
