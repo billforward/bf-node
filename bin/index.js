@@ -1062,7 +1062,29 @@ var BillForward;
                                 organizationID: correspondingPrescribedComponent.organizationID,
                             });
                         });
-                        var inserts = [];
+                        var remainingKeys = BillForward.Imports._.omit(componentNamesToValues, function (value) {
+                            return BillForward.Imports._.find(updates, function (update) {
+                                return BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
+                                    return BillForward.Imports._.find(componentNamesToValues, function (value, componentName) {
+                                        return pricingComponent.name === componentName;
+                                    }) !== undefined;
+                                });
+                            }) !== undefined;
+                        });
+                        var inserts = BillForward.Imports._.mapValues(remainingKeys, function (mappedValue, key) {
+                            var correspondingPrescribedComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
+                                return pricingComponent.name === key;
+                            });
+                            if (!correspondingPrescribedComponent)
+                                throw "This code path is meant to be unreachable; sorry. :(";
+                            return new BillForward.PricingComponentValue({
+                                pricingComponentID: correspondingPrescribedComponent.id,
+                                value: mappedValue,
+                                appliesTill: appliesTil,
+                                appliesFrom: appliesFrom,
+                                organizationID: correspondingPrescribedComponent.organizationID,
+                            });
+                        });
                         var modifiedComponentValues = updates.concat(inserts);
                         _this.pricingComponentValues = modifiedComponentValues;
                         return _this;

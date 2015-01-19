@@ -175,7 +175,42 @@ module BillForward {
                                 });
                         });
 
-                    var inserts = [];
+                    var remainingKeys = Imports._.omit(componentNamesToValues,
+                        value => {
+                            // has corresponding update already accounted for
+                            return Imports._.find(updates,
+                                update => {
+                                    // find any PCs that have the ID of this update
+                                    return Imports._.find(pricingComponents,
+                                        pricingComponent => {
+                                            // return as match if name matches a prescribed component
+                                            return Imports._.find(componentNamesToValues,
+                                                (value, componentName) => {
+                                                    return (<any>pricingComponent).name === componentName;
+                                                    }) !== undefined;
+                                            });
+                                    }) !== undefined;
+                            });
+
+                    var inserts = Imports._.mapValues(remainingKeys,
+                        (mappedValue, key) => {
+                            var correspondingPrescribedComponent = Imports._.find(pricingComponents,
+                                pricingComponent => {
+                                    // return as match if name matches a prescribed component
+                                    return (<any>pricingComponent).name === key;
+                                    });
+
+                            if (!correspondingPrescribedComponent) throw "This code path is meant to be unreachable; sorry. :(";
+
+                            return new PricingComponentValue({
+                                pricingComponentID: (<any>correspondingPrescribedComponent).id,
+                                value: mappedValue,
+                                appliesTill: appliesTil,
+                                appliesFrom: appliesFrom,
+                                organizationID: (<any>correspondingPrescribedComponent).organizationID,
+                                });
+                            });
+
 
                     var modifiedComponentValues = updates.concat(inserts);
 
