@@ -19,8 +19,19 @@ module.exports = function(BillForward) {
 				'lastName': 'Owen',
 			'addresses': [address]
 		});
+		var paymentMethod = new BillForward.PaymentMethod({
+		    'name': 'Credit Notes',
+		    'description': 'Pay using credit',
+		    'linkID': '',
+		    'gateway': 'credit_note',
+		    'userEditable': 0,
+		    'priority': 100,
+		    'reusable': 1,
+		    'defaultPaymentMethod': true
+	    });
 		var account = new BillForward.Account({
-			profile: profile
+			profile: profile,
+			paymentMethods: [paymentMethod]
 		});
 
 		return account;
