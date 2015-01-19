@@ -102,5 +102,17 @@ module BillForward {
             }
         });
     }
+
+    getCurrentPeriodEnd() {
+        if ((<any>this).currentPeriodEnd) {
+            return (<any>this).currentPeriodEnd;
+        } else {
+            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
+        }
+    }
+
+    /*modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
+
+        }*/
   }
 }

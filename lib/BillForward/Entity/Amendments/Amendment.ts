@@ -41,13 +41,7 @@ module BillForward {
                         throw 'Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.';
                     }
                     return resolve(Subscription.fetchIfNecessary(subscription)
-                        .then((subscription) => {
-                            if ((<any>subscription).currentPeriodEnd) {
-                                return (<any>subscription).currentPeriodEnd;
-                            } else {
-                                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
-                            }
-                            }));
+                        .then(subscription => (<Subscription>subscription).getCurrentPeriodEnd));
                 }
                 return resolve(date);
             } catch (e) {

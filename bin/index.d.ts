@@ -14,7 +14,7 @@ declare module BillForward {
         static makeDefault(accessToken: string, urlRoot: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
         static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
-        static mockableRequestWrapper(callVerb: string, callArgs: any[]): any;
+        static mockableRequestWrapper(callVerb: string, callArgs: Array<any>): any;
         private successResponse(obj);
         private errorResponse(input);
     }
@@ -22,12 +22,12 @@ declare module BillForward {
 declare module BillForward {
     class BillingEntity {
         protected _client: Client;
-        protected _exemptFromSerialization: string[];
+        protected _exemptFromSerialization: Array<string>;
         protected _registeredEntities: {
-            [x: string]: typeof BillingEntity;
+            [classKey: string]: typeof BillingEntity;
         };
         protected _registeredEntityArrays: {
-            [x: string]: typeof BillingEntity;
+            [classKey: string]: typeof BillingEntity;
         };
         constructor(stateParams?: Object, client?: Client);
         getClient(): Client;
@@ -49,9 +49,9 @@ declare module BillForward {
         protected unserialize(json: Object): void;
         protected addToEntity(key: string, value: any): void;
         protected buildEntity(entityClass: typeof BillingEntity, constructArgs: any): BillingEntity;
-        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: any[]): BillingEntity[];
+        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: Array<any>): Array<BillingEntity>;
         protected static getFirstEntityFromResponse(payload: any, client: Client): BillingEntity;
-        protected static getAllEntitiesFromResponse(payload: any, client: Client): BillingEntity[];
+        protected static getAllEntitiesFromResponse(payload: any, client: Client): Array<BillingEntity>;
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
         static fetchIfNecessary(entityReference: any): Q.Promise<BillingEntity>;
         static makeBillForwardDate(date: Date): string;
@@ -252,14 +252,15 @@ declare module BillForward {
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
         usePaymentMethodsFromAccount(account?: Account): Q.Promise<Subscription>;
         setValuesOfPricingComponentsByName(componentNamesToValues: {
-            [x: string]: Number;
+            [componentName: string]: Number;
         }): Q.Promise<Subscription>;
         useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID: string, componentNamesToValues: {
-            [x: string]: Number;
+            [componentName: string]: Number;
         }): Q.Promise<Subscription>;
         useValuesForNamedPricingComponentsOnRatePlan(ratePlan: ProductRatePlan, componentNamesToValues: {
-            [x: string]: Number;
+            [componentName: string]: Number;
         }): Q.Promise<Subscription>;
+        getCurrentPeriodEnd(): any;
     }
 }
 declare module BillForward {

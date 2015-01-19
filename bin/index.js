@@ -533,14 +533,7 @@ var BillForward;
                         if (!subscription) {
                             throw 'Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.';
                         }
-                        return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) {
-                            if (subscription.currentPeriodEnd) {
-                                return subscription.currentPeriodEnd;
-                            }
-                            else {
-                                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
-                            }
-                        }));
+                        return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) { return subscription.getCurrentPeriodEnd; }));
                     }
                     return resolve(date);
                 }
@@ -985,6 +978,14 @@ var BillForward;
                     return reject(e);
                 }
             });
+        };
+        Subscription.prototype.getCurrentPeriodEnd = function () {
+            if (this.currentPeriodEnd) {
+                return this.currentPeriodEnd;
+            }
+            else {
+                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
+            }
         };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;
