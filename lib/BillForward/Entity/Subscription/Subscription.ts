@@ -138,6 +138,17 @@ module BillForward {
 
                 var supportedChargeTypes = ["usage"];
 
+                var componentGenerator = (correspondingComponent:any, mappedValue:Number) => {
+                    return new PricingComponentValue({
+                        pricingComponentID: correspondingComponent.id,
+                        value: mappedValue,
+                        appliesTill: appliesTil,
+                        appliesFrom: appliesFrom,
+                        organizationID: correspondingComponent.organizationID,
+                        subscriptionID: (<any>this).id
+                        });
+                }
+
                 return resolve(this.getRatePlan()
                 .then(ratePlan => {
                     var pricingComponents = (<any>ratePlan).pricingComponents;
@@ -166,13 +177,7 @@ module BillForward {
                             if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
                             throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", "));
 
-                            return new PricingComponentValue({
-                                pricingComponentID: (<any>correspondingComponent).id,
-                                value: mappedValue,
-                                appliesTill: appliesTil,
-                                appliesFrom: appliesFrom,
-                                organizationID: (<any>correspondingComponent).organizationID,
-                                });
+                            return componentGenerator(correspondingComponent, mappedValue);
                         });
 
                     var remainingKeys = Imports._.omit(componentNamesToValues,
@@ -204,13 +209,7 @@ module BillForward {
 
                             if (!correspondingPrescribedComponent) throw Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
 
-                            return new PricingComponentValue({
-                                pricingComponentID: (<any>correspondingPrescribedComponent).id,
-                                value: mappedValue,
-                                appliesTill: appliesTil,
-                                appliesFrom: appliesFrom,
-                                organizationID: (<any>correspondingPrescribedComponent).organizationID,
-                                });
+                            return componentGenerator(correspondingPrescribedComponent, mappedValue);
                             });
 
                     var modifiedComponentValues = updates.concat(inserts);

@@ -1039,6 +1039,16 @@ var BillForward;
                     var appliesTil = currentPeriodEnd;
                     var appliesFrom = BillForward.BillingEntity.getBillForwardNow();
                     var supportedChargeTypes = ["usage"];
+                    var componentGenerator = function (correspondingComponent, mappedValue) {
+                        return new BillForward.PricingComponentValue({
+                            pricingComponentID: correspondingComponent.id,
+                            value: mappedValue,
+                            appliesTill: appliesTil,
+                            appliesFrom: appliesFrom,
+                            organizationID: correspondingComponent.organizationID,
+                            subscriptionID: _this.id
+                        });
+                    };
                     return resolve(_this.getRatePlan().then(function (ratePlan) {
                         var pricingComponents = ratePlan.pricingComponents;
                         var updates = BillForward.Imports._.map(_this.pricingComponentValues, function (pricingComponentValue) {
@@ -1054,13 +1064,7 @@ var BillForward;
                                 return pricingComponentValue;
                             if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingComponent.chargeType))
                                 throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", "));
-                            return new BillForward.PricingComponentValue({
-                                pricingComponentID: correspondingComponent.id,
-                                value: mappedValue,
-                                appliesTill: appliesTil,
-                                appliesFrom: appliesFrom,
-                                organizationID: correspondingComponent.organizationID,
-                            });
+                            return componentGenerator(correspondingComponent, mappedValue);
                         });
                         var remainingKeys = BillForward.Imports._.omit(componentNamesToValues, function (value, componentName) {
                             return BillForward.Imports._.find(updates, function (update) {
@@ -1079,13 +1083,7 @@ var BillForward;
                             });
                             if (!correspondingPrescribedComponent)
                                 throw BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
-                            return new BillForward.PricingComponentValue({
-                                pricingComponentID: correspondingPrescribedComponent.id,
-                                value: mappedValue,
-                                appliesTill: appliesTil,
-                                appliesFrom: appliesFrom,
-                                organizationID: correspondingPrescribedComponent.organizationID,
-                            });
+                            return componentGenerator(correspondingPrescribedComponent, mappedValue);
                         });
                         var modifiedComponentValues = updates.concat(inserts);
                         _this.pricingComponentValues = modifiedComponentValues;
