@@ -111,8 +111,60 @@ module BillForward {
         }
     }
 
-    /*modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
+    getRatePlan():Q.Promise<ProductRatePlan> {
+        return <Q.Promise<ProductRatePlan>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var ref:EntityReference;
+                // could use ID
+                if ((<any>this).productRatePlanID)
+                ref = (<any>this).productRatePlanID;
+                // prefer rate plan entity if present
+                if ((<any>this).productRatePlan)
+                ref = (<any>this).productRatePlan;
 
-        }*/
+                return resolve(ProductRatePlan.fetchIfNecessary(ref));
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var currentPeriodEnd = this.getCurrentPeriodEnd();
+                var validTil = currentPeriodEnd;
+
+                var supportedChargeTypes = ["usage"];
+
+                return resolve(this.getRatePlan()
+                .then(ratePlan => {
+                    console.log(ratePlan);
+                    var modifiedComponentValues = Imports._.map(componentNamesToValues,
+                        (currentValue, currentName) => {
+                            var matchedComponent = Imports._.find((<any>this).pricingComponents,
+                                (pricingComponent) => {
+                                    return (<any>pricingComponent).name === currentName;
+                                });
+
+                            if (!matchedComponent) return;
+
+                            if (!Imports._.contains(supportedChargeTypes, (<any>matchedComponent).chargeType))
+                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>matchedComponent).chargeType, supportedChargeTypes.join(", "));
+
+                            return new PricingComponentValue({
+                                pricingComponentID: (<any>matchedComponent).id,
+                                value: currentValue,
+                                validTill: validTil
+                                });
+                        });
+                    (<any>this).pricingComponentValues = modifiedComponentValues;
+                    return <Subscription>this;
+                    }));
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
   }
 }

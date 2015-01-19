@@ -7,9 +7,9 @@ var BillForward;
             if (errorLogging === void 0) { errorLogging = false; }
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
-            this.requestLogging = requestLogging;
-            this.responseLogging = responseLogging;
-            this.errorLogging = errorLogging;
+            this.requestLogging = !!requestLogging;
+            this.responseLogging = !!responseLogging;
+            this.errorLogging = !!errorLogging;
         }
         Client.prototype.getAccessToken = function () {
             return this.accessToken;
@@ -21,11 +21,34 @@ var BillForward;
             Client.singletonClient = client;
             return Client.singletonClient;
         };
-        Client.makeDefault = function (accessToken, urlRoot, requestLogging, responseLogging, errorLogging) {
-            if (requestLogging === void 0) { requestLogging = false; }
-            if (responseLogging === void 0) { responseLogging = false; }
-            if (errorLogging === void 0) { errorLogging = false; }
-            var client = new Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging);
+        Client.makeDefault = function (accessTokenOrObj, urlRoot, requestLogging, responseLogging, errorLogging) {
+            var _accessToken;
+            var _urlRoot;
+            var _responseLogging = false;
+            var _requestLogging = false;
+            var _errorLogging = false;
+            if (typeof accessTokenOrObj === 'string') {
+                _accessToken = accessTokenOrObj;
+                _urlRoot = urlRoot;
+                if (requestLogging)
+                    _requestLogging = requestLogging;
+                if (responseLogging)
+                    _responseLogging = responseLogging;
+                if (errorLogging)
+                    _errorLogging = errorLogging;
+            }
+            else {
+                var obj = accessTokenOrObj;
+                _accessToken = obj.accessToken;
+                _urlRoot = obj.urlRoot;
+                if (requestLogging)
+                    _requestLogging = obj.requestLogging;
+                if (responseLogging)
+                    _responseLogging = obj.responseLogging;
+                if (errorLogging)
+                    _errorLogging = obj.errorLogging;
+            }
+            var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
             return Client.setDefault(client);
         };
         Client.getDefaultClient = function () {
@@ -987,6 +1010,54 @@ var BillForward;
                 throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
             }
         };
+        Subscription.prototype.getRatePlan = function () {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var ref;
+                    if (_this.productRatePlanID)
+                        ref = _this.productRatePlanID;
+                    if (_this.productRatePlan)
+                        ref = _this.productRatePlan;
+                    return resolve(BillForward.ProductRatePlan.fetchIfNecessary(ref));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Subscription.prototype.modifyUsage = function (componentNamesToValues) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var currentPeriodEnd = _this.getCurrentPeriodEnd();
+                    var validTil = currentPeriodEnd;
+                    var supportedChargeTypes = ["usage"];
+                    return resolve(_this.getRatePlan().then(function (ratePlan) {
+                        console.log(ratePlan);
+                        var modifiedComponentValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
+                            var matchedComponent = BillForward.Imports._.find(_this.pricingComponents, function (pricingComponent) {
+                                return pricingComponent.name === currentName;
+                            });
+                            if (!matchedComponent)
+                                return;
+                            if (!BillForward.Imports._.contains(supportedChargeTypes, matchedComponent.chargeType))
+                                throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", matchedComponent.chargeType, supportedChargeTypes.join(", "));
+                            return new BillForward.PricingComponentValue({
+                                pricingComponentID: matchedComponent.id,
+                                value: currentValue,
+                                validTill: validTil
+                            });
+                        });
+                        _this.pricingComponentValues = modifiedComponentValues;
+                        return _this;
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;
     })(BillForward.MutableEntity);
@@ -1060,6 +1131,7 @@ var BillForward;
         Imports._ = require('lodash');
         Imports.restler = require('restler');
         Imports.Q = require('q');
+        Imports.util = require('util');
         return Imports;
     })();
     BillForward.Imports = Imports;

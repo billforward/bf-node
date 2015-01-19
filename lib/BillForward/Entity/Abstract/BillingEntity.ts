@@ -1,5 +1,7 @@
 module BillForward {
 
+    export type EntityReference = string | BillingEntity;
+
   export class BillingEntity {
 
   	protected _client:Client;
@@ -213,7 +215,7 @@ module BillForward {
      * @param mixed ENUM[string id, BillingEntity entity] Reference to the entity. <id>: Fetches entity by ID. <entity>: Returns entity as-is.
      * @return static The gotten entity.
      */
-    static fetchIfNecessary(entityReference:any): Q.Promise<BillingEntity> {
+    static fetchIfNecessary(entityReference: EntityReference): Q.Promise<BillingEntity> {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var entityClass = this.getDerivedClassStatic();
@@ -221,7 +223,7 @@ module BillForward {
                     // fetch entity by ID
                     return resolve(entityClass.getByID(entityReference));
                 }
-                if (entityReference instanceof entityClass) {
+                if (<any>entityReference instanceof entityClass) {
                     // is already a usable entity
                     return resolve(<any>entityReference);
                 }

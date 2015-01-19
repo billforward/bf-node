@@ -1,5 +1,12 @@
 /// <reference path="../typings/tsd.d.ts" />
 declare module BillForward {
+    type clientConstructObj = {
+        accessToken: string;
+        urlRoot: string;
+        requestLogging?: boolean;
+        responseLogging?: boolean;
+        errorLogging?: boolean;
+    };
     class Client {
         private static singletonClient;
         private accessToken;
@@ -11,7 +18,8 @@ declare module BillForward {
         getAccessToken(): string;
         getUrlRoot(): string;
         static setDefault(client: Client): Client;
-        static makeDefault(accessToken: string, urlRoot: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
+        static makeDefault(obj: clientConstructObj): Client;
+        static makeDefault(accessToken: string, urlRoot?: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
         static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
         static mockableRequestWrapper(callVerb: string, callArgs: Array<any>): any;
@@ -20,6 +28,7 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    type EntityReference = string | BillingEntity;
     class BillingEntity {
         protected _client: Client;
         protected _exemptFromSerialization: Array<string>;
@@ -53,7 +62,7 @@ declare module BillForward {
         protected static getFirstEntityFromResponse(payload: any, client: Client): BillingEntity;
         protected static getAllEntitiesFromResponse(payload: any, client: Client): Array<BillingEntity>;
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
-        static fetchIfNecessary(entityReference: any): Q.Promise<BillingEntity>;
+        static fetchIfNecessary(entityReference: EntityReference): Q.Promise<BillingEntity>;
         static makeBillForwardDate(date: Date): string;
     }
 }
@@ -261,6 +270,10 @@ declare module BillForward {
             [componentName: string]: Number;
         }): Q.Promise<Subscription>;
         getCurrentPeriodEnd(): any;
+        getRatePlan(): Q.Promise<ProductRatePlan>;
+        modifyUsage(componentNamesToValues: {
+            [componentName: string]: Number;
+        }): Q.Promise<Subscription>;
     }
 }
 declare module BillForward {
@@ -292,6 +305,7 @@ declare module BillForward {
         static _: _.LoDashStatic;
         static restler: any;
         static Q: any;
+        static util: any;
     }
 }
 declare module BillForward {

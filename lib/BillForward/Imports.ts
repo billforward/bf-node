@@ -3,5 +3,6 @@ module BillForward {
 		static _:_.LoDashStatic = require('lodash');
 		static restler:any = require('restler');
 		static Q = require('q');
+		static util = require('util');
 	}
 }

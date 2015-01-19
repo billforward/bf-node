@@ -1,4 +1,5 @@
 module BillForward {
+  export type clientConstructObj = { accessToken:string; urlRoot:string; requestLogging?:boolean; responseLogging?:boolean; errorLogging?:boolean; };
 
   export class Client {
 
@@ -15,9 +16,9 @@ module BillForward {
       this.accessToken = accessToken;
       this.urlRoot = urlRoot;
       
-      this.requestLogging = requestLogging;
-      this.responseLogging = responseLogging;
-      this.errorLogging = errorLogging;
+      this.requestLogging = !!requestLogging;
+      this.responseLogging = !!responseLogging;
+      this.errorLogging = !!errorLogging;
     }
 
     getAccessToken():string {
@@ -33,8 +34,36 @@ module BillForward {
       return Client.singletonClient;
     }
 
-    static makeDefault(accessToken:string, urlRoot:string, requestLogging:boolean = false, responseLogging:boolean = false, errorLogging:boolean = false):Client {
-      var client = new Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging);
+    static makeDefault(obj:clientConstructObj): Client;
+    static makeDefault(accessToken:string, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean): Client;
+
+    /*static makeDefault(obj:Object):Client {
+      var client = new Client(obj.accessToken, obj.urlRoot, obj.requestLogging, obj.responseLogging, obj.errorLogging);
+      return Client.setDefault(client);
+    }*/
+
+    static makeDefault(accessTokenOrObj:any, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean):Client {
+      var _accessToken:string;
+      var _urlRoot:string;
+      var _responseLogging:boolean = false;
+      var _requestLogging:boolean = false;
+      var _errorLogging:boolean = false;
+      if (typeof accessTokenOrObj === 'string') {
+        _accessToken = <string>accessTokenOrObj;
+        _urlRoot = urlRoot;
+        if (requestLogging) _requestLogging = requestLogging;
+        if (responseLogging) _responseLogging = responseLogging;
+        if (errorLogging) _errorLogging = errorLogging;
+      } else {
+        var obj = <clientConstructObj>accessTokenOrObj;
+        _accessToken = obj.accessToken;
+        _urlRoot = obj.urlRoot;
+        if (requestLogging) _requestLogging = obj.requestLogging;
+        if (responseLogging) _responseLogging = obj.responseLogging;
+        if (errorLogging) _errorLogging = obj.errorLogging;
+      }
+
+      var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
       return Client.setDefault(client);
     }
 
