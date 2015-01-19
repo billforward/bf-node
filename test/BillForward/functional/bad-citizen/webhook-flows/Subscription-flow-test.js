@@ -153,7 +153,8 @@ context(testBase.getContext(), function () {
 									'name':                           'Memorable Subscription',
 									'description':                    'Memorable Subscription Description',
 									'paymentMethodSubscriptionLinks': models.paymentMethodLinks,
-									'pricingComponentValues':         models.pricingComponentValues
+									'pricingComponentValues':         models.pricingComponentValues,
+									'creditEnabled':                  true
 								});
 
 								return BillForward.Subscription.create(models.subscription);

@@ -239,5 +239,11 @@ module BillForward {
         var removeMilli = asISO.slice(0, -5)+"Z";
         return removeMilli;
     }
+
+    static getBillForwardNow() {
+        var now = new Date();
+        var entityClass = this.getDerivedClassStatic();
+        return entityClass.makeBillForwardDate(now);
+    }
   } 
 }

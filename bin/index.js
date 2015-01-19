@@ -7,9 +7,9 @@ var BillForward;
             if (errorLogging === void 0) { errorLogging = false; }
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
-            this.requestLogging = !!requestLogging;
-            this.responseLogging = !!responseLogging;
-            this.errorLogging = !!errorLogging;
+            this.requestLogging = requestLogging;
+            this.responseLogging = responseLogging;
+            this.errorLogging = errorLogging;
         }
         Client.prototype.getAccessToken = function () {
             return this.accessToken;
@@ -41,11 +41,11 @@ var BillForward;
                 var obj = accessTokenOrObj;
                 _accessToken = obj.accessToken;
                 _urlRoot = obj.urlRoot;
-                if (requestLogging)
+                if (obj.requestLogging)
                     _requestLogging = obj.requestLogging;
-                if (responseLogging)
+                if (obj.responseLogging)
                     _responseLogging = obj.responseLogging;
-                if (errorLogging)
+                if (obj.errorLogging)
                     _errorLogging = obj.errorLogging;
             }
             var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
@@ -349,6 +349,11 @@ var BillForward;
             var asISO = date.toISOString();
             var removeMilli = asISO.slice(0, -5) + "Z";
             return removeMilli;
+        };
+        BillingEntity.getBillForwardNow = function () {
+            var now = new Date();
+            var entityClass = this.getDerivedClassStatic();
+            return entityClass.makeBillForwardDate(now);
         };
         return BillingEntity;
     })();
@@ -1031,14 +1036,14 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var currentPeriodEnd = _this.getCurrentPeriodEnd();
-                    var validTil = currentPeriodEnd;
+                    var appliesTil = currentPeriodEnd;
+                    var appliesFrom = BillForward.BillingEntity.getBillForwardNow();
                     var supportedChargeTypes = ["usage"];
                     return resolve(_this.getRatePlan().then(function (ratePlan) {
                         var modifiedComponentValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
                             var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (pricingComponent) {
                                 return pricingComponent.name === currentName;
                             });
-                            console.log(matchedComponent.toString());
                             if (!matchedComponent)
                                 return;
                             if (!BillForward.Imports._.contains(supportedChargeTypes, matchedComponent.chargeType))
@@ -1046,7 +1051,9 @@ var BillForward;
                             return new BillForward.PricingComponentValue({
                                 pricingComponentID: matchedComponent.id,
                                 value: currentValue,
-                                validTill: validTil
+                                appliesTill: appliesTil,
+                                appliesFrom: appliesFrom,
+                                organizationID: matchedComponent.organizationID,
                             });
                         });
                         _this.pricingComponentValues = modifiedComponentValues;

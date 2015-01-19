@@ -16,9 +16,9 @@ module BillForward {
       this.accessToken = accessToken;
       this.urlRoot = urlRoot;
       
-      this.requestLogging = !!requestLogging;
-      this.responseLogging = !!responseLogging;
-      this.errorLogging = !!errorLogging;
+      this.requestLogging = requestLogging;
+      this.responseLogging = responseLogging;
+      this.errorLogging = errorLogging;
     }
 
     getAccessToken():string {
@@ -58,9 +58,9 @@ module BillForward {
         var obj = <clientConstructObj>accessTokenOrObj;
         _accessToken = obj.accessToken;
         _urlRoot = obj.urlRoot;
-        if (requestLogging) _requestLogging = obj.requestLogging;
-        if (responseLogging) _responseLogging = obj.responseLogging;
-        if (errorLogging) _errorLogging = obj.errorLogging;
+        if (obj.requestLogging) _requestLogging = obj.requestLogging;
+        if (obj.responseLogging) _responseLogging = obj.responseLogging;
+        if (obj.errorLogging) _errorLogging = obj.errorLogging;
       }
 
       var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);

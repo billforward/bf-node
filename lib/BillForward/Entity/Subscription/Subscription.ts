@@ -133,7 +133,8 @@ module BillForward {
         return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var currentPeriodEnd = this.getCurrentPeriodEnd();
-                var validTil = currentPeriodEnd;
+                var appliesTil = currentPeriodEnd;
+                var appliesFrom = BillingEntity.getBillForwardNow();
 
                 var supportedChargeTypes = ["usage"];
 
@@ -146,8 +147,6 @@ module BillForward {
                                     return (<any>pricingComponent).name === currentName;
                                 });
 
-                            console.log(matchedComponent.toString());
-
                             if (!matchedComponent) return;
 
                             if (!Imports._.contains(supportedChargeTypes, (<any>matchedComponent).chargeType))
@@ -156,7 +155,9 @@ module BillForward {
                             return new PricingComponentValue({
                                 pricingComponentID: (<any>matchedComponent).id,
                                 value: currentValue,
-                                validTill: validTil
+                                appliesTill: appliesTil,
+                                appliesFrom: appliesFrom,
+                                organizationID: (<any>matchedComponent).organizationID,
                                 });
                         });
                     (<any>this).pricingComponentValues = modifiedComponentValues;

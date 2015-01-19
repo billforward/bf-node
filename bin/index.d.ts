@@ -64,6 +64,7 @@ declare module BillForward {
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
         static fetchIfNecessary(entityReference: EntityReference): Q.Promise<BillingEntity>;
         static makeBillForwardDate(date: Date): string;
+        static getBillForwardNow(): any;
     }
 }
 declare module BillForward {
