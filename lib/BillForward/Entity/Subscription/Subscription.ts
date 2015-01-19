@@ -140,26 +140,45 @@ module BillForward {
 
                 return resolve(this.getRatePlan()
                 .then(ratePlan => {
-                    var modifiedComponentValues = Imports._.map(componentNamesToValues,
-                        (currentValue, currentName) => {
-                            var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents,
-                                (pricingComponent) => {
-                                    return (<any>pricingComponent).name === currentName;
-                                });
+                    var pricingComponents = (<any>ratePlan).pricingComponents;
 
-                            if (!matchedComponent) return;
+                    var updates = Imports._.map((<any>this).pricingComponentValues,
+                        pricingComponentValue => {
+                            // find out if any prescribed component names a component whose ID matches mine
+                            var correspondingPrescribedComponent = Imports._.find(pricingComponents,
+                                pricingComponent => {
+                                    // return as match if name matches a prescribed component
+                                    return Imports._.find(componentNamesToValues,
+                                        (value, componentName) => {
+                                            return (<any>pricingComponent).name === componentName;
+                                            }) !== undefined;
+                                    });
 
-                            if (!Imports._.contains(supportedChargeTypes, (<any>matchedComponent).chargeType))
-                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>matchedComponent).chargeType, supportedChargeTypes.join(", "));
+                            // if no change prescribed, return as-is
+                            if (!correspondingPrescribedComponent) return pricingComponentValue;
+
+                            // if change prescribed, ensure is a 'usage' component or other compatible component.
+                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingPrescribedComponent).chargeType))
+                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingPrescribedComponent).chargeType, supportedChargeTypes.join(", "));
+
+                            var mappedValue = Imports._.find(componentNamesToValues,
+                                (value, componentName) => {
+                                    return (<any>correspondingPrescribedComponent).name === componentName;
+                                    });
 
                             return new PricingComponentValue({
-                                pricingComponentID: (<any>matchedComponent).id,
-                                value: currentValue,
+                                pricingComponentID: (<any>correspondingPrescribedComponent).id,
+                                value: mappedValue,
                                 appliesTill: appliesTil,
                                 appliesFrom: appliesFrom,
-                                organizationID: (<any>matchedComponent).organizationID,
+                                organizationID: (<any>correspondingPrescribedComponent).organizationID,
                                 });
                         });
+
+                    var inserts = [];
+
+                    var modifiedComponentValues = updates.concat(inserts);
+
                     (<any>this).pricingComponentValues = modifiedComponentValues;
                     return <Subscription>this;
                     }));

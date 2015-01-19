@@ -1040,22 +1040,30 @@ var BillForward;
                     var appliesFrom = BillForward.BillingEntity.getBillForwardNow();
                     var supportedChargeTypes = ["usage"];
                     return resolve(_this.getRatePlan().then(function (ratePlan) {
-                        var modifiedComponentValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
-                            var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (pricingComponent) {
-                                return pricingComponent.name === currentName;
+                        var pricingComponents = ratePlan.pricingComponents;
+                        var updates = BillForward.Imports._.map(_this.pricingComponentValues, function (pricingComponentValue) {
+                            var correspondingPrescribedComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
+                                return BillForward.Imports._.find(componentNamesToValues, function (value, componentName) {
+                                    return pricingComponent.name === componentName;
+                                }) !== undefined;
                             });
-                            if (!matchedComponent)
-                                return;
-                            if (!BillForward.Imports._.contains(supportedChargeTypes, matchedComponent.chargeType))
-                                throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", matchedComponent.chargeType, supportedChargeTypes.join(", "));
+                            if (!correspondingPrescribedComponent)
+                                return pricingComponentValue;
+                            if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingPrescribedComponent.chargeType))
+                                throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingPrescribedComponent.chargeType, supportedChargeTypes.join(", "));
+                            var mappedValue = BillForward.Imports._.find(componentNamesToValues, function (value, componentName) {
+                                return correspondingPrescribedComponent.name === componentName;
+                            });
                             return new BillForward.PricingComponentValue({
-                                pricingComponentID: matchedComponent.id,
-                                value: currentValue,
+                                pricingComponentID: correspondingPrescribedComponent.id,
+                                value: mappedValue,
                                 appliesTill: appliesTil,
                                 appliesFrom: appliesFrom,
-                                organizationID: matchedComponent.organizationID,
+                                organizationID: correspondingPrescribedComponent.organizationID,
                             });
                         });
+                        var inserts = [];
+                        var modifiedComponentValues = updates.concat(inserts);
                         _this.pricingComponentValues = modifiedComponentValues;
                         return _this;
                     }));
