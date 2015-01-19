@@ -139,13 +139,14 @@ module BillForward {
 
                 return resolve(this.getRatePlan()
                 .then(ratePlan => {
-                    console.log(ratePlan);
                     var modifiedComponentValues = Imports._.map(componentNamesToValues,
                         (currentValue, currentName) => {
-                            var matchedComponent = Imports._.find((<any>this).pricingComponents,
+                            var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents,
                                 (pricingComponent) => {
                                     return (<any>pricingComponent).name === currentName;
                                 });
+
+                            console.log(matchedComponent.toString());
 
                             if (!matchedComponent) return;
 

@@ -1034,11 +1034,11 @@ var BillForward;
                     var validTil = currentPeriodEnd;
                     var supportedChargeTypes = ["usage"];
                     return resolve(_this.getRatePlan().then(function (ratePlan) {
-                        console.log(ratePlan);
                         var modifiedComponentValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
-                            var matchedComponent = BillForward.Imports._.find(_this.pricingComponents, function (pricingComponent) {
+                            var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (pricingComponent) {
                                 return pricingComponent.name === currentName;
                             });
+                            console.log(matchedComponent.toString());
                             if (!matchedComponent)
                                 return;
                             if (!BillForward.Imports._.contains(supportedChargeTypes, matchedComponent.chargeType))
