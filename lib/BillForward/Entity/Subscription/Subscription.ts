@@ -144,63 +144,65 @@ module BillForward {
 
                     var updates = Imports._.map((<any>this).pricingComponentValues,
                         pricingComponentValue => {
-                            // find out if any prescribed component names a component whose ID matches mine
-                            var correspondingPrescribedComponent = Imports._.find(pricingComponents,
+                            // find the pricing component to which I correspond
+                            var correspondingComponent = Imports._.find(pricingComponents,
                                 pricingComponent => {
-                                    // return as match if name matches a prescribed component
-                                    return Imports._.find(componentNamesToValues,
-                                        (value, componentName) => {
-                                            return (<any>pricingComponent).name === componentName;
-                                            }) !== undefined;
+                                    return (<any>pricingComponent).consistentID === (<any>pricingComponentValue).pricingComponentID
+                                    || (<any>pricingComponent).id === (<any>pricingComponentValue).pricingComponentID;
+                                    });
+
+                            if (!correspondingComponent) throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
+
+                            // find whether I am prescribed in the nameToValueMap
+                            var mappedValue = Imports._.find(componentNamesToValues,
+                                (value, componentName) => {
+                                    return (<any>correspondingComponent).name === componentName;
                                     });
 
                             // if no change prescribed, return as-is
-                            if (!correspondingPrescribedComponent) return pricingComponentValue;
+                            if (mappedValue === undefined) return pricingComponentValue;
 
                             // if change prescribed, ensure is a 'usage' component or other compatible component.
-                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingPrescribedComponent).chargeType))
-                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingPrescribedComponent).chargeType, supportedChargeTypes.join(", "));
-
-                            var mappedValue = Imports._.find(componentNamesToValues,
-                                (value, componentName) => {
-                                    return (<any>correspondingPrescribedComponent).name === componentName;
-                                    });
+                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
+                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", "));
 
                             return new PricingComponentValue({
-                                pricingComponentID: (<any>correspondingPrescribedComponent).id,
+                                pricingComponentID: (<any>correspondingComponent).id,
                                 value: mappedValue,
                                 appliesTill: appliesTil,
                                 appliesFrom: appliesFrom,
-                                organizationID: (<any>correspondingPrescribedComponent).organizationID,
+                                organizationID: (<any>correspondingComponent).organizationID,
                                 });
                         });
 
                     var remainingKeys = Imports._.omit(componentNamesToValues,
-                        value => {
-                            // has corresponding update already accounted for
+                        (value, componentName) => {
+                            // omit any key found, for whom there exists an update ..
                             return Imports._.find(updates,
                                 update => {
-                                    // find any PCs that have the ID of this update
-                                    return Imports._.find(pricingComponents,
+                                    var correspondingComponent = Imports._.find(pricingComponents,
                                         pricingComponent => {
-                                            // return as match if name matches a prescribed component
-                                            return Imports._.find(componentNamesToValues,
-                                                (value, componentName) => {
-                                                    return (<any>pricingComponent).name === componentName;
-                                                    }) !== undefined;
-                                            });
-                                    }) !== undefined;
-                            });
+                                            return (<any>pricingComponent).consistentID === (<any>update).pricingComponentID
+                                            || (<any>pricingComponent).id === (<any>update).pricingComponentID;
+                                    });
 
-                    var inserts = Imports._.mapValues(remainingKeys,
-                        (mappedValue, key) => {
+                                    if (!correspondingComponent) throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
+
+                                    // .. who has been named already in the nameToValueMap
+                                    return (<any>correspondingComponent).name === componentName;
+                            }) !== undefined;
+                        });
+                    
+                    var inserts = Imports._.map(Imports._.keys(remainingKeys),
+                        key => {
+                            var mappedValue = remainingKeys[key];
                             var correspondingPrescribedComponent = Imports._.find(pricingComponents,
                                 pricingComponent => {
                                     // return as match if name matches a prescribed component
                                     return (<any>pricingComponent).name === key;
                                     });
 
-                            if (!correspondingPrescribedComponent) throw "This code path is meant to be unreachable; sorry. :(";
+                            if (!correspondingPrescribedComponent) throw Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
 
                             return new PricingComponentValue({
                                 pricingComponentID: (<any>correspondingPrescribedComponent).id,
@@ -210,7 +212,6 @@ module BillForward {
                                 organizationID: (<any>correspondingPrescribedComponent).organizationID,
                                 });
                             });
-
 
                     var modifiedComponentValues = updates.concat(inserts);
 
