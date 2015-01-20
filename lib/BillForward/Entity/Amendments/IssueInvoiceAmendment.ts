@@ -1,7 +1,7 @@
 module BillForward {
   export class IssueInvoiceAmendment extends Amendment {
     constructor(stateParams:Object = {}, client:Client = null) {
-        super(stateParams, client);
+        super(stateParams, client, true);
 
         this.applyType('IssueInvoiceAmendment');
         

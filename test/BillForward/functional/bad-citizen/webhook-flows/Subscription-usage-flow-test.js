@@ -154,7 +154,7 @@ context(testBase.getContext(), function () {
 									'description':                    'Memorable Subscription Description',
 									'paymentMethodSubscriptionLinks': models.paymentMethodLinks,
 									'pricingComponentValues':         models.pricingComponentValues,
-									// 'creditEnabled':                  true
+									'creditEnabled':                  true
 								});
 
 								return BillForward.Subscription.create(models.subscription);
@@ -211,20 +211,20 @@ context(testBase.getContext(), function () {
 
 								webhookFilters.pendingInvoiceRaised.getPromise()
 								.then(function(webhook) {
+									// console.dir(webhook);
+									var notification = webhook[0];
 									var invoice = new BillForward.Invoice(notification.entity);
+									// console.log(invoice);
 
-									webhookFilters.pendingInvoicePaid = new WebHookFilter(function(webhook, invoice) {
+									webhookFilters.pendingInvoiceIssued = new WebHookFilter(function(webhook, invoice) {
 										if (webhook.domain === 'Invoice')
-										if (webhook.action === 'Paid') {
-											console.log('yo2');
-											if (webhook.entity.id === invoice.id)
-												return true;
-										}
+										if (webhook.action === 'Unpaid')
+										if (webhook.entity.id === invoice.id)
+										return true;
 									});
 
-									return webhookListener.subscribe(webhookFilters.pendingInvoicePaid, invoice)
-									.then(function(invoice) {
-										console.log('yo');
+									return webhookListener.subscribe(webhookFilters.pendingInvoiceIssued, invoice)
+									.then(function() {
 										return invoice.issue();
 									})
 								});
@@ -236,14 +236,16 @@ context(testBase.getContext(), function () {
 								return webhookFilters.paymentAwaited.getPromise()
 								.should.be.fulfilled;
 							});
-							it("raises pending invoice", function() {
-								// since usage components are present, invoice will pend confirmation
-								return webhookFilters.pendingInvoiceRaised.getPromise()
-								.should.be.fulfilled;
-							});
-							it("changes state to 'Paid'", function() {
-								return webhookFilters.paymentPaid.getPromise()
-								.should.be.fulfilled;
+							describe("An invoice", function() {
+								it("is raised in 'Pending' state", function() {
+									// since usage components are present, invoice will pend confirmation
+									return webhookFilters.pendingInvoiceRaised.getPromise()
+									.should.be.fulfilled;
+								});
+								it("is promoted to 'Unpaid' state", function() {
+									return webhookFilters.pendingInvoiceIssued.getPromise()
+									.should.be.fulfilled;
+								});
 							});
 							context("once active", function() {
 								this.timeout(getNewTimeout());
@@ -251,13 +253,7 @@ context(testBase.getContext(), function () {
 								// var actioningTime = moment().add(1, 'month').toDate();
 								// var actioningTime = moment().toDate();
 
-								var parentClosure = {
-									parentClosure: parentClosure
-								};
-								var promises = {};
-
 								var callbacks;
-								var webhookFilters;
 								before(function() {
 									/*webhookFilters = {
 										cancelled: new WebHookFilter(function(webhook, subscription) {
@@ -276,9 +272,9 @@ context(testBase.getContext(), function () {
 										});
 									});*/
 
-									promises.modifyUsage = Q.spread([
-										parentClosure.webhookFilters.paymentAwaited.getPromise(),
-										parentClosure.parentClosure.promises.subscription
+									parentClosure.promises.modifyUsage = Q.spread([
+										webhookFilters.paymentAwaited.getPromise(),
+										parentClosure.promises.subscription
 										],
 										function(webhookArgs, subscription) {
 											var nameToValueMap = {
