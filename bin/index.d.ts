@@ -296,7 +296,7 @@ declare module BillForward {
         getRatePlan(): Q.Promise<ProductRatePlan>;
         modifyUsage(componentNamesToValues: {
             [componentName: string]: Number;
-        }): Q.Promise<Subscription>;
+        }): Q.Promise<Array<PricingComponentValue>>;
     }
 }
 declare module BillForward {

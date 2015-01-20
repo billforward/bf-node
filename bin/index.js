@@ -1155,43 +1155,19 @@ var BillForward;
                     };
                     return resolve(_this.getRatePlan().then(function (ratePlan) {
                         var pricingComponents = ratePlan.pricingComponents;
-                        var updates = BillForward.Imports._.map(_this.pricingComponentValues, function (pricingComponentValue) {
+                        return BillForward.Imports.Q.all(BillForward.Imports._.map(BillForward.Imports._.map(BillForward.Imports._.keys(componentNamesToValues), function (key) {
+                            var mappedValue = componentNamesToValues[key];
                             var correspondingComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
-                                return pricingComponent.consistentID === pricingComponentValue.pricingComponentID || pricingComponent.id === pricingComponentValue.pricingComponentID;
+                                return pricingComponent.name === key;
                             });
                             if (!correspondingComponent)
-                                throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
-                            var mappedValue = BillForward.Imports._.find(componentNamesToValues, function (value, componentName) {
-                                return correspondingComponent.name === componentName;
-                            });
-                            if (mappedValue === undefined)
-                                return pricingComponentValue;
+                                throw BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
                             if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingComponent.chargeType))
                                 throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", "));
                             return componentGenerator(correspondingComponent, mappedValue);
-                        });
-                        var remainingKeys = BillForward.Imports._.omit(componentNamesToValues, function (value, componentName) {
-                            return BillForward.Imports._.find(updates, function (update) {
-                                var correspondingComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
-                                    return pricingComponent.consistentID === update.pricingComponentID || pricingComponent.id === update.pricingComponentID;
-                                });
-                                if (!correspondingComponent)
-                                    throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
-                                return correspondingComponent.name === componentName;
-                            }) !== undefined;
-                        });
-                        var inserts = BillForward.Imports._.map(BillForward.Imports._.keys(remainingKeys), function (key) {
-                            var mappedValue = remainingKeys[key];
-                            var correspondingPrescribedComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
-                                return pricingComponent.name === key;
-                            });
-                            if (!correspondingPrescribedComponent)
-                                throw BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
-                            return componentGenerator(correspondingPrescribedComponent, mappedValue);
-                        });
-                        var modifiedComponentValues = updates.concat(inserts);
-                        _this.pricingComponentValues = modifiedComponentValues;
-                        return _this;
+                        }), function (pricingComponentValueModel) {
+                            return BillForward.PricingComponentValue.create(pricingComponentValueModel);
+                        }));
                     }));
                 }
                 catch (e) {

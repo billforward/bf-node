@@ -283,23 +283,15 @@ context(testBase.getContext(), function () {
 										});
 									});*/
 
-									parentClosure.promises.modifyUsage = Q.spread([
-										parentClosure.promises.subscriptionActivated,
-										parentClosure.promises.issueInvoice,
-										webhookFilters.currentPeriodEndAscribed.getPromise(),
-										webhookFilters.paymentPaid.getPromise()
-										],
-										function(currentPeriodEndAscribed, paymentPaid) {
+									parentClosure.promises.modifyUsage = webhookFilters.currentPeriodEndAscribed.getPromise()
+									.then(function(currentPeriodEndAscribed, paymentPaid) {
 											var notification = currentPeriodEndAscribed[0];
 											var subscription = new BillForward.Subscription(notification.entity);
 
 											var nameToValueMap = {
-												"Bandwidth": 7
+												"Bandwidth": 50
 											};
-											return subscription.modifyUsage(nameToValueMap)
-											.then(function(subscription) {
-												return subscription.save();	
-											});
+											return subscription.modifyUsage(nameToValueMap);
 										});
 
 									/*webhookFilters.paymentAwaited.getPromise()
