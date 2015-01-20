@@ -761,7 +761,9 @@ var BillForward;
                 try {
                     return resolve(BillForward.Subscription.fetchIfNecessary(_this.subscriptionID).then(function (subscription) {
                         var appliesTil = _this.periodStart;
-                        return subscription.modifyUsage(componentNamesToValues, appliesTil);
+                        return subscription.modifyUsageHelper(componentNamesToValues, appliesTil);
+                    }).then(function () {
+                        return _this;
                     }));
                 }
                 catch (e) {
@@ -1148,7 +1150,20 @@ var BillForward;
                 }
             });
         };
-        Subscription.prototype.modifyUsage = function (componentNamesToValues, appliesTilOverride) {
+        Subscription.prototype.modifyUsage = function (componentNamesToValues) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(_this.modifyUsageHelper(componentNamesToValues).then(function () {
+                        return Subscription.getByID(_this.id);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Subscription.prototype.modifyUsageHelper = function (componentNamesToValues, appliesTilOverride) {
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {

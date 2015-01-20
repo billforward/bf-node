@@ -21,13 +21,17 @@ module BillForward {
      * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'Bandwidth usage': 102}
      * @return Promise<PricingComponentValue[]> The created PricingComponentValues.
      */
-    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Array<PricingComponentValue>> {
-        return <Q.Promise<Array<PricingComponentValue>>>Imports.Q.Promise((resolve, reject) => {
+    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Invoice> {
+        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
             try {
                 return resolve(Subscription.fetchIfNecessary((<any>this).subscriptionID)
                     .then((subscription:Subscription) => {
                         var appliesTil = (<any>this).periodStart;
-                        return subscription.modifyUsage(componentNamesToValues, appliesTil);
+                        return subscription.modifyUsageHelper(componentNamesToValues, appliesTil);
+                        })
+                    .then(() => {
+                        // for chaining
+                        return this;
                         }));
             } catch(e) {
                 return reject(e);
