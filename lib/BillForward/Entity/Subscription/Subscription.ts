@@ -147,20 +147,45 @@ module BillForward {
     }
 
     /**
-     * Registers (upon this subscription's model) the current consumption of usage-based pricing components. Pertains to the current period of the subscription.
+     * Registers (upon this subscription) the current consumption of usage-based pricing components. Pertains to the current period of the subscription.
      * This is intended only for 'usage' pricing components.
      * 'Usage' pricing components will return to 0 value upon entering the next billing period.
      * 
      * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'Bandwidth usage': 102}
+     * @return Promise<Subscription> The updated Subscription.
+     */
+    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                return resolve((<any>this).modifyUsageHelper(componentNamesToValues)
+                    .then(() => {
+                        return Subscription.getByID((<any>this).id);
+                        }))
+            } catch(e) {
+                return reject(e);
+            }
+            });
+    }
+
+    /**
+     * Registers (upon this subscription) the current consumption of usage-based pricing components. Pertains to the current period of the subscription.
+     * This is intended only for 'usage' pricing components.
+     * 'Usage' pricing components will return to 0 value upon entering the next billing period.
+     * 
+     * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'Bandwidth usage': 102}
+     * @param string? BillForward-formatted time until which the usage consumption applies.
      * @return Promise<PricingComponentValue[]> The created PricingComponentValues.
      */
-    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Array<PricingComponentValue>> {
+    modifyUsageHelper(componentNamesToValues: { [componentName: string]:Number }, appliesTilOverride?:string):Q.Promise<Array<PricingComponentValue>> {
         return <Q.Promise<Array<PricingComponentValue>>>Imports.Q.Promise((resolve, reject) => {
             try {
-                var currentPeriodStart = this.getCurrentPeriodStart();
-                var currentPeriodEnd = this.getCurrentPeriodEnd();
-                var appliesFrom = currentPeriodStart;
-                var appliesTil = currentPeriodEnd;
+                var appliesTil;
+                if (appliesTilOverride) {
+                    appliesTil = appliesTilOverride;
+                } else {
+                    var currentPeriodEnd = this.getCurrentPeriodEnd();
+                    appliesTil = currentPeriodEnd;
+                }
 
                 var supportedChargeTypes = ["usage"];
 
@@ -169,7 +194,6 @@ module BillForward {
                         pricingComponentID: correspondingComponent.id,
                         value: mappedValue,
                         appliesTill: appliesTil,
-                        appliesFrom: appliesFrom,
                         organizationID: correspondingComponent.organizationID,
                         subscriptionID: (<any>this).id
                         });

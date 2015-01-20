@@ -755,6 +755,22 @@ var BillForward;
             this.registerEntityArray('invoicePayments', BillForward.InvoicePayment);
             this.unserialize(stateParams);
         }
+        Invoice.prototype.modifyUsage = function (componentNamesToValues) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Subscription.fetchIfNecessary(_this.subscriptionID).then(function (subscription) {
+                        var appliesTil = _this.periodStart;
+                        return subscription.modifyUsageHelper(componentNamesToValues, appliesTil);
+                    }).then(function () {
+                        return _this;
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Invoice.prototype.issue = function (actioningTime) {
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.IssueInvoiceAmendment.construct(this, actioningTime).then(function (amendment) {
@@ -1138,17 +1154,33 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    var currentPeriodStart = _this.getCurrentPeriodStart();
-                    var currentPeriodEnd = _this.getCurrentPeriodEnd();
-                    var appliesFrom = currentPeriodStart;
-                    var appliesTil = currentPeriodEnd;
+                    return resolve(_this.modifyUsageHelper(componentNamesToValues).then(function () {
+                        return Subscription.getByID(_this.id);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Subscription.prototype.modifyUsageHelper = function (componentNamesToValues, appliesTilOverride) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var appliesTil;
+                    if (appliesTilOverride) {
+                        appliesTil = appliesTilOverride;
+                    }
+                    else {
+                        var currentPeriodEnd = _this.getCurrentPeriodEnd();
+                        appliesTil = currentPeriodEnd;
+                    }
                     var supportedChargeTypes = ["usage"];
                     var componentGenerator = function (correspondingComponent, mappedValue) {
                         return new BillForward.PricingComponentValue({
                             pricingComponentID: correspondingComponent.id,
                             value: mappedValue,
                             appliesTill: appliesTil,
-                            appliesFrom: appliesFrom,
                             organizationID: correspondingComponent.organizationID,
                             subscriptionID: _this.id
                         });
