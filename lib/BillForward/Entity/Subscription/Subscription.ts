@@ -151,13 +151,11 @@ module BillForward {
      * This is intended only for 'usage' pricing components.
      * 'Usage' pricing components will return to 0 value upon entering the next billing period.
      * 
-     * @note Changes only the MODELLED subscription; you will need to run subscription.save() to persist the modelled changes to the API.
-     * 
      * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'Bandwidth usage': 102}
-     * @return Subscription The modified Subscription model.
+     * @return Promise<PricingComponentValue[]> The created PricingComponentValues.
      */
-    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
-        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
+    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Array<PricingComponentValue>> {
+        return <Q.Promise<Array<PricingComponentValue>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var currentPeriodStart = this.getCurrentPeriodStart();
                 var currentPeriodEnd = this.getCurrentPeriodEnd();
@@ -180,70 +178,25 @@ module BillForward {
                 return resolve(this.getRatePlan()
                 .then(ratePlan => {
                     var pricingComponents = (<any>ratePlan).pricingComponents;
-
-                    var updates = Imports._.map((<any>this).pricingComponentValues,
-                        pricingComponentValue => {
-                            // find the pricing component to which I correspond
-                            var correspondingComponent = Imports._.find(pricingComponents,
-                                pricingComponent => {
-                                    return (<any>pricingComponent).consistentID === (<any>pricingComponentValue).pricingComponentID
-                                    || (<any>pricingComponent).id === (<any>pricingComponentValue).pricingComponentID;
-                                    });
-
-                            if (!correspondingComponent) throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
-
-                            // find whether I am prescribed in the nameToValueMap
-                            var mappedValue = Imports._.find(componentNamesToValues,
-                                (value, componentName) => {
-                                    return (<any>correspondingComponent).name === componentName;
-                                    });
-
-                            // if no change prescribed, return as-is
-                            if (mappedValue === undefined) return pricingComponentValue;
-
-                            // if change prescribed, ensure is a 'usage' component or other compatible component.
-                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
-                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", "));
-
-                            return componentGenerator(correspondingComponent, mappedValue);
-                        });
-
-                    var remainingKeys = Imports._.omit(componentNamesToValues,
-                        (value, componentName) => {
-                            // omit any key found, for whom there exists an update ..
-                            return Imports._.find(updates,
-                                update => {
-                                    var correspondingComponent = Imports._.find(pricingComponents,
-                                        pricingComponent => {
-                                            return (<any>pricingComponent).consistentID === (<any>update).pricingComponentID
-                                            || (<any>pricingComponent).id === (<any>update).pricingComponentID;
-                                    });
-
-                                    if (!correspondingComponent) throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
-
-                                    // .. who has been named already in the nameToValueMap
-                                    return (<any>correspondingComponent).name === componentName;
-                            }) !== undefined;
-                        });
                     
-                    var inserts = Imports._.map(Imports._.keys(remainingKeys),
+                    return Imports.Q.all(Imports._.map(Imports._.map(Imports._.keys(componentNamesToValues),
                         key => {
-                            var mappedValue = remainingKeys[key];
-                            var correspondingPrescribedComponent = Imports._.find(pricingComponents,
+                            var mappedValue = componentNamesToValues[key];
+                            var correspondingComponent = Imports._.find(pricingComponents,
                                 pricingComponent => {
                                     // return as match if name matches a prescribed component
                                     return (<any>pricingComponent).name === key;
                                     });
 
-                            if (!correspondingPrescribedComponent) throw Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
+                            if (!correspondingComponent) throw Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
 
-                            return componentGenerator(correspondingPrescribedComponent, mappedValue);
-                            });
+                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
+                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", "));
 
-                    var modifiedComponentValues = updates.concat(inserts);
-
-                    (<any>this).pricingComponentValues = modifiedComponentValues;
-                    return <Subscription>this;
+                            return componentGenerator(correspondingComponent, mappedValue);
+                            }), pricingComponentValueModel => {
+                        return PricingComponentValue.create(pricingComponentValueModel);
+                        }));
                     }));
             } catch(e) {
                 return reject(e);
