@@ -13,7 +13,7 @@ module BillForward {
 
   export class InvoiceRecalculationAmendment extends Amendment {
     constructor(stateParams:Object = {}, client:Client = null) {
-        super(stateParams, client);
+        super(stateParams, client, true);
 
         this.applyType('InvoiceRecalculationAmendment');
         

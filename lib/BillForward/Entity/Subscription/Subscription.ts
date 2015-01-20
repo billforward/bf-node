@@ -72,6 +72,15 @@ module BillForward {
         });
     }
 
+    /**
+     * Registers (upon this subscription's model) the current consumption of pricing components.
+     * This is recommended for initialising 'in advance' pricing components when the provisioned subscription is first being modelled.
+     * 
+     * @note Changes only the MODELLED subscription; you will need to run subscription.save() to persist the modelled changes to the API.
+     * 
+     * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'CPU': 97}
+     * @return Subscription The modified Subscription model.
+     */
     setValuesOfPricingComponentsByName(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
         return this.useValuesForNamedPricingComponentsOnRatePlanByID((<any>this).productRatePlanID, componentNamesToValues);
     }
@@ -137,6 +146,16 @@ module BillForward {
         });
     }
 
+    /**
+     * Registers (upon this subscription's model) the current consumption of usage-based pricing components. Pertains to the current period of the subscription.
+     * This is intended only for 'usage' pricing components.
+     * 'Usage' pricing components will return to 0 value upon entering the next billing period.
+     * 
+     * @note Changes only the MODELLED subscription; you will need to run subscription.save() to persist the modelled changes to the API.
+     * 
+     * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'Bandwidth usage': 102}
+     * @return Subscription The modified Subscription model.
+     */
     modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
         return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {

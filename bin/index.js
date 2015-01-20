@@ -599,7 +599,7 @@ var BillForward;
         function AmendmentDiscardAmendment(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
-            _super.call(this, stateParams, client);
+            _super.call(this, stateParams, client, true);
             this.applyType('AmendmentDiscardAmendment');
             this.unserialize(stateParams);
         }
@@ -681,7 +681,7 @@ var BillForward;
         function InvoiceRecalculationAmendment(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
-            _super.call(this, stateParams, client);
+            _super.call(this, stateParams, client, true);
             this.applyType('InvoiceRecalculationAmendment');
             this.unserialize(stateParams);
         }
@@ -717,7 +717,7 @@ var BillForward;
         function IssueInvoiceAmendment(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
-            _super.call(this, stateParams, client);
+            _super.call(this, stateParams, client, true);
             this.applyType('IssueInvoiceAmendment');
             this.unserialize(stateParams);
         }

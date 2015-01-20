@@ -154,7 +154,7 @@ context(testBase.getContext(), function () {
 									'description':                    'Memorable Subscription Description',
 									'paymentMethodSubscriptionLinks': models.paymentMethodLinks,
 									'pricingComponentValues':         models.pricingComponentValues,
-									// 'creditEnabled':                  true
+									'creditEnabled':                  true
 								});
 
 								return BillForward.Subscription.create(models.subscription);
@@ -187,6 +187,14 @@ context(testBase.getContext(), function () {
 										if (webhook.entity.id === subscription.id)
 										return true;
 									}),
+									currentPeriodEndAscribed:  new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Subscription')
+										if (webhook.action === 'Updated')
+										if (webhook.entity.id === subscription.id)
+										return _.find(webhook.changes.auditFieldChanges, function(auditFieldChange) {
+											return auditFieldChange.attributeName === 'currentPeriodEnd';
+										}) !== undefined;
+									}),
 									pendingInvoiceRaised:  new WebHookFilter(function(webhook, subscription) {
 										if (webhook.domain === 'Invoice')
 										if (webhook.action === 'Pending')
@@ -195,36 +203,35 @@ context(testBase.getContext(), function () {
 									})
 								};
 
-								parentClosure.promises.subscription
+								parentClosure.promises.subscriptionActivated = parentClosure.promises.subscription
 								.then(function(subscription) {
-									return webhookListener.subscribe(webhookFilters.paymentAwaited, subscription)
-									.then(function() {
-										return webhookListener.subscribe(webhookFilters.pendingInvoiceRaised, subscription);
-									})
-									.then(function() {
-										return webhookListener.subscribe(webhookFilters.paymentPaid, subscription);
-									})
+									return Q.all([
+										webhookListener.subscribe(webhookFilters.paymentAwaited, subscription),
+										webhookListener.subscribe(webhookFilters.pendingInvoiceRaised, subscription),
+										webhookListener.subscribe(webhookFilters.paymentPaid, subscription),
+										webhookListener.subscribe(webhookFilters.currentPeriodEndAscribed, subscription)
+										])
 									.then(function() {
 										return subscription.activate();
 									});
 								});
 
-								webhookFilters.pendingInvoiceRaised.getPromise()
+								parentClosure.promises.issueInvoice = webhookFilters.pendingInvoiceRaised.getPromise()
 								.then(function(webhook) {
+									// console.dir(webhook);
+									var notification = webhook[0];
 									var invoice = new BillForward.Invoice(notification.entity);
+									// console.log(invoice);
 
-									webhookFilters.pendingInvoicePaid = new WebHookFilter(function(webhook, invoice) {
+									webhookFilters.pendingInvoiceIssued = new WebHookFilter(function(webhook, invoice) {
 										if (webhook.domain === 'Invoice')
-										if (webhook.action === 'Paid') {
-											console.log('yo2');
-											if (webhook.entity.id === invoice.id)
-												return true;
-										}
+										if (webhook.action === 'Unpaid')
+										if (webhook.entity.id === invoice.id)
+										return true;
 									});
 
-									return webhookListener.subscribe(webhookFilters.pendingInvoicePaid, invoice)
-									.then(function(invoice) {
-										console.log('yo');
+									return webhookListener.subscribe(webhookFilters.pendingInvoiceIssued, invoice)
+									.then(function() {
 										return invoice.issue();
 									})
 								});
@@ -236,14 +243,20 @@ context(testBase.getContext(), function () {
 								return webhookFilters.paymentAwaited.getPromise()
 								.should.be.fulfilled;
 							});
-							it("raises pending invoice", function() {
-								// since usage components are present, invoice will pend confirmation
-								return webhookFilters.pendingInvoiceRaised.getPromise()
-								.should.be.fulfilled;
-							});
 							it("changes state to 'Paid'", function() {
 								return webhookFilters.paymentPaid.getPromise()
 								.should.be.fulfilled;
+							});
+							describe("An invoice", function() {
+								it("is raised in 'Pending' state", function() {
+									// since usage components are present, invoice will pend confirmation
+									return webhookFilters.pendingInvoiceRaised.getPromise()
+									.should.be.fulfilled;
+								});
+								it("is promoted to 'Unpaid' state", function() {
+									return webhookFilters.pendingInvoiceIssued.getPromise()
+									.should.be.fulfilled;
+								});
 							});
 							context("once active", function() {
 								this.timeout(getNewTimeout());
@@ -251,13 +264,7 @@ context(testBase.getContext(), function () {
 								// var actioningTime = moment().add(1, 'month').toDate();
 								// var actioningTime = moment().toDate();
 
-								var parentClosure = {
-									parentClosure: parentClosure
-								};
-								var promises = {};
-
 								var callbacks;
-								var webhookFilters;
 								before(function() {
 									/*webhookFilters = {
 										cancelled: new WebHookFilter(function(webhook, subscription) {
@@ -276,11 +283,16 @@ context(testBase.getContext(), function () {
 										});
 									});*/
 
-									promises.modifyUsage = Q.spread([
-										parentClosure.webhookFilters.paymentAwaited.getPromise(),
-										parentClosure.parentClosure.promises.subscription
+									parentClosure.promises.modifyUsage = Q.spread([
+										parentClosure.promises.subscriptionActivated,
+										parentClosure.promises.issueInvoice,
+										webhookFilters.currentPeriodEndAscribed.getPromise(),
+										webhookFilters.paymentPaid.getPromise()
 										],
-										function(webhookArgs, subscription) {
+										function(currentPeriodEndAscribed, paymentPaid) {
+											var notification = currentPeriodEndAscribed[0];
+											var subscription = new BillForward.Subscription(notification.entity);
+
 											var nameToValueMap = {
 												"Bandwidth": 7
 											};
@@ -300,7 +312,7 @@ context(testBase.getContext(), function () {
 									_.forEach(callbacks, webhookListener.unsubscribe);
 								});*/
 								it("can modify its usage", function() {
-									return promises.modifyUsage
+									return parentClosure.promises.modifyUsage
 									.should.be.fulfilled;
 								});
 								/*context("future cancellation queued", function() {

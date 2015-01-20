@@ -1,7 +1,7 @@
 module BillForward {
   export class AmendmentDiscardAmendment extends Amendment {
     constructor(stateParams:Object = {}, client:Client = null) {
-        super(stateParams, client);
+        super(stateParams, client, true);
 
         this.applyType('AmendmentDiscardAmendment');
         
