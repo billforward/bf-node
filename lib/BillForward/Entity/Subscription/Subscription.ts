@@ -116,7 +116,7 @@ module BillForward {
         if ((<any>this).currentPeriodStart) {
             return (<any>this).currentPeriodStart;
         } else {
-            throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+            throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain "Subscription", Action "Updated") whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === "currentPeriodEnd").';
         }
     }
 
@@ -124,7 +124,7 @@ module BillForward {
         if ((<any>this).currentPeriodEnd) {
             return (<any>this).currentPeriodEnd;
         } else {
-            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain "Subscription", Action "Updated") whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === "currentPeriodEnd").';
         }
     }
 
