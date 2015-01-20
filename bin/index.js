@@ -542,12 +542,11 @@ var BillForward;
         Amendment.prototype.applyType = function (type) {
             this['@type'] = type;
         };
-        Amendment.prototype.discard = function () {
-            var amendment = new BillForward.AmendmentDiscardAmendment({
-                'amendmentToDiscardID': this.id,
-                'subscriptionID': this.subscriptionID
+        Amendment.prototype.discard = function (actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.AmendmentDiscardAmendment.construct(this, actioningTime).then(function (amendment) {
+                return BillForward.AmendmentDiscardAmendment.create(amendment);
             });
-            return BillForward.AmendmentDiscardAmendment.create(amendment);
         };
         Amendment.parseActioningTime = function (actioningTime, subscription) {
             if (subscription === void 0) { subscription = null; }
@@ -604,12 +603,34 @@ var BillForward;
             this.applyType('AmendmentDiscardAmendment');
             this.unserialize(stateParams);
         }
+        AmendmentDiscardAmendment.construct = function (amendment, actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Amendment.fetchIfNecessary(amendment).then(function (amendment) {
+                        var discardModel = new AmendmentDiscardAmendment({
+                            'amendmentToDiscardID': amendment.id,
+                            'subscriptionID': amendment.subscriptionID
+                        });
+                        return discardModel.applyActioningTime(actioningTime, amendment.subscriptionID);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         return AmendmentDiscardAmendment;
     })(BillForward.Amendment);
     BillForward.AmendmentDiscardAmendment = AmendmentDiscardAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    (function (ServiceEndState) {
+        ServiceEndState[ServiceEndState["AtPeriodEnd"] = 0] = "AtPeriodEnd";
+        ServiceEndState[ServiceEndState["Immediate"] = 1] = "Immediate";
+    })(BillForward.ServiceEndState || (BillForward.ServiceEndState = {}));
+    var ServiceEndState = BillForward.ServiceEndState;
     var CancellationAmendment = (function (_super) {
         __extends(CancellationAmendment, _super);
         function CancellationAmendment(stateParams, client) {
@@ -640,26 +661,86 @@ var BillForward;
         return CancellationAmendment;
     })(BillForward.Amendment);
     BillForward.CancellationAmendment = CancellationAmendment;
-    (function (ServiceEndState) {
-        ServiceEndState[ServiceEndState["AtPeriodEnd"] = 0] = "AtPeriodEnd";
-        ServiceEndState[ServiceEndState["Immediate"] = 1] = "Immediate";
-    })(BillForward.ServiceEndState || (BillForward.ServiceEndState = {}));
-    var ServiceEndState = BillForward.ServiceEndState;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
-    var UpdateComponentValueAmendment = (function (_super) {
-        __extends(UpdateComponentValueAmendment, _super);
-        function UpdateComponentValueAmendment(stateParams, client) {
+    (function (InvoiceState) {
+        InvoiceState[InvoiceState["Paid"] = 0] = "Paid";
+        InvoiceState[InvoiceState["Unpaid"] = 1] = "Unpaid";
+        InvoiceState[InvoiceState["Pending"] = 2] = "Pending";
+        InvoiceState[InvoiceState["Voided"] = 3] = "Voided";
+    })(BillForward.InvoiceState || (BillForward.InvoiceState = {}));
+    var InvoiceState = BillForward.InvoiceState;
+    (function (InvoiceRecalculationBehaviour) {
+        InvoiceRecalculationBehaviour[InvoiceRecalculationBehaviour["RecalculateAsLatestSubscriptionVersion"] = 0] = "RecalculateAsLatestSubscriptionVersion";
+        InvoiceRecalculationBehaviour[InvoiceRecalculationBehaviour["RecalculateAsCurrentSubscriptionVersion"] = 1] = "RecalculateAsCurrentSubscriptionVersion";
+    })(BillForward.InvoiceRecalculationBehaviour || (BillForward.InvoiceRecalculationBehaviour = {}));
+    var InvoiceRecalculationBehaviour = BillForward.InvoiceRecalculationBehaviour;
+    var InvoiceRecalculationAmendment = (function (_super) {
+        __extends(InvoiceRecalculationAmendment, _super);
+        function InvoiceRecalculationAmendment(stateParams, client) {
             if (stateParams === void 0) { stateParams = {}; }
             if (client === void 0) { client = null; }
-            _super.call(this, stateParams, client, true);
-            this.applyType('UpdateComponentValueAmendment');
+            _super.call(this, stateParams, client);
+            this.applyType('InvoiceRecalculationAmendment');
             this.unserialize(stateParams);
         }
-        return UpdateComponentValueAmendment;
+        InvoiceRecalculationAmendment.construct = function (invoice, newInvoiceState, recalculationBehaviour, actioningTime) {
+            if (newInvoiceState === void 0) { newInvoiceState = 2 /* Pending */; }
+            if (recalculationBehaviour === void 0) { recalculationBehaviour = 0 /* RecalculateAsLatestSubscriptionVersion */; }
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice).then(function (invoice) {
+                        var amendment = new InvoiceRecalculationAmendment({
+                            'invoiceID': invoice.id,
+                            'subscriptionID': invoice.subscriptionID
+                        });
+                        amendment.recalculationBehaviour = recalculationBehaviour;
+                        amendment.newInvoiceState = newInvoiceState;
+                        return amendment.applyActioningTime(actioningTime, invoice.subscriptionID);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        return InvoiceRecalculationAmendment;
     })(BillForward.Amendment);
-    BillForward.UpdateComponentValueAmendment = UpdateComponentValueAmendment;
+    BillForward.InvoiceRecalculationAmendment = InvoiceRecalculationAmendment;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var IssueInvoiceAmendment = (function (_super) {
+        __extends(IssueInvoiceAmendment, _super);
+        function IssueInvoiceAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.applyType('IssueInvoiceAmendment');
+            this.unserialize(stateParams);
+        }
+        IssueInvoiceAmendment.construct = function (invoice, actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice).then(function (invoice) {
+                        var amendment = new IssueInvoiceAmendment({
+                            'invoiceID': invoice.id,
+                            'subscriptionID': invoice.subscriptionID
+                        });
+                        return amendment.applyActioningTime(actioningTime, invoice.subscriptionID);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        return IssueInvoiceAmendment;
+    })(BillForward.Amendment);
+    BillForward.IssueInvoiceAmendment = IssueInvoiceAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -674,6 +755,20 @@ var BillForward;
             this.registerEntityArray('invoicePayments', BillForward.InvoicePayment);
             this.unserialize(stateParams);
         }
+        Invoice.prototype.issue = function (actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.IssueInvoiceAmendment.construct(this, actioningTime).then(function (amendment) {
+                return BillForward.IssueInvoiceAmendment.create(amendment);
+            });
+        };
+        Invoice.prototype.recalculate = function (newInvoiceState, recalculationBehaviour, actioningTime) {
+            if (newInvoiceState === void 0) { newInvoiceState = 2 /* Pending */; }
+            if (recalculationBehaviour === void 0) { recalculationBehaviour = 0 /* RecalculateAsLatestSubscriptionVersion */; }
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.InvoiceRecalculationAmendment.construct(this, newInvoiceState, recalculationBehaviour, actioningTime).then(function (amendment) {
+                return BillForward.InvoiceRecalculationAmendment.create(amendment);
+            });
+        };
         Invoice._resourcePath = new BillForward.ResourcePath('invoices', 'invoice');
         return Invoice;
     })(BillForward.MutableEntity);
@@ -1007,12 +1102,20 @@ var BillForward;
                 }
             });
         };
+        Subscription.prototype.getCurrentPeriodStart = function () {
+            if (this.currentPeriodStart) {
+                return this.currentPeriodStart;
+            }
+            else {
+                throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+            }
+        };
         Subscription.prototype.getCurrentPeriodEnd = function () {
             if (this.currentPeriodEnd) {
                 return this.currentPeriodEnd;
             }
             else {
-                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
+                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
             }
         };
         Subscription.prototype.getRatePlan = function () {
@@ -1035,9 +1138,10 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
+                    var currentPeriodStart = _this.getCurrentPeriodStart();
                     var currentPeriodEnd = _this.getCurrentPeriodEnd();
+                    var appliesFrom = currentPeriodStart;
                     var appliesTil = currentPeriodEnd;
-                    var appliesFrom = BillForward.BillingEntity.getBillForwardNow();
                     var supportedChargeTypes = ["usage"];
                     var componentGenerator = function (correspondingComponent, mappedValue) {
                         return new BillForward.PricingComponentValue({

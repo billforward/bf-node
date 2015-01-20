@@ -217,6 +217,7 @@ context(testBase.getContext(), function () {
 								.should.be.fulfilled;
 							});
 							it("raises invoice", function() {
+								// since no usage components are present, invoice will seek payment immediately
 								return webhookFilters.unpaidInvoiceRaised.getPromise()
 								.should.be.fulfilled;
 							});

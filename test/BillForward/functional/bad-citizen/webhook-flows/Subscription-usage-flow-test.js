@@ -165,6 +165,144 @@ context(testBase.getContext(), function () {
 						.all(_.values(promises))
 						.should.be.fulfilled;
 					});
+					(testBase.enableWebhooksTests ? context : context.skip)('Webhooks permitting', function() {
+				  		this.timeout(getNewTimeout());
+						describe('The subscription', function() {
+							var parentClosure = {
+								promises: promises
+							};
+							var callbacks;
+							var webhookFilters;
+							before(function() {
+								webhookFilters = {
+									paymentAwaited: new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Subscription')
+										if (webhook.action === 'AwaitingPayment')
+										if (webhook.entity.id === subscription.id)
+										return true;
+									}),
+									paymentPaid: new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Subscription')
+										if (webhook.action === 'Paid')
+										if (webhook.entity.id === subscription.id)
+										return true;
+									}),
+									pendingInvoiceRaised:  new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Invoice')
+										if (webhook.action === 'Pending')
+										if (webhook.entity.subscriptionID === subscription.id)
+										return true;
+									})
+								};
+
+								parentClosure.promises.subscription
+								.then(function(subscription) {
+									return webhookListener.subscribe(webhookFilters.paymentAwaited, subscription)
+									.then(function() {
+										return webhookListener.subscribe(webhookFilters.pendingInvoiceRaised, subscription);
+									})
+									.then(function() {
+										return webhookListener.subscribe(webhookFilters.paymentPaid, subscription);
+									})
+									.then(function() {
+										return subscription.activate();
+									});
+								});
+
+								webhookFilters.pendingInvoiceRaised.getPromise()
+								.then(function(webhook) {
+									var notification = webhook[0];
+									var invoice = new BillForward.Invoice(notification.entity);
+									console.log(invoice.toString());
+								});
+							});
+							after(function() {
+								_.forEach(callbacks, webhookListener.unsubscribe);
+							});
+							it("changes state to 'AwaitingPayment'", function() {
+								return webhookFilters.paymentAwaited.getPromise()
+								.should.be.fulfilled;
+							});
+							it("raises pending invoice", function() {
+								// since usage components are present, invoice will pend confirmation
+								return webhookFilters.pendingInvoiceRaised.getPromise()
+								.should.be.fulfilled;
+							});
+							it("changes state to 'Paid'", function() {
+								return webhookFilters.paymentPaid.getPromise()
+								.should.be.fulfilled;
+							});
+							context("once active", function() {
+								this.timeout(getNewTimeout());
+
+								// var actioningTime = moment().add(1, 'month').toDate();
+								// var actioningTime = moment().toDate();
+
+								var parentClosure = {
+									parentClosure: parentClosure
+								};
+								var promises = {};
+
+								var callbacks;
+								var webhookFilters;
+								before(function() {
+									/*webhookFilters = {
+										cancelled: new WebHookFilter(function(webhook, subscription) {
+											if (webhook.domain === 'Subscription')
+											if (webhook.action === 'Cancelled')
+											if (webhook.entity.id === subscription.id)
+											return true;
+										})
+									};*/
+
+									/*parentClosure.promises.subscription
+									.then(function(subscription) {
+										return webhookListener.subscribe(webhookFilters.cancelled, subscription)
+										.then(function() {
+											return subscription.cancel("AtPeriodEnd", actioningTime);
+										});
+									});*/
+
+									promises.modifyUsage = Q.spread([
+										webhookFilters.paymentAwaited.getPromise(),
+										parentClosure.parentClosure.promises.subscription
+										],
+										function(webhookArgs, subscription) {
+											var nameToValueMap = {
+												"Bandwidth": 7
+											};
+											return subscription.modifyUsage(nameToValueMap)
+											.then(function(subscription) {
+												return subscription.save();	
+											});
+										});
+
+									/*webhookFilters.paymentAwaited.getPromise()
+									.then(function(webhook) {
+										console.log(arguments);
+										return webhook.subscriptionID
+									})*/
+								});
+								/*after(function() {
+									_.forEach(callbacks, webhookListener.unsubscribe);
+								});*/
+								it("can modify its usage", function() {
+									return promises.modifyUsage
+									.should.be.fulfilled;
+								});
+								/*context("future cancellation queued", function() {
+									this.timeout(getNewTimeout());
+									var parentClosure = {
+										callbacks: callbacks,
+										webhookFilters: webhookFilters,
+										parentClosure: parentClosure
+									};
+
+
+								});*/
+							});
+						});
+					});
 				});
 			});
 		});

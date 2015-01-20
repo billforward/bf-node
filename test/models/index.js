@@ -19,19 +19,8 @@ module.exports = function(BillForward) {
 				'lastName': 'Owen',
 			'addresses': [address]
 		});
-		var paymentMethod = new BillForward.PaymentMethod({
-		    'name': 'Credit Notes',
-		    'description': 'Pay using credit',
-		    'linkID': '',
-		    'gateway': 'credit_note',
-		    'userEditable': 0,
-		    'priority': 100,
-		    'reusable': 1,
-		    'defaultPaymentMethod': true
-	    });
 		var account = new BillForward.Account({
-			profile: profile,
-			paymentMethods: [paymentMethod]
+			profile: profile
 		});
 
 		return account;
@@ -53,6 +42,18 @@ module.exports = function(BillForward) {
 			'roundingScheme': 'UP',
 		});
 		return uom;
+	};
+
+	models.FastProduct = function() {
+		var product = new BillForward.Product({
+			'productType': 'recurring',
+			'state': 'prod',
+			'name': 'Quickly recurring',
+			'description': 'Purchaseables to which customer has an automatically-renewing, 3-minutely entitlement',
+			'durationPeriod': 'minutes',
+			'duration': 3
+		});
+		return product;
 	};
 
 	models.Product = function() {

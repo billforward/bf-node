@@ -23,14 +23,14 @@ module BillForward {
     }
 
     /**
-     * Cancels subscription at a specified time.
+     * Cancels subscription (now, or at a scheduled time).
      * @param string ENUM['Immediate', 'AtPeriodEnd'] (Default: 'AtPeriodEnd') Specifies whether the service will end immediately on cancellation or if it will continue until the end of the current period.
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
      * @return Q.Promise<CancellationAmendment> The created cancellation amendment.
      */
-    cancel(serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:any = 'Immediate'):Q.Promise<CancellationAmendment> {
+    cancel(serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:ActioningTime = 'Immediate'):Q.Promise<CancellationAmendment> {
         return CancellationAmendment.construct(this, serviceEnd, actioningTime)
-        .then((amendment:CancellationAmendment) => {
+        .then(amendment => {
             // create amendment using API
             return CancellationAmendment.create(amendment);
             });
@@ -103,11 +103,19 @@ module BillForward {
         });
     }
 
+    getCurrentPeriodStart() {
+        if ((<any>this).currentPeriodStart) {
+            return (<any>this).currentPeriodStart;
+        } else {
+            throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+        }
+    }
+
     getCurrentPeriodEnd() {
         if ((<any>this).currentPeriodEnd) {
             return (<any>this).currentPeriodEnd;
         } else {
-            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription has not yet been instantiated by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the necessary state.';
+            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
         }
     }
 
@@ -132,9 +140,10 @@ module BillForward {
     modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
         return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
+                var currentPeriodStart = this.getCurrentPeriodStart();
                 var currentPeriodEnd = this.getCurrentPeriodEnd();
+                var appliesFrom = currentPeriodStart;
                 var appliesTil = currentPeriodEnd;
-                var appliesFrom = BillingEntity.getBillForwardNow();
 
                 var supportedChargeTypes = ["usage"];
 

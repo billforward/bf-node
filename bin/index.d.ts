@@ -126,39 +126,60 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    type ActioningTime = string | Date;
     class Amendment extends InsertableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client, skipUnserialize?: boolean);
         applyType(type: string): void;
-        discard(): any;
-        static parseActioningTime(actioningTime: any, subscription?: any): Q.Promise<string>;
-        applyActioningTime(actioningTime: any, subscription?: any): Q.Promise<BillingEntity>;
+        discard(actioningTime?: ActioningTime): Q.Promise<AmendmentDiscardAmendment>;
+        static parseActioningTime(actioningTime: ActioningTime, subscription?: any): Q.Promise<string>;
+        applyActioningTime(actioningTime: ActioningTime, subscription?: any): Q.Promise<BillingEntity>;
     }
 }
 declare module BillForward {
     class AmendmentDiscardAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
+        static construct(amendment: EntityReference, actioningTime?: ActioningTime): Q.Promise<AmendmentDiscardAmendment>;
     }
 }
 declare module BillForward {
-    class CancellationAmendment extends Amendment {
-        constructor(stateParams?: Object, client?: Client);
-        static construct(subscription: any, serviceEnd?: ServiceEndState, actioningTime?: any): Q.Promise<CancellationAmendment>;
-    }
     enum ServiceEndState {
         AtPeriodEnd = 0,
         Immediate = 1,
     }
+    class CancellationAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
+        static construct(subscription: EntityReference, serviceEnd?: ServiceEndState, actioningTime?: ActioningTime): Q.Promise<CancellationAmendment>;
+    }
 }
 declare module BillForward {
-    class UpdateComponentValueAmendment extends Amendment {
+    enum InvoiceState {
+        Paid = 0,
+        Unpaid = 1,
+        Pending = 2,
+        Voided = 3,
+    }
+    enum InvoiceRecalculationBehaviour {
+        RecalculateAsLatestSubscriptionVersion = 0,
+        RecalculateAsCurrentSubscriptionVersion = 1,
+    }
+    class InvoiceRecalculationAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
+        static construct(invoice: any, newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
+    }
+}
+declare module BillForward {
+    class IssueInvoiceAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
+        static construct(invoice: any, actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
     }
 }
 declare module BillForward {
     class Invoice extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        issue(actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
+        recalculate(newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
     }
 }
 declare module BillForward {
@@ -258,7 +279,7 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
-        cancel(serviceEnd?: ServiceEndState, actioningTime?: any): Q.Promise<CancellationAmendment>;
+        cancel(serviceEnd?: ServiceEndState, actioningTime?: ActioningTime): Q.Promise<CancellationAmendment>;
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
         usePaymentMethodsFromAccount(account?: Account): Q.Promise<Subscription>;
         setValuesOfPricingComponentsByName(componentNamesToValues: {
@@ -270,6 +291,7 @@ declare module BillForward {
         useValuesForNamedPricingComponentsOnRatePlan(ratePlan: ProductRatePlan, componentNamesToValues: {
             [componentName: string]: Number;
         }): Q.Promise<Subscription>;
+        getCurrentPeriodStart(): any;
         getCurrentPeriodEnd(): any;
         getRatePlan(): Q.Promise<ProductRatePlan>;
         modifyUsage(componentNamesToValues: {
