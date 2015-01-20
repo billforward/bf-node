@@ -211,9 +211,22 @@ context(testBase.getContext(), function () {
 
 								webhookFilters.pendingInvoiceRaised.getPromise()
 								.then(function(webhook) {
-									var notification = webhook[0];
 									var invoice = new BillForward.Invoice(notification.entity);
-									console.log(invoice.toString());
+
+									webhookFilters.pendingInvoicePaid = new WebHookFilter(function(webhook, invoice) {
+										if (webhook.domain === 'Invoice')
+										if (webhook.action === 'Paid') {
+											console.log('yo2');
+											if (webhook.entity.id === invoice.id)
+												return true;
+										}
+									});
+
+									return webhookListener.subscribe(webhookFilters.pendingInvoicePaid, invoice)
+									.then(function(invoice) {
+										console.log('yo');
+										return invoice.issue();
+									})
 								});
 							});
 							after(function() {
@@ -264,7 +277,7 @@ context(testBase.getContext(), function () {
 									});*/
 
 									promises.modifyUsage = Q.spread([
-										webhookFilters.paymentAwaited.getPromise(),
+										parentClosure.webhookFilters.paymentAwaited.getPromise(),
 										parentClosure.parentClosure.promises.subscription
 										],
 										function(webhookArgs, subscription) {
