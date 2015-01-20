@@ -14,12 +14,15 @@ module BillForward {
       var client:Client = entity.getClient();
       var payload = entity.serialize();
 
-      return entityClass.makePostPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+      return entityClass.makePostPromise("/", null, payload, client)
+      .then((payload) => {
+        return entityClass.getFirstEntityFromResponse(payload, client);
+      });
     }
 
-    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, callback, client:Client = null) {
+    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
         var entityClass = this.getDerivedClassStatic();
-        return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, callback, client);
+        return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client);
     }
   } 
 }

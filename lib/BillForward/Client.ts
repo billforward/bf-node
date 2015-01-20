@@ -1,4 +1,5 @@
 module BillForward {
+  export type clientConstructObj = { accessToken:string; urlRoot:string; requestLogging?:boolean; responseLogging?:boolean; errorLogging?:boolean; };
 
   export class Client {
 
@@ -33,8 +34,36 @@ module BillForward {
       return Client.singletonClient;
     }
 
-    static makeDefault(accessToken:string, urlRoot:string, requestLogging:boolean = false, responseLogging:boolean = false, errorLogging:boolean = false):Client {
-      var client = new Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging);
+    static makeDefault(obj:clientConstructObj): Client;
+    static makeDefault(accessToken:string, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean): Client;
+
+    /*static makeDefault(obj:Object):Client {
+      var client = new Client(obj.accessToken, obj.urlRoot, obj.requestLogging, obj.responseLogging, obj.errorLogging);
+      return Client.setDefault(client);
+    }*/
+
+    static makeDefault(accessTokenOrObj:any, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean):Client {
+      var _accessToken:string;
+      var _urlRoot:string;
+      var _responseLogging:boolean = false;
+      var _requestLogging:boolean = false;
+      var _errorLogging:boolean = false;
+      if (typeof accessTokenOrObj === 'string') {
+        _accessToken = <string>accessTokenOrObj;
+        _urlRoot = urlRoot;
+        if (requestLogging) _requestLogging = requestLogging;
+        if (responseLogging) _responseLogging = responseLogging;
+        if (errorLogging) _errorLogging = errorLogging;
+      } else {
+        var obj = <clientConstructObj>accessTokenOrObj;
+        _accessToken = obj.accessToken;
+        _urlRoot = obj.urlRoot;
+        if (obj.requestLogging) _requestLogging = obj.requestLogging;
+        if (obj.responseLogging) _responseLogging = obj.responseLogging;
+        if (obj.errorLogging) _errorLogging = obj.errorLogging;
+      }
+
+      var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
       return Client.setDefault(client);
     }
 
@@ -45,7 +74,7 @@ module BillForward {
       return Client.singletonClient;
     }
 
-    request(verb:string, path:string, queryParams:Object = {}, json:Object = {}) {
+    request(verb:string, path:string, queryParams:Object = {}, json:Object = {}):Q.Promise<any> {
       var queryString = "";
       if (!Imports._.isEmpty(queryParams)) {
         queryString = "?"+Imports._.map(<any>queryParams, function(value:any, key:string) {
@@ -59,16 +88,14 @@ module BillForward {
         console.log(fullPath);
       }
 
-      var deferred:Q.Deferred<any> = Imports.Q.defer();
-
-      var callback = (err, body, statusCode, headers) => {
+      /*var callback = (err, body, statusCode, headers) => {
           if(err) {
             this.errorResponse(err, deferred);
             return;
           }
           // console.log('Success', body, statusCode, headers);
           this.successResponse(body, statusCode, headers, deferred);
-      };
+      };*/
 
       var headers = {
         'Authorization': 'Bearer '+this.accessToken
@@ -107,41 +134,67 @@ module BillForward {
         callArgs.splice(1, 0, json);
       }
 
-      Imports.restler[callVerb].apply(this, callArgs)
-      .on('success', (data, response) => {
-          this.successResponse(data, 200, {}, deferred);
+      return Client.mockableRequestWrapper(callVerb, callArgs)
+      .then((obj) => {
+        return this.successResponse(obj);
         })
-      .on('fail', (data, response) => {
-          this.errorResponse(data, deferred);
+      .catch((obj) => {
+        return this.errorResponse(obj);
         });
-
-      return deferred.promise;
     }
 
-    private successResponse(body, statusCode, headers, deferred) {
-      if (statusCode === 200) {
-        if (this.responseLogging) {
-          console.log(JSON.stringify(body, null, "\t"));
+    static mockableRequestWrapper(callVerb:string, callArgs:Array<any>):any {
+      return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
+        try {
+          Imports.restler[callVerb].apply(this, callArgs)
+          .on('success', (data, response) => {
+            resolve({
+              data:data,
+              response:response
+              });
+            })
+          .on('fail', (data, response) => {
+            reject({
+              data:data,
+              response:response
+              });
+            });
+        } catch(e) {
+            return reject(e);
         }
-        deferred.resolve(body);
-        return;
-      }
-      this.errorResponse(body, deferred);
+      });
     }
 
-    private errorResponse(err, deferred) {
-      var parsed = err;
+    private successResponse(obj:any):any {
+      if (!obj || !obj.data || !obj.response) {
+        return this.errorResponse(obj);
+      }
+      
+      if (obj.response.statusCode === 200) {
+        if (this.responseLogging) {
+          console.log(JSON.stringify(obj.data, null, "\t"));
+        }
+        return obj.data;
+      }
+      return this.errorResponse(obj);
+    }
+
+    private errorResponse(input:any):any {
+      var parsed = input;
+      if (input.data)
+      parsed = input.data;
       if (this.errorLogging) {
-        if (err instanceof Object) {
-          parsed = JSON.stringify(err);
+        if (input instanceof Object) {
+          var jsonParse;
+          try {
+            jsonParse = JSON.stringify(input, null, "\t");
+            parsed = jsonParse;
+          } catch(e) {
+          }
         }
         console.error(parsed);
       }
-      Client.handlePromiseError(parsed, deferred);
-    }
-
-    static handlePromiseError(err, deferred) {
-      deferred.reject(err);
+      throw parsed;
     }
   }
 }

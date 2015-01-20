@@ -50,7 +50,7 @@ context(testBase.getContext(), function () {
 
 
 					// create a product
-					models.product = testModels.Product();
+					models.product = testModels.FastProduct();
 					promises.product = BillForward.Product.create(models.product)
 
 
@@ -78,7 +78,7 @@ context(testBase.getContext(), function () {
 								'@type': 'tieredPricingComponent',
 								'chargeModel': 'tiered',
 								'name': 'CPU',
-								'description': 'CPU consumed',
+								'description': 'CPU entitlement for the period',
 								'unitOfMeasureID': unitOfMeasure1.id, // predicated on unit of measure's first being created
 								'chargeType': 'subscription',
 								'upgradeMode': 'immediate',
@@ -90,9 +90,9 @@ context(testBase.getContext(), function () {
 								'@type': 'tieredPricingComponent',
 								'chargeModel': 'tiered',
 								'name': 'Bandwidth',
-								'description': 'Bandwidth consumed',
+								'description': 'Bandwidth consumed during the period',
 								'unitOfMeasureID': unitOfMeasure2.id,
-								'chargeType': 'subscription',
+								'chargeType': 'usage',
 								'upgradeMode': 'immediate',
 								'downgradeMode': 'immediate',
 								'defaultQuantity': 10,
@@ -154,7 +154,7 @@ context(testBase.getContext(), function () {
 									'description':                    'Memorable Subscription Description',
 									'paymentMethodSubscriptionLinks': models.paymentMethodLinks,
 									'pricingComponentValues':         models.pricingComponentValues,
-									'creditEnabled':                  true
+									// 'creditEnabled':                  true
 								});
 
 								return BillForward.Subscription.create(models.subscription);
@@ -164,112 +164,6 @@ context(testBase.getContext(), function () {
 						return Q
 						.all(_.values(promises))
 						.should.be.fulfilled;
-					});
-					(testBase.enableWebhooksTests ? context : context.skip)('Webhooks permitting', function() {
-				  		this.timeout(getNewTimeout());
-						describe('The subscription', function() {
-							var parentClosure = {
-								promises: promises
-							};
-							var callbacks;
-							var webhookFilters;
-							before(function() {
-								webhookFilters = {
-									paymentAwaited: new WebHookFilter(function(webhook, subscription) {
-										if (webhook.domain === 'Subscription')
-										if (webhook.action === 'AwaitingPayment')
-										if (webhook.entity.id === subscription.id)
-										return true;
-									}),
-									paymentPaid: new WebHookFilter(function(webhook, subscription) {
-										if (webhook.domain === 'Subscription')
-										if (webhook.action === 'Paid')
-										if (webhook.entity.id === subscription.id)
-										return true;
-									}),
-									unpaidInvoiceRaised:  new WebHookFilter(function(webhook, subscription) {
-										if (webhook.domain === 'Invoice')
-										if (webhook.action === 'Unpaid')
-										if (webhook.entity.subscriptionID === subscription.id)
-										return true;
-									})
-								};
-
-								parentClosure.promises.subscription
-								.then(function(subscription) {
-									return webhookListener.subscribe(webhookFilters.paymentAwaited, subscription)
-									.then(function() {
-										return webhookListener.subscribe(webhookFilters.unpaidInvoiceRaised, subscription);
-									})
-									.then(function() {
-										return webhookListener.subscribe(webhookFilters.paymentPaid, subscription);
-									})
-									.then(function() {
-										return subscription.activate();
-									});
-								});
-							});
-							after(function() {
-								_.forEach(callbacks, webhookListener.unsubscribe);
-							});
-							it("changes state to 'AwaitingPayment'", function() {
-								return webhookFilters.paymentAwaited.getPromise()
-								.should.be.fulfilled;
-							});
-							it("raises invoice", function() {
-								// since no usage components are present, invoice will seek payment immediately
-								return webhookFilters.unpaidInvoiceRaised.getPromise()
-								.should.be.fulfilled;
-							});
-							it("changes state to 'Paid'", function() {
-								return webhookFilters.paymentPaid.getPromise()
-								.should.be.fulfilled;
-							});
-							context("once active", function() {
-								this.timeout(getNewTimeout());
-
-								// var actioningTime = moment().add(1, 'month').toDate();
-								var actioningTime = moment().toDate();
-
-								var callbacks;
-								var webhookFilters;
-								before(function() {
-									webhookFilters = {
-										cancelled: new WebHookFilter(function(webhook, subscription) {
-											if (webhook.domain === 'Subscription')
-											if (webhook.action === 'Cancelled')
-											if (webhook.entity.id === subscription.id)
-											return true;
-										})
-									};
-
-									parentClosure.promises.subscription
-									.then(function(subscription) {
-										return webhookListener.subscribe(webhookFilters.cancelled, subscription)
-										.then(function() {
-											return subscription.cancel("AtPeriodEnd", actioningTime);
-										});
-									});
-								});
-								after(function() {
-									_.forEach(callbacks, webhookListener.unsubscribe);
-								});
-								it("changes state to 'Cancelled'", function() {
-									return webhookFilters.cancelled.getPromise()
-									.should.be.fulfilled;
-								});
-								/*context("future cancellation queued", function() {
-									this.timeout(getNewTimeout());
-									var parentClosure = {
-										callbacks: callbacks,
-										webhookFilters: webhookFilters,
-										parentClosure: parentClosure
-									};
-
-
-								});*/
-							});
-						});
 					});
 				});
 			});

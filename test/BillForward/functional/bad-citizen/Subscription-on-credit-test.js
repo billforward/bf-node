@@ -172,7 +172,7 @@ context(testBase.getContext(), function () {
 					});
 				});
 				describe('the dependent entities', function () {
-					it('are created succesfully', function () {
+					it('are created successfully', function () {
 						return Q
 						.all(_.values(promises))
 						.should.be.fulfilled;
@@ -214,7 +214,8 @@ context(testBase.getContext(), function () {
 									'name':                           'Memorable Subscription',
 									'description':                    'Memorable Subscription Description',
 									'paymentMethodSubscriptionLinks': models.paymentMethodLinks,
-									'pricingComponentValues':         models.pricingComponentValues
+									'pricingComponentValues':         models.pricingComponentValues,
+									'creditEnabled':                  true
 								});
 
 								return BillForward.Subscription.create(models.subscription);

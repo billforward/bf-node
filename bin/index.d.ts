@@ -1,5 +1,12 @@
 /// <reference path="../typings/tsd.d.ts" />
 declare module BillForward {
+    type clientConstructObj = {
+        accessToken: string;
+        urlRoot: string;
+        requestLogging?: boolean;
+        responseLogging?: boolean;
+        errorLogging?: boolean;
+    };
     class Client {
         private static singletonClient;
         private accessToken;
@@ -11,30 +18,32 @@ declare module BillForward {
         getAccessToken(): string;
         getUrlRoot(): string;
         static setDefault(client: Client): Client;
-        static makeDefault(accessToken: string, urlRoot: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
+        static makeDefault(obj: clientConstructObj): Client;
+        static makeDefault(accessToken: string, urlRoot?: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
         static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
-        private successResponse(body, statusCode, headers, deferred);
-        private errorResponse(err, deferred);
-        static handlePromiseError(err: any, deferred: any): void;
+        static mockableRequestWrapper(callVerb: string, callArgs: Array<any>): any;
+        private successResponse(obj);
+        private errorResponse(input);
     }
 }
 declare module BillForward {
+    type EntityReference = string | BillingEntity;
     class BillingEntity {
         protected _client: Client;
-        protected _exemptFromSerialization: string[];
+        protected _exemptFromSerialization: Array<string>;
         protected _registeredEntities: {
-            [x: string]: typeof BillingEntity;
+            [classKey: string]: typeof BillingEntity;
         };
         protected _registeredEntityArrays: {
-            [x: string]: typeof BillingEntity;
+            [classKey: string]: typeof BillingEntity;
         };
         constructor(stateParams?: Object, client?: Client);
         getClient(): Client;
         setClient(client: Client): void;
         protected static resolveRoute(endpoint?: string): string;
-        protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): Q.Promise<any>;
-        protected static makeGetPromise(endpoint: string, queryParams: Object, callback: any, client?: Client): any;
+        protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<any>;
+        protected static makeGetPromise(endpoint: string, queryParams: Object, client?: Client): any;
         static getByID(id: string, queryParams?: Object, client?: Client): any;
         static getAll(queryParams?: Object, client?: Client): any;
         static getResourcePath(): any;
@@ -49,25 +58,27 @@ declare module BillForward {
         protected unserialize(json: Object): void;
         protected addToEntity(key: string, value: any): void;
         protected buildEntity(entityClass: typeof BillingEntity, constructArgs: any): BillingEntity;
-        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: any[]): BillingEntity[];
-        protected static getFirstEntityFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity>): void;
-        protected static getAllEntitiesFromResponse(payload: any, client: Client, deferred: Q.Deferred<BillingEntity[]>): void;
+        protected buildEntityArray(entityClass: typeof BillingEntity, constructArgs: Array<any>): Array<BillingEntity>;
+        protected static getFirstEntityFromResponse(payload: any, client: Client): BillingEntity;
+        protected static getAllEntitiesFromResponse(payload: any, client: Client): Array<BillingEntity>;
         protected static makeEntityFromPayload(payload: Object, client: Client): BillingEntity;
+        static fetchIfNecessary(entityReference: EntityReference): Q.Promise<BillingEntity>;
         static makeBillForwardDate(date: Date): string;
+        static getBillForwardNow(): any;
     }
 }
 declare module BillForward {
     class InsertableEntity extends BillingEntity {
         constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): any;
-        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
+        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): any;
     }
 }
 declare module BillForward {
     class MutableEntity extends InsertableEntity {
         constructor(stateParams?: Object, client?: Client);
         save(): any;
-        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, callback: any, client?: Client): any;
+        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): any;
     }
 }
 declare module BillForward {
@@ -115,32 +126,60 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    type ActioningTime = string | Date;
     class Amendment extends InsertableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client, skipUnserialize?: boolean);
         applyType(type: string): void;
-        discard(): any;
+        discard(actioningTime?: ActioningTime): Q.Promise<AmendmentDiscardAmendment>;
+        static parseActioningTime(actioningTime: ActioningTime, subscription?: any): Q.Promise<string>;
+        applyActioningTime(actioningTime: ActioningTime, subscription?: any): Q.Promise<BillingEntity>;
     }
 }
 declare module BillForward {
     class AmendmentDiscardAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
+        static construct(amendment: EntityReference, actioningTime?: ActioningTime): Q.Promise<AmendmentDiscardAmendment>;
     }
 }
 declare module BillForward {
-    class CancellationAmendment extends Amendment {
-        constructor(stateParams?: Object, client?: Client);
-        static construct(subscription: Subscription, serviceEnd?: ServiceEndTime, actioningTime?: any): CancellationAmendment;
-    }
-    enum ServiceEndTime {
+    enum ServiceEndState {
         AtPeriodEnd = 0,
         Immediate = 1,
+    }
+    class CancellationAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
+        static construct(subscription: EntityReference, serviceEnd?: ServiceEndState, actioningTime?: ActioningTime): Q.Promise<CancellationAmendment>;
+    }
+}
+declare module BillForward {
+    enum InvoiceState {
+        Paid = 0,
+        Unpaid = 1,
+        Pending = 2,
+        Voided = 3,
+    }
+    enum InvoiceRecalculationBehaviour {
+        RecalculateAsLatestSubscriptionVersion = 0,
+        RecalculateAsCurrentSubscriptionVersion = 1,
+    }
+    class InvoiceRecalculationAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
+        static construct(invoice: any, newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
+    }
+}
+declare module BillForward {
+    class IssueInvoiceAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
+        static construct(invoice: any, actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
     }
 }
 declare module BillForward {
     class Invoice extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        issue(actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
+        recalculate(newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
     }
 }
 declare module BillForward {
@@ -240,17 +279,23 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         activate(): any;
-        cancel(serviceEnd?: ServiceEndTime, actioningTime?: any): any;
+        cancel(serviceEnd?: ServiceEndState, actioningTime?: ActioningTime): Q.Promise<CancellationAmendment>;
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
         usePaymentMethodsFromAccount(account?: Account): Q.Promise<Subscription>;
         setValuesOfPricingComponentsByName(componentNamesToValues: {
-            [x: string]: Number;
+            [componentName: string]: Number;
         }): Q.Promise<Subscription>;
         useValuesForNamedPricingComponentsOnRatePlanByID(ratePlanID: string, componentNamesToValues: {
-            [x: string]: Number;
+            [componentName: string]: Number;
         }): Q.Promise<Subscription>;
         useValuesForNamedPricingComponentsOnRatePlan(ratePlan: ProductRatePlan, componentNamesToValues: {
-            [x: string]: Number;
+            [componentName: string]: Number;
+        }): Q.Promise<Subscription>;
+        getCurrentPeriodStart(): any;
+        getCurrentPeriodEnd(): any;
+        getRatePlan(): Q.Promise<ProductRatePlan>;
+        modifyUsage(componentNamesToValues: {
+            [componentName: string]: Number;
         }): Q.Promise<Subscription>;
     }
 }
@@ -283,6 +328,7 @@ declare module BillForward {
         static _: _.LoDashStatic;
         static restler: any;
         static Q: any;
+        static util: any;
     }
 }
 declare module BillForward {

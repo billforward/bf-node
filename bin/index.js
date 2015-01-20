@@ -21,11 +21,34 @@ var BillForward;
             Client.singletonClient = client;
             return Client.singletonClient;
         };
-        Client.makeDefault = function (accessToken, urlRoot, requestLogging, responseLogging, errorLogging) {
-            if (requestLogging === void 0) { requestLogging = false; }
-            if (responseLogging === void 0) { responseLogging = false; }
-            if (errorLogging === void 0) { errorLogging = false; }
-            var client = new Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging);
+        Client.makeDefault = function (accessTokenOrObj, urlRoot, requestLogging, responseLogging, errorLogging) {
+            var _accessToken;
+            var _urlRoot;
+            var _responseLogging = false;
+            var _requestLogging = false;
+            var _errorLogging = false;
+            if (typeof accessTokenOrObj === 'string') {
+                _accessToken = accessTokenOrObj;
+                _urlRoot = urlRoot;
+                if (requestLogging)
+                    _requestLogging = requestLogging;
+                if (responseLogging)
+                    _responseLogging = responseLogging;
+                if (errorLogging)
+                    _errorLogging = errorLogging;
+            }
+            else {
+                var obj = accessTokenOrObj;
+                _accessToken = obj.accessToken;
+                _urlRoot = obj.urlRoot;
+                if (obj.requestLogging)
+                    _requestLogging = obj.requestLogging;
+                if (obj.responseLogging)
+                    _responseLogging = obj.responseLogging;
+                if (obj.errorLogging)
+                    _errorLogging = obj.errorLogging;
+            }
+            var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
             return Client.setDefault(client);
         };
         Client.getDefaultClient = function () {
@@ -48,14 +71,6 @@ var BillForward;
             if (this.requestLogging) {
                 console.log(fullPath);
             }
-            var deferred = BillForward.Imports.Q.defer();
-            var callback = function (err, body, statusCode, headers) {
-                if (err) {
-                    _this.errorResponse(err, deferred);
-                    return;
-                }
-                _this.successResponse(body, statusCode, headers, deferred);
-            };
             var headers = {
                 'Authorization': 'Bearer ' + this.accessToken
             };
@@ -71,35 +86,62 @@ var BillForward;
                 callVerb += "Json";
                 callArgs.splice(1, 0, json);
             }
-            BillForward.Imports.restler[callVerb].apply(this, callArgs).on('success', function (data, response) {
-                _this.successResponse(data, 200, {}, deferred);
-            }).on('fail', function (data, response) {
-                _this.errorResponse(data, deferred);
+            return Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
+                return _this.successResponse(obj);
+            }).catch(function (obj) {
+                return _this.errorResponse(obj);
             });
-            return deferred.promise;
         };
-        Client.prototype.successResponse = function (body, statusCode, headers, deferred) {
-            if (statusCode === 200) {
-                if (this.responseLogging) {
-                    console.log(JSON.stringify(body, null, "\t"));
+        Client.mockableRequestWrapper = function (callVerb, callArgs) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
+                        resolve({
+                            data: data,
+                            response: response
+                        });
+                    }).on('fail', function (data, response) {
+                        reject({
+                            data: data,
+                            response: response
+                        });
+                    });
                 }
-                deferred.resolve(body);
-                return;
-            }
-            this.errorResponse(body, deferred);
+                catch (e) {
+                    return reject(e);
+                }
+            });
         };
-        Client.prototype.errorResponse = function (err, deferred) {
-            var parsed = err;
+        Client.prototype.successResponse = function (obj) {
+            if (!obj || !obj.data || !obj.response) {
+                return this.errorResponse(obj);
+            }
+            if (obj.response.statusCode === 200) {
+                if (this.responseLogging) {
+                    console.log(JSON.stringify(obj.data, null, "\t"));
+                }
+                return obj.data;
+            }
+            return this.errorResponse(obj);
+        };
+        Client.prototype.errorResponse = function (input) {
+            var parsed = input;
+            if (input.data)
+                parsed = input.data;
             if (this.errorLogging) {
-                if (err instanceof Object) {
-                    parsed = JSON.stringify(err);
+                if (input instanceof Object) {
+                    var jsonParse;
+                    try {
+                        jsonParse = JSON.stringify(input, null, "\t");
+                        parsed = jsonParse;
+                    }
+                    catch (e) {
+                    }
                 }
                 console.error(parsed);
             }
-            Client.handlePromiseError(parsed, deferred);
-        };
-        Client.handlePromiseError = function (err, deferred) {
-            deferred.reject(err);
+            throw parsed;
         };
         return Client;
     })();
@@ -132,38 +174,43 @@ var BillForward;
             var fullRoute = apiRoute + endpoint;
             return fullRoute;
         };
-        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, callback, client) {
+        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client) {
             var _this = this;
             if (client === void 0) { client = null; }
-            if (!client) {
-                client = BillingEntity.getSingletonClient();
-            }
-            var deferred = BillForward.Imports.Q.defer();
-            var entityClass = this.getDerivedClassStatic();
-            var fullRoute = entityClass.resolveRoute(endpoint);
-            client.request(verb, fullRoute, queryParams, payload).then(function (payload) {
-                callback.call(_this, payload, client, deferred);
-            }).catch(function (err) {
-                BillForward.Client.handlePromiseError(err, deferred);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    if (!client) {
+                        client = BillingEntity.getSingletonClient();
+                    }
+                    var entityClass = _this.getDerivedClassStatic();
+                    var fullRoute = entityClass.resolveRoute(endpoint);
+                    return resolve(client.request(verb, fullRoute, queryParams, payload));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
-            return deferred.promise;
         };
-        BillingEntity.makeGetPromise = function (endpoint, queryParams, callback, client) {
+        BillingEntity.makeGetPromise = function (endpoint, queryParams, client) {
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, callback, client);
+            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client);
         };
         BillingEntity.getByID = function (id, queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeGetPromise("/" + id, queryParams, entityClass.getFirstEntityFromResponse, client);
+            return entityClass.makeGetPromise("/" + id, queryParams, client).then(function (payload) {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+            });
         };
         BillingEntity.getAll = function (queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeGetPromise("", queryParams, entityClass.getAllEntitiesFromResponse, client);
+            return entityClass.makeGetPromise("", queryParams, client).then(function (payload) {
+                return entityClass.getAllEntitiesFromResponse(payload, client);
+            });
         };
         BillingEntity.getResourcePath = function () {
             return this.getDerivedClassStatic()._resourcePath;
@@ -242,77 +289,71 @@ var BillForward;
             var entities = BillForward.Imports._.map(constructArgs, this.buildEntity);
             return entities;
         };
-        BillingEntity.getFirstEntityFromResponse = function (payload, client, deferred) {
-            try {
-                if (payload.results.length < 1) {
-                    deferred.reject("No results returned upon API request.");
-                    return;
-                }
-            }
-            catch (e) {
-                deferred.reject("Received malformed response from API.");
-                return;
-            }
+        BillingEntity.getFirstEntityFromResponse = function (payload, client) {
+            if (!payload.results || !payload.results.length)
+                throw "Received malformed response from API.";
+            if (payload.results.length < 1)
+                throw "No results returned upon API request.";
             var entity;
-            try {
-                var results = payload.results;
-                var assumeFirst = results[0];
-                var stateParams = assumeFirst;
-                var entityClass = this.getDerivedClassStatic();
-                entity = entityClass.makeEntityFromPayload(stateParams, client);
-            }
-            catch (e) {
-                deferred.reject(e);
-                return;
-            }
-            if (!entity) {
-                deferred.reject("Failed to unserialize API response into entity.");
-                return;
-            }
-            deferred.resolve(entity);
+            var results = payload.results;
+            var assumeFirst = results[0];
+            var stateParams = assumeFirst;
+            var entityClass = this.getDerivedClassStatic();
+            entity = entityClass.makeEntityFromPayload(stateParams, client);
+            if (!entity)
+                throw "Failed to unserialize API response into entity.";
+            return entity;
         };
-        BillingEntity.getAllEntitiesFromResponse = function (payload, client, deferred) {
+        BillingEntity.getAllEntitiesFromResponse = function (payload, client) {
             var _this = this;
-            try {
-                if (payload.results.length === undefined) {
-                    deferred.reject("Received malformed response from API.");
-                    return;
-                }
-            }
-            catch (e) {
-                deferred.reject("Received malformed response from API.");
-                return;
-            }
+            if (!payload.results || !payload.results.length)
+                throw "Received malformed response from API.";
+            if (payload.results.length < 1)
+                throw "No results returned upon API request.";
             var entities;
-            try {
-                var results = payload.results;
-                entities = BillForward.Imports._.map(results, function (value) {
-                    var entityClass = _this.getDerivedClassStatic();
-                    var entity = entityClass.makeEntityFromPayload(value, client);
-                    if (!entity) {
-                        deferred.reject("Failed to unserialize API response into entity.");
-                        return false;
-                    }
-                    return entity;
-                });
-            }
-            catch (e) {
-                deferred.reject(e);
-                return;
-            }
-            if (!entities) {
-                deferred.reject("Failed to unserialize API response into entity.");
-                return;
-            }
-            deferred.resolve(entities);
+            var results = payload.results;
+            entities = BillForward.Imports._.map(results, function (value) {
+                var entityClass = _this.getDerivedClassStatic();
+                var entity = entityClass.makeEntityFromPayload(value, client);
+                if (!entity)
+                    throw "Failed to unserialize API response into entity.";
+                return entity;
+            });
+            if (!entities)
+                throw "Failed to unserialize API response into entity.";
+            return entities;
         };
         BillingEntity.makeEntityFromPayload = function (payload, client) {
             var entityClass = this.getDerivedClassStatic();
             return new entityClass(payload, client);
         };
+        BillingEntity.fetchIfNecessary = function (entityReference) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClassStatic();
+                    if (typeof entityReference === "string") {
+                        return resolve(entityClass.getByID(entityReference));
+                    }
+                    if (entityReference instanceof entityClass) {
+                        return resolve(entityReference);
+                    }
+                    throw "Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.";
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         BillingEntity.makeBillForwardDate = function (date) {
             var asISO = date.toISOString();
-            return asISO;
+            var removeMilli = asISO.slice(0, -5) + "Z";
+            return removeMilli;
+        };
+        BillingEntity.getBillForwardNow = function () {
+            var now = new Date();
+            var entityClass = this.getDerivedClassStatic();
+            return entityClass.makeBillForwardDate(now);
         };
         return BillingEntity;
     })();
@@ -337,12 +378,14 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             var client = entity.getClient();
             var payload = entity.serialize();
-            return entityClass.makePostPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+            return entityClass.makePostPromise("/", null, payload, client).then(function (payload) {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+            });
         };
-        InsertableEntity.makePostPromise = function (endpoint, queryParams, payload, callback, client) {
+        InsertableEntity.makePostPromise = function (endpoint, queryParams, payload, client) {
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, callback, client);
+            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client);
         };
         return InsertableEntity;
     })(BillForward.BillingEntity);
@@ -361,12 +404,14 @@ var BillForward;
             var entityClass = this.getDerivedClass();
             var client = this.getClient();
             var payload = this.serialize();
-            return entityClass.makePutPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+            return entityClass.makePutPromise("/", null, payload, client).then(function (payload) {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+            });
         };
-        MutableEntity.makePutPromise = function (endpoint, queryParams, payload, callback, client) {
+        MutableEntity.makePutPromise = function (endpoint, queryParams, payload, client) {
             if (client === void 0) { client = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, callback, client);
+            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
         };
         return MutableEntity;
     })(BillForward.InsertableEntity);
@@ -497,12 +542,50 @@ var BillForward;
         Amendment.prototype.applyType = function (type) {
             this['@type'] = type;
         };
-        Amendment.prototype.discard = function () {
-            var amendment = new BillForward.AmendmentDiscardAmendment({
-                'amendmentToDiscardID': this.id,
-                'subscriptionID': this.subscriptionID
+        Amendment.prototype.discard = function (actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.AmendmentDiscardAmendment.construct(this, actioningTime).then(function (amendment) {
+                return BillForward.AmendmentDiscardAmendment.create(amendment);
             });
-            return BillForward.AmendmentDiscardAmendment.create(amendment);
+        };
+        Amendment.parseActioningTime = function (actioningTime, subscription) {
+            if (subscription === void 0) { subscription = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var date = null;
+                    if (actioningTime instanceof Date) {
+                        date = BillForward.BillingEntity.makeBillForwardDate(actioningTime);
+                    }
+                    else if (actioningTime === 'AtPeriodEnd') {
+                        if (!subscription) {
+                            throw 'Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.';
+                        }
+                        return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) { return subscription.getCurrentPeriodEnd; }));
+                    }
+                    return resolve(date);
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Amendment.prototype.applyActioningTime = function (actioningTime, subscription) {
+            var _this = this;
+            if (subscription === void 0) { subscription = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClass();
+                    return resolve(entityClass.parseActioningTime(actioningTime, subscription).then(function (parsedActioningTime) {
+                        if (parsedActioningTime !== null) {
+                            _this.actioningTime = parsedActioningTime;
+                        }
+                        return _this;
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
         };
         Amendment._resourcePath = new BillForward.ResourcePath('amendments', 'amendment');
         return Amendment;
@@ -520,12 +603,34 @@ var BillForward;
             this.applyType('AmendmentDiscardAmendment');
             this.unserialize(stateParams);
         }
+        AmendmentDiscardAmendment.construct = function (amendment, actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Amendment.fetchIfNecessary(amendment).then(function (amendment) {
+                        var discardModel = new AmendmentDiscardAmendment({
+                            'amendmentToDiscardID': amendment.id,
+                            'subscriptionID': amendment.subscriptionID
+                        });
+                        return discardModel.applyActioningTime(actioningTime, amendment.subscriptionID);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         return AmendmentDiscardAmendment;
     })(BillForward.Amendment);
     BillForward.AmendmentDiscardAmendment = AmendmentDiscardAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    (function (ServiceEndState) {
+        ServiceEndState[ServiceEndState["AtPeriodEnd"] = 0] = "AtPeriodEnd";
+        ServiceEndState[ServiceEndState["Immediate"] = 1] = "Immediate";
+    })(BillForward.ServiceEndState || (BillForward.ServiceEndState = {}));
+    var ServiceEndState = BillForward.ServiceEndState;
     var CancellationAmendment = (function (_super) {
         __extends(CancellationAmendment, _super);
         function CancellationAmendment(stateParams, client) {
@@ -538,35 +643,104 @@ var BillForward;
         CancellationAmendment.construct = function (subscription, serviceEnd, actioningTime) {
             if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            var amendment = new CancellationAmendment({
-                'subscriptionID': subscription.id,
-                'serviceEnd': serviceEnd
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) {
+                        var amendment = new CancellationAmendment({
+                            'subscriptionID': subscription.id,
+                            'serviceEnd': serviceEnd
+                        });
+                        return amendment.applyActioningTime(actioningTime, subscription);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
-            var date = null;
-            if (actioningTime instanceof Date) {
-                date = BillForward.BillingEntity.makeBillForwardDate(actioningTime);
-            }
-            else if (actioningTime === 'AtPeriodEnd') {
-                if (subscription.currentPeriodEnd) {
-                    date = subscription.currentPeriodEnd;
-                }
-                else {
-                    throw 'Cannot set actioning time to period end, because the subscription does not declare a period end.';
-                }
-            }
-            if (date) {
-                amendment.actioningTime = date;
-            }
-            return amendment;
         };
         return CancellationAmendment;
     })(BillForward.Amendment);
     BillForward.CancellationAmendment = CancellationAmendment;
-    (function (ServiceEndTime) {
-        ServiceEndTime[ServiceEndTime["AtPeriodEnd"] = 0] = "AtPeriodEnd";
-        ServiceEndTime[ServiceEndTime["Immediate"] = 1] = "Immediate";
-    })(BillForward.ServiceEndTime || (BillForward.ServiceEndTime = {}));
-    var ServiceEndTime = BillForward.ServiceEndTime;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    (function (InvoiceState) {
+        InvoiceState[InvoiceState["Paid"] = 0] = "Paid";
+        InvoiceState[InvoiceState["Unpaid"] = 1] = "Unpaid";
+        InvoiceState[InvoiceState["Pending"] = 2] = "Pending";
+        InvoiceState[InvoiceState["Voided"] = 3] = "Voided";
+    })(BillForward.InvoiceState || (BillForward.InvoiceState = {}));
+    var InvoiceState = BillForward.InvoiceState;
+    (function (InvoiceRecalculationBehaviour) {
+        InvoiceRecalculationBehaviour[InvoiceRecalculationBehaviour["RecalculateAsLatestSubscriptionVersion"] = 0] = "RecalculateAsLatestSubscriptionVersion";
+        InvoiceRecalculationBehaviour[InvoiceRecalculationBehaviour["RecalculateAsCurrentSubscriptionVersion"] = 1] = "RecalculateAsCurrentSubscriptionVersion";
+    })(BillForward.InvoiceRecalculationBehaviour || (BillForward.InvoiceRecalculationBehaviour = {}));
+    var InvoiceRecalculationBehaviour = BillForward.InvoiceRecalculationBehaviour;
+    var InvoiceRecalculationAmendment = (function (_super) {
+        __extends(InvoiceRecalculationAmendment, _super);
+        function InvoiceRecalculationAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.applyType('InvoiceRecalculationAmendment');
+            this.unserialize(stateParams);
+        }
+        InvoiceRecalculationAmendment.construct = function (invoice, newInvoiceState, recalculationBehaviour, actioningTime) {
+            if (newInvoiceState === void 0) { newInvoiceState = 2 /* Pending */; }
+            if (recalculationBehaviour === void 0) { recalculationBehaviour = 0 /* RecalculateAsLatestSubscriptionVersion */; }
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice).then(function (invoice) {
+                        var amendment = new InvoiceRecalculationAmendment({
+                            'invoiceID': invoice.id,
+                            'subscriptionID': invoice.subscriptionID
+                        });
+                        amendment.recalculationBehaviour = recalculationBehaviour;
+                        amendment.newInvoiceState = newInvoiceState;
+                        return amendment.applyActioningTime(actioningTime, invoice.subscriptionID);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        return InvoiceRecalculationAmendment;
+    })(BillForward.Amendment);
+    BillForward.InvoiceRecalculationAmendment = InvoiceRecalculationAmendment;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var IssueInvoiceAmendment = (function (_super) {
+        __extends(IssueInvoiceAmendment, _super);
+        function IssueInvoiceAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.applyType('IssueInvoiceAmendment');
+            this.unserialize(stateParams);
+        }
+        IssueInvoiceAmendment.construct = function (invoice, actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice).then(function (invoice) {
+                        var amendment = new IssueInvoiceAmendment({
+                            'invoiceID': invoice.id,
+                            'subscriptionID': invoice.subscriptionID
+                        });
+                        return amendment.applyActioningTime(actioningTime, invoice.subscriptionID);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        return IssueInvoiceAmendment;
+    })(BillForward.Amendment);
+    BillForward.IssueInvoiceAmendment = IssueInvoiceAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
@@ -581,6 +755,20 @@ var BillForward;
             this.registerEntityArray('invoicePayments', BillForward.InvoicePayment);
             this.unserialize(stateParams);
         }
+        Invoice.prototype.issue = function (actioningTime) {
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.IssueInvoiceAmendment.construct(this, actioningTime).then(function (amendment) {
+                return BillForward.IssueInvoiceAmendment.create(amendment);
+            });
+        };
+        Invoice.prototype.recalculate = function (newInvoiceState, recalculationBehaviour, actioningTime) {
+            if (newInvoiceState === void 0) { newInvoiceState = 2 /* Pending */; }
+            if (recalculationBehaviour === void 0) { recalculationBehaviour = 0 /* RecalculateAsLatestSubscriptionVersion */; }
+            if (actioningTime === void 0) { actioningTime = 'Immediate'; }
+            return BillForward.InvoiceRecalculationAmendment.construct(this, newInvoiceState, recalculationBehaviour, actioningTime).then(function (amendment) {
+                return BillForward.InvoiceRecalculationAmendment.create(amendment);
+            });
+        };
         Invoice._resourcePath = new BillForward.ResourcePath('invoices', 'invoice');
         return Invoice;
     })(BillForward.MutableEntity);
@@ -848,9 +1036,9 @@ var BillForward;
         Subscription.prototype.cancel = function (serviceEnd, actioningTime) {
             if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            var amendment = BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime);
-            var promise = BillForward.CancellationAmendment.create(amendment);
-            return promise;
+            return BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime).then(function (amendment) {
+                return BillForward.CancellationAmendment.create(amendment);
+            });
         };
         Subscription.prototype.usePaymentMethodsFromAccountByID = function (accountID) {
             var _this = this;
@@ -861,11 +1049,11 @@ var BillForward;
         Subscription.prototype.usePaymentMethodsFromAccount = function (account) {
             var _this = this;
             if (account === void 0) { account = null; }
-            if (!account) {
-                return this.usePaymentMethodsFromAccountByID(this.accountID);
-            }
-            return Q.Promise(function (resolve, reject, notify) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
+                    if (!account) {
+                        return resolve(_this.usePaymentMethodsFromAccountByID(_this.accountID));
+                    }
                     if (!_this.paymentMethodSubscriptionLinks)
                         _this.paymentMethodSubscriptionLinks = [];
                     BillForward.Imports._.each(_this.paymentMethodSubscriptionLinks, function (paymentMethodSubscriptionLink) {
@@ -877,10 +1065,10 @@ var BillForward;
                         });
                     });
                     _this.paymentMethodSubscriptionLinks = _this.paymentMethodSubscriptionLinks.concat(newLinks);
-                    resolve(_this);
+                    return resolve(_this);
                 }
                 catch (e) {
-                    reject(e);
+                    return reject(e);
                 }
             });
         };
@@ -895,7 +1083,7 @@ var BillForward;
         };
         Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlan = function (ratePlan, componentNamesToValues) {
             var _this = this;
-            return Q.Promise(function (resolve, reject, notify) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var componentIDsAgainstValues = BillForward.Imports._.map(componentNamesToValues, function (currentValue, currentName) {
                         var matchedComponent = BillForward.Imports._.find(ratePlan.pricingComponents, function (component) {
@@ -907,10 +1095,107 @@ var BillForward;
                         });
                     });
                     _this.pricingComponentValues = componentIDsAgainstValues;
-                    resolve(_this);
+                    return resolve(_this);
                 }
                 catch (e) {
-                    reject(e);
+                    return reject(e);
+                }
+            });
+        };
+        Subscription.prototype.getCurrentPeriodStart = function () {
+            if (this.currentPeriodStart) {
+                return this.currentPeriodStart;
+            }
+            else {
+                throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+            }
+        };
+        Subscription.prototype.getCurrentPeriodEnd = function () {
+            if (this.currentPeriodEnd) {
+                return this.currentPeriodEnd;
+            }
+            else {
+                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+            }
+        };
+        Subscription.prototype.getRatePlan = function () {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var ref;
+                    if (_this.productRatePlanID)
+                        ref = _this.productRatePlanID;
+                    if (_this.productRatePlan)
+                        ref = _this.productRatePlan;
+                    return resolve(BillForward.ProductRatePlan.fetchIfNecessary(ref));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Subscription.prototype.modifyUsage = function (componentNamesToValues) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var currentPeriodStart = _this.getCurrentPeriodStart();
+                    var currentPeriodEnd = _this.getCurrentPeriodEnd();
+                    var appliesFrom = currentPeriodStart;
+                    var appliesTil = currentPeriodEnd;
+                    var supportedChargeTypes = ["usage"];
+                    var componentGenerator = function (correspondingComponent, mappedValue) {
+                        return new BillForward.PricingComponentValue({
+                            pricingComponentID: correspondingComponent.id,
+                            value: mappedValue,
+                            appliesTill: appliesTil,
+                            appliesFrom: appliesFrom,
+                            organizationID: correspondingComponent.organizationID,
+                            subscriptionID: _this.id
+                        });
+                    };
+                    return resolve(_this.getRatePlan().then(function (ratePlan) {
+                        var pricingComponents = ratePlan.pricingComponents;
+                        var updates = BillForward.Imports._.map(_this.pricingComponentValues, function (pricingComponentValue) {
+                            var correspondingComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
+                                return pricingComponent.consistentID === pricingComponentValue.pricingComponentID || pricingComponent.id === pricingComponentValue.pricingComponentID;
+                            });
+                            if (!correspondingComponent)
+                                throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
+                            var mappedValue = BillForward.Imports._.find(componentNamesToValues, function (value, componentName) {
+                                return correspondingComponent.name === componentName;
+                            });
+                            if (mappedValue === undefined)
+                                return pricingComponentValue;
+                            if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingComponent.chargeType))
+                                throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", "));
+                            return componentGenerator(correspondingComponent, mappedValue);
+                        });
+                        var remainingKeys = BillForward.Imports._.omit(componentNamesToValues, function (value, componentName) {
+                            return BillForward.Imports._.find(updates, function (update) {
+                                var correspondingComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
+                                    return pricingComponent.consistentID === update.pricingComponentID || pricingComponent.id === update.pricingComponentID;
+                                });
+                                if (!correspondingComponent)
+                                    throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
+                                return correspondingComponent.name === componentName;
+                            }) !== undefined;
+                        });
+                        var inserts = BillForward.Imports._.map(BillForward.Imports._.keys(remainingKeys), function (key) {
+                            var mappedValue = remainingKeys[key];
+                            var correspondingPrescribedComponent = BillForward.Imports._.find(pricingComponents, function (pricingComponent) {
+                                return pricingComponent.name === key;
+                            });
+                            if (!correspondingPrescribedComponent)
+                                throw BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
+                            return componentGenerator(correspondingPrescribedComponent, mappedValue);
+                        });
+                        var modifiedComponentValues = updates.concat(inserts);
+                        _this.pricingComponentValues = modifiedComponentValues;
+                        return _this;
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
                 }
             });
         };
@@ -987,6 +1272,7 @@ var BillForward;
         Imports._ = require('lodash');
         Imports.restler = require('restler');
         Imports.Q = require('q');
+        Imports.util = require('util');
         return Imports;
     })();
     BillForward.Imports = Imports;

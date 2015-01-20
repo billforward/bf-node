@@ -3,21 +3,30 @@ var testBase = require('./_test-base');
 var BillForward = testBase.BillForward;
 var client = testBase.client;
 
+var _ = testBase._;
+var Q = testBase.Q;
+
 var sinon = testBase.sinon;
 
 context(testBase.getContext(), function () {
 	afterEach(function () {
-		if (BillForward.Imports.httpinvoke.restore) {
-			BillForward.Imports.httpinvoke.restore();
-		}
+		if (BillForward.Client.mockableRequestWrapper.restore)
+			BillForward.Client.mockableRequestWrapper.restore();
 	});
 	describe('Account', function () {
 		describe('::create', function () {
 			context('blank entity constructed', function() {
 				var promise;
 				before(function() {
-					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-						options.finished(false, mocks.createBlankAccount, 200, options.headers);
+					sinon.stub(BillForward.Client, 'mockableRequestWrapper', function(callVerb, callArgs) {
+						return Q.Promise(function(resolve, reject) {
+							var obj = {};
+							obj.data = mocks.createBlankAccount;
+							obj.response = {
+								statusCode: 200
+							};
+							resolve(obj);
+						});
 					});
 
 					var account = new BillForward.Account();
@@ -40,8 +49,15 @@ context(testBase.getContext(), function () {
 
 				var promise;
 				beforeEach(function() {
-					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-						options.finished(false, mocks.createAccountWithProfile, 200, options.headers);
+					sinon.stub(BillForward.Client, 'mockableRequestWrapper', function(callVerb, callArgs) {
+						return Q.Promise(function(resolve, reject) {
+							var obj = {};
+							obj.data = mocks.createAccountWithProfile;
+							obj.response = {
+								statusCode: 200
+							};
+							resolve(obj);
+						});
 					});
 
 					var profile = new BillForward.Profile();
@@ -69,8 +85,15 @@ context(testBase.getContext(), function () {
 
 				var promise;
 				before(function() {
-					sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-						options.finished(false, mocks.createAccountWithProfileAndAddress, 200, options.headers);
+					sinon.stub(BillForward.Client, 'mockableRequestWrapper', function(callVerb, callArgs) {
+						return Q.Promise(function(resolve, reject) {
+							var obj = {};
+							obj.data = mocks.createAccountWithProfileAndAddress;
+							obj.response = {
+								statusCode: 200
+							};
+							resolve(obj);
+						});
 					});
 
 					var address = new BillForward.Address({
@@ -112,8 +135,15 @@ context(testBase.getContext(), function () {
 		describe('::getByID', function () {
 			var promise;
 			before(function() {
-				sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-					options.finished(false, mocks.getAccountByID, 200, options.headers);
+				sinon.stub(BillForward.Client, 'mockableRequestWrapper', function(callVerb, callArgs) {
+					return Q.Promise(function(resolve, reject) {
+						var obj = {};
+						obj.data = mocks.getAccountByID;
+						obj.response = {
+							statusCode: 200
+						};
+						resolve(obj);
+					});
 				});
 
 				promise = BillForward.Account.getByID("riggidy riggidy wrecked")

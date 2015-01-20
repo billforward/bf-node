@@ -20,12 +20,15 @@ module BillForward {
       // console.log(entityClass);
       // console.log(entityClass.makePutPromise);
 
-      return entityClass.makePutPromise("/", null, payload, entityClass.getFirstEntityFromResponse, client);
+      return entityClass.makePutPromise("/", null, payload, client)
+      .then((payload) => {
+        return entityClass.getFirstEntityFromResponse(payload, client);
+      });
   	}
 
-  	protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, callback, client:Client = null) {
+  	protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
       var entityClass = this.getDerivedClassStatic();
-      return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, callback, client);
+      return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
     }
   } 
 }

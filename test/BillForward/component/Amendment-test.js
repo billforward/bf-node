@@ -10,54 +10,72 @@ var sinon = testBase.sinon;
 
 context(testBase.getContext(), function () {
 	afterEach(function () {
-		if (BillForward.Imports.httpinvoke.restore) {
-			BillForward.Imports.httpinvoke.restore();
-		}
+		if (BillForward.Client.mockableRequestWrapper.restore)
+			BillForward.Client.mockableRequestWrapper.restore();
 	});
 	describe('CancellationAmendment', function () {
 		describe('::create', function () {
-			var promise;
+			var defers = {};
+			var promises = {};
 			var plannedActioningTime;
 			before(function() {
-				plannedActioningTime = "2014-12-17T12:25:13.478Z";
+				plannedActioningTime = "2014-12-13T16:54:31Z";
 				var inputTime = moment(plannedActioningTime).toDate();
 
-				var deferred = Q.defer();
+				defers.model = Q.defer();
+				promises.model = defers.model.promise;
 
-				sinon.stub(BillForward.Imports, 'httpinvoke', function(fullPath, verb, options) {
-					if (verb === 'GET') {
-						// getting subscription
-						options.finished(false, mocks.getSubscriptionByID, 200, options.headers);
+				sinon.stub(BillForward.Client, 'mockableRequestWrapper', function(callVerb, callArgs) {
+					if (callVerb === 'get') {
+						return Q.Promise(function(resolve, reject) {
+							var obj = {};
+							obj.data = mocks.getSubscriptionByID;
+							obj.response = {
+								statusCode: 200
+							};
+							resolve(obj);
+						});
 					} else {
-						// creating amendment
-						deferred.resolve(options.input);
-						options.finished(false, mocks.createCancellationAmendment, 200, options.headers);
+						defers.model.resolve(callArgs[1]);
+						return Q.Promise(function(resolve, reject) {
+							var obj = {};
+							obj.data = mocks.createCancellationAmendment;
+							obj.response = {
+								statusCode: 200
+							};
+							resolve(obj);
+						});
 					}
 				});
 
-				BillForward.Subscription.getByID("whatever").then(function(subscription) {
-					var amendment = BillForward.CancellationAmendment.construct(subscription, "whenever", inputTime);
-
-					return BillForward.CancellationAmendment.create(amendment);
-				});
-
-				promise = deferred.promise;
-			});
-			it('should finish', function () {
-				return promise
-				.should.be.fulfilled;
-			});
-			it('should send JSON in required order', function () {
-				return promise
-				.should.eventually.satisfy(function(request) {
-					return _.keys(request)[0] === '@type';
+				promises.received = BillForward.Subscription.getByID("whatever")
+				.then(function(subscription) {
+					return BillForward.CancellationAmendment.construct(subscription, "whenever", inputTime)
+					.then(function(amendment) {
+						return BillForward.CancellationAmendment.create(amendment);
+					});
 				});
 			});
-			it('should have expected actioning time', function () {
-				return promise
-				.should.eventually
-				.have.property('actioningTime')
-					.that.equals(plannedActioningTime);
+			describe('amendment creation', function () {
+				it('should finish', function () {
+					return promises.received
+					.should.be.fulfilled;
+				});
+			});
+			describe('constructed model', function () {
+				it('should send JSON in required order', function () {
+					return promises.model
+					.should.eventually.satisfy(function(request) {
+						// console.log(_.keys(request));
+						return _.keys(request)[0] === '@type';
+					});
+				});
+				it('should have expected actioning time', function () {
+					return promises.model
+					.should.eventually
+					.have.property('actioningTime')
+						.that.equals(plannedActioningTime);
+				});
 			});
 		});
 	});

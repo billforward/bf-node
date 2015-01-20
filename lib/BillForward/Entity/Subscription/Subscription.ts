@@ -23,17 +23,17 @@ module BillForward {
     }
 
     /**
-     * Cancels subscription at a specified time.
+     * Cancels subscription (now, or at a scheduled time).
      * @param string ENUM['Immediate', 'AtPeriodEnd'] (Default: 'AtPeriodEnd') Specifies whether the service will end immediately on cancellation or if it will continue until the end of the current period.
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
      * @return Q.Promise<CancellationAmendment> The created cancellation amendment.
      */
-    cancel(serviceEnd:ServiceEndTime = ServiceEndTime.AtPeriodEnd, actioningTime:any = 'Immediate') {
-        var amendment = CancellationAmendment.construct(this, serviceEnd, actioningTime);
-
-        // create amendment using API
-        var promise = CancellationAmendment.create(amendment);
-        return promise;
+    cancel(serviceEnd:ServiceEndState = ServiceEndState.AtPeriodEnd, actioningTime:ActioningTime = 'Immediate'):Q.Promise<CancellationAmendment> {
+        return CancellationAmendment.construct(this, serviceEnd, actioningTime)
+        .then(amendment => {
+            // create amendment using API
+            return CancellationAmendment.create(amendment);
+            });
     }
 
     usePaymentMethodsFromAccountByID(accountID:string):Q.Promise<Subscription> {
@@ -44,12 +44,12 @@ module BillForward {
     }
 
     usePaymentMethodsFromAccount(account:Account = null):Q.Promise<Subscription> {
-        if (!account) {
-            return this.usePaymentMethodsFromAccountByID((<any>this).accountID);
-        }
-
-        return <Q.Promise<Subscription>>Q.Promise((resolve, reject, notify) => {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
+                if (!account) {
+                    return resolve(this.usePaymentMethodsFromAccountByID((<any>this).accountID));
+                }
+
                 if (!(<any>this).paymentMethodSubscriptionLinks)
                 (<any>this).paymentMethodSubscriptionLinks = [];
 
@@ -65,9 +65,9 @@ module BillForward {
                 });
 
                 (<any>this).paymentMethodSubscriptionLinks = (<any>this).paymentMethodSubscriptionLinks.concat(newLinks);
-                resolve(<any>this);
+                return resolve(<any>this);
             } catch(e) {
-                reject(e);
+                return reject(e);
             }
         });
     }
@@ -84,7 +84,7 @@ module BillForward {
     }
 
     useValuesForNamedPricingComponentsOnRatePlan(ratePlan:ProductRatePlan, componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
-        return <Q.Promise<Subscription>>Q.Promise((resolve, reject, notify) => {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var componentIDsAgainstValues = Imports._.map(componentNamesToValues, function(currentValue, currentName) {
                     var matchedComponent = Imports._.find((<any>ratePlan).pricingComponents, function(component) {
@@ -96,9 +96,138 @@ module BillForward {
                         });
                 });
                 (<any>this).pricingComponentValues = componentIDsAgainstValues;
-                resolve(<any>this);
+                return resolve(<any>this);
             } catch(e) {
-                reject(e);
+                return reject(e);
+            }
+        });
+    }
+
+    getCurrentPeriodStart() {
+        if ((<any>this).currentPeriodStart) {
+            return (<any>this).currentPeriodStart;
+        } else {
+            throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+        }
+    }
+
+    getCurrentPeriodEnd() {
+        if ((<any>this).currentPeriodEnd) {
+            return (<any>this).currentPeriodEnd;
+        } else {
+            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or in future invoke this functionality after a WebHook confirms the subscription has reached the AwaitingPayment state.';
+        }
+    }
+
+    getRatePlan():Q.Promise<ProductRatePlan> {
+        return <Q.Promise<ProductRatePlan>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var ref:EntityReference;
+                // could use ID
+                if ((<any>this).productRatePlanID)
+                ref = (<any>this).productRatePlanID;
+                // prefer rate plan entity if present
+                if ((<any>this).productRatePlan)
+                ref = (<any>this).productRatePlan;
+
+                return resolve(ProductRatePlan.fetchIfNecessary(ref));
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Subscription> {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var currentPeriodStart = this.getCurrentPeriodStart();
+                var currentPeriodEnd = this.getCurrentPeriodEnd();
+                var appliesFrom = currentPeriodStart;
+                var appliesTil = currentPeriodEnd;
+
+                var supportedChargeTypes = ["usage"];
+
+                var componentGenerator = (correspondingComponent:any, mappedValue:Number) => {
+                    return new PricingComponentValue({
+                        pricingComponentID: correspondingComponent.id,
+                        value: mappedValue,
+                        appliesTill: appliesTil,
+                        appliesFrom: appliesFrom,
+                        organizationID: correspondingComponent.organizationID,
+                        subscriptionID: (<any>this).id
+                        });
+                }
+
+                return resolve(this.getRatePlan()
+                .then(ratePlan => {
+                    var pricingComponents = (<any>ratePlan).pricingComponents;
+
+                    var updates = Imports._.map((<any>this).pricingComponentValues,
+                        pricingComponentValue => {
+                            // find the pricing component to which I correspond
+                            var correspondingComponent = Imports._.find(pricingComponents,
+                                pricingComponent => {
+                                    return (<any>pricingComponent).consistentID === (<any>pricingComponentValue).pricingComponentID
+                                    || (<any>pricingComponent).id === (<any>pricingComponentValue).pricingComponentID;
+                                    });
+
+                            if (!correspondingComponent) throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
+
+                            // find whether I am prescribed in the nameToValueMap
+                            var mappedValue = Imports._.find(componentNamesToValues,
+                                (value, componentName) => {
+                                    return (<any>correspondingComponent).name === componentName;
+                                    });
+
+                            // if no change prescribed, return as-is
+                            if (mappedValue === undefined) return pricingComponentValue;
+
+                            // if change prescribed, ensure is a 'usage' component or other compatible component.
+                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
+                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", "));
+
+                            return componentGenerator(correspondingComponent, mappedValue);
+                        });
+
+                    var remainingKeys = Imports._.omit(componentNamesToValues,
+                        (value, componentName) => {
+                            // omit any key found, for whom there exists an update ..
+                            return Imports._.find(updates,
+                                update => {
+                                    var correspondingComponent = Imports._.find(pricingComponents,
+                                        pricingComponent => {
+                                            return (<any>pricingComponent).consistentID === (<any>update).pricingComponentID
+                                            || (<any>pricingComponent).id === (<any>update).pricingComponentID;
+                                    });
+
+                                    if (!correspondingComponent) throw "We failed to find the pricing component that corresponds to some existing pricing component value. :(";
+
+                                    // .. who has been named already in the nameToValueMap
+                                    return (<any>correspondingComponent).name === componentName;
+                            }) !== undefined;
+                        });
+                    
+                    var inserts = Imports._.map(Imports._.keys(remainingKeys),
+                        key => {
+                            var mappedValue = remainingKeys[key];
+                            var correspondingPrescribedComponent = Imports._.find(pricingComponents,
+                                pricingComponent => {
+                                    // return as match if name matches a prescribed component
+                                    return (<any>pricingComponent).name === key;
+                                    });
+
+                            if (!correspondingPrescribedComponent) throw Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
+
+                            return componentGenerator(correspondingPrescribedComponent, mappedValue);
+                            });
+
+                    var modifiedComponentValues = updates.concat(inserts);
+
+                    (<any>this).pricingComponentValues = modifiedComponentValues;
+                    return <Subscription>this;
+                    }));
+            } catch(e) {
+                return reject(e);
             }
         });
     }

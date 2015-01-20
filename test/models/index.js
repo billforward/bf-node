@@ -44,6 +44,18 @@ module.exports = function(BillForward) {
 		return uom;
 	};
 
+	models.FastProduct = function() {
+		var product = new BillForward.Product({
+			'productType': 'recurring',
+			'state': 'prod',
+			'name': 'Quickly recurring',
+			'description': 'Purchaseables to which customer has an automatically-renewing, 3-minutely entitlement',
+			'durationPeriod': 'minutes',
+			'duration': 3
+		});
+		return product;
+	};
+
 	models.Product = function() {
 		var product = new BillForward.Product({
 			'productType': 'recurring',
