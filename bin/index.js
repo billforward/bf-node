@@ -755,6 +755,20 @@ var BillForward;
             this.registerEntityArray('invoicePayments', BillForward.InvoicePayment);
             this.unserialize(stateParams);
         }
+        Invoice.prototype.modifyUsage = function (componentNamesToValues) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.Subscription.fetchIfNecessary(_this.subscriptionID).then(function (subscription) {
+                        var appliesTil = _this.periodStart;
+                        return subscription.modifyUsage(componentNamesToValues, appliesTil);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Invoice.prototype.issue = function (actioningTime) {
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.IssueInvoiceAmendment.construct(this, actioningTime).then(function (amendment) {
@@ -1134,21 +1148,24 @@ var BillForward;
                 }
             });
         };
-        Subscription.prototype.modifyUsage = function (componentNamesToValues) {
+        Subscription.prototype.modifyUsage = function (componentNamesToValues, appliesTilOverride) {
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    var currentPeriodStart = _this.getCurrentPeriodStart();
-                    var currentPeriodEnd = _this.getCurrentPeriodEnd();
-                    var appliesFrom = currentPeriodStart;
-                    var appliesTil = currentPeriodEnd;
+                    var appliesTil;
+                    if (appliesTilOverride) {
+                        appliesTil = appliesTilOverride;
+                    }
+                    else {
+                        var currentPeriodEnd = _this.getCurrentPeriodEnd();
+                        appliesTil = currentPeriodEnd;
+                    }
                     var supportedChargeTypes = ["usage"];
                     var componentGenerator = function (correspondingComponent, mappedValue) {
                         return new BillForward.PricingComponentValue({
                             pricingComponentID: correspondingComponent.id,
                             value: mappedValue,
                             appliesTill: appliesTil,
-                            appliesFrom: appliesFrom,
                             organizationID: correspondingComponent.organizationID,
                             subscriptionID: _this.id
                         });

@@ -13,6 +13,29 @@ module BillForward {
     }
 
     /**
+     * Registers (upon this invoice's subscription) the consumption of usage-based pricing components for the period described by this invoice.
+     * This is intended only for 'usage' pricing components.
+     *
+     * @note Most likely you will want to invoke this.recalculate() after this' successful completion.
+     * 
+     * @param Dictionary<string, Number> Map of pricing component names to quantity consumed {'Bandwidth usage': 102}
+     * @return Promise<PricingComponentValue[]> The created PricingComponentValues.
+     */
+    modifyUsage(componentNamesToValues: { [componentName: string]:Number }):Q.Promise<Array<PricingComponentValue>> {
+        return <Q.Promise<Array<PricingComponentValue>>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                return resolve(Subscription.fetchIfNecessary((<any>this).subscriptionID)
+                    .then((subscription:Subscription) => {
+                        var appliesTil = (<any>this).periodStart;
+                        return subscription.modifyUsage(componentNamesToValues, appliesTil);
+                        }));
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    /**
      * Issues invoice (now, or at a scheduled time).
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the 'issue amendment'
      * @return IssueInvoiceAmendment The created 'issue amendment'.

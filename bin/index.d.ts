@@ -178,6 +178,9 @@ declare module BillForward {
     class Invoice extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        modifyUsage(componentNamesToValues: {
+            [componentName: string]: Number;
+        }): Q.Promise<Array<PricingComponentValue>>;
         issue(actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
         recalculate(newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
     }
@@ -296,7 +299,7 @@ declare module BillForward {
         getRatePlan(): Q.Promise<ProductRatePlan>;
         modifyUsage(componentNamesToValues: {
             [componentName: string]: Number;
-        }): Q.Promise<Array<PricingComponentValue>>;
+        }, appliesTilOverride?: string): Q.Promise<Array<PricingComponentValue>>;
     }
 }
 declare module BillForward {
