@@ -14,8 +14,8 @@ module BillForward {
 
     /**
      * Issues invoice (now, or at a scheduled time).
-     * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
-     * @return IssueInvoiceAmendment The created cancellation amendment.
+     * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the 'issue amendment'
+     * @return IssueInvoiceAmendment The created 'issue amendment'.
      */
     issue(actioningTime:ActioningTime = 'Immediate'):Q.Promise<IssueInvoiceAmendment> {
         return IssueInvoiceAmendment.construct(this, actioningTime)
@@ -29,7 +29,7 @@ module BillForward {
      * Recalculates invoice (now, or at a scheduled time).
      * @param string ENUM['Paid', 'Unpaid', 'Pending', 'Voided'] (Default: 'Pending') State to which the invoice will be moved following the recalculation.
      * @param string ENUM['RecalculateAsLatestSubscriptionVersion', 'RecalculateAsCurrentSubscriptionVersion'] (Default: 'RecalculateAsLatestSubscriptionVersion') How to recalculate the invoice.
-     * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
+     * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the 'recalculate invoice' amendment
      * @return InvoiceRecalculationAmendment The created 'recalculate invoice' amendment.
      */
     recalculate(newInvoiceState:InvoiceState = InvoiceState.Pending, recalculationBehaviour:InvoiceRecalculationBehaviour = InvoiceRecalculationBehaviour.RecalculateAsLatestSubscriptionVersion, actioningTime:ActioningTime = 'Immediate'):Q.Promise<InvoiceRecalculationAmendment> {

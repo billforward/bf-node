@@ -187,6 +187,14 @@ context(testBase.getContext(), function () {
 										if (webhook.entity.id === subscription.id)
 										return true;
 									}),
+									currentPeriodEndAscribed:  new WebHookFilter(function(webhook, subscription) {
+										if (webhook.domain === 'Subscription')
+										if (webhook.action === 'Updated')
+										if (webhook.entity.id === subscription.id)
+										return _.find(webhook.changes.auditFieldChanges, function(auditFieldChange) {
+											return auditFieldChange.attributeName === 'currentPeriodEnd';
+										}) !== undefined;
+									}),
 									pendingInvoiceRaised:  new WebHookFilter(function(webhook, subscription) {
 										if (webhook.domain === 'Invoice')
 										if (webhook.action === 'Pending')
@@ -197,13 +205,12 @@ context(testBase.getContext(), function () {
 
 								parentClosure.promises.subscription
 								.then(function(subscription) {
-									return webhookListener.subscribe(webhookFilters.paymentAwaited, subscription)
-									.then(function() {
-										return webhookListener.subscribe(webhookFilters.pendingInvoiceRaised, subscription);
-									})
-									.then(function() {
-										return webhookListener.subscribe(webhookFilters.paymentPaid, subscription);
-									})
+									return Q.all([
+										webhookListener.subscribe(webhookFilters.paymentAwaited, subscription),
+										webhookListener.subscribe(webhookFilters.pendingInvoiceRaised, subscription),
+										webhookListener.subscribe(webhookFilters.paymentPaid, subscription),
+										webhookListener.subscribe(webhookFilters.currentPeriodEndAscribed, subscription)
+										])
 									.then(function() {
 										return subscription.activate();
 									});
@@ -234,6 +241,10 @@ context(testBase.getContext(), function () {
 							});
 							it("changes state to 'AwaitingPayment'", function() {
 								return webhookFilters.paymentAwaited.getPromise()
+								.should.be.fulfilled;
+							});
+							it("changes state to 'Paid'", function() {
+								return webhookFilters.paymentPaid.getPromise()
 								.should.be.fulfilled;
 							});
 							describe("An invoice", function() {
@@ -273,10 +284,13 @@ context(testBase.getContext(), function () {
 									});*/
 
 									parentClosure.promises.modifyUsage = Q.spread([
-										webhookFilters.paymentAwaited.getPromise(),
-										parentClosure.promises.subscription
+										webhookFilters.currentPeriodEndAscribed.getPromise(),
+										webhookFilters.paymentPaid.getPromise()
 										],
-										function(webhookArgs, subscription) {
+										function(currentPeriodEndAscribed, paymentPaid) {
+											var notification = currentPeriodEndAscribed[0];
+											var subscription = new BillForward.Subscription(notification.entity);
+											
 											var nameToValueMap = {
 												"Bandwidth": 7
 											};
@@ -296,7 +310,7 @@ context(testBase.getContext(), function () {
 									_.forEach(callbacks, webhookListener.unsubscribe);
 								});*/
 								it("can modify its usage", function() {
-									return promises.modifyUsage
+									return parentClosure.promises.modifyUsage
 									.should.be.fulfilled;
 								});
 								/*context("future cancellation queued", function() {
