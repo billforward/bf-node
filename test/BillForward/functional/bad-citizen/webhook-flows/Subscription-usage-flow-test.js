@@ -203,7 +203,7 @@ context(testBase.getContext(), function () {
 									})
 								};
 
-								parentClosure.promises.subscription
+								parentClosure.promises.subscriptionActivated = parentClosure.promises.subscription
 								.then(function(subscription) {
 									return Q.all([
 										webhookListener.subscribe(webhookFilters.paymentAwaited, subscription),
@@ -216,7 +216,7 @@ context(testBase.getContext(), function () {
 									});
 								});
 
-								webhookFilters.pendingInvoiceRaised.getPromise()
+								parentClosure.promises.issueInvoice = webhookFilters.pendingInvoiceRaised.getPromise()
 								.then(function(webhook) {
 									// console.dir(webhook);
 									var notification = webhook[0];
@@ -284,13 +284,15 @@ context(testBase.getContext(), function () {
 									});*/
 
 									parentClosure.promises.modifyUsage = Q.spread([
+										parentClosure.promises.subscriptionActivated,
+										parentClosure.promises.issueInvoice,
 										webhookFilters.currentPeriodEndAscribed.getPromise(),
 										webhookFilters.paymentPaid.getPromise()
 										],
 										function(currentPeriodEndAscribed, paymentPaid) {
 											var notification = currentPeriodEndAscribed[0];
 											var subscription = new BillForward.Subscription(notification.entity);
-											
+
 											var nameToValueMap = {
 												"Bandwidth": 7
 											};
