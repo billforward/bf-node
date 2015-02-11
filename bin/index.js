@@ -744,6 +744,21 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var Coupon = (function (_super) {
+        __extends(Coupon, _super);
+        function Coupon(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        Coupon._resourcePath = new BillForward.ResourcePath('coupons', 'Coupon');
+        return Coupon;
+    })(BillForward.MutableEntity);
+    BillForward.Coupon = Coupon;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var Invoice = (function (_super) {
         __extends(Invoice, _super);
         function Invoice(stateParams, client) {

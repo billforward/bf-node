@@ -175,6 +175,12 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class Coupon extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
     class Invoice extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
