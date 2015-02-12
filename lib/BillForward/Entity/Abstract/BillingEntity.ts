@@ -281,7 +281,7 @@ module BillForward {
     }
 
     protected static getAllEntitiesFromResponse(payload:any, client:Client): Array<BillingEntity> {
-        if (!payload.results || !payload.results.length)
+        if (!payload.results || payload.results.length === undefined || payload.results.length === null)
             throw new BFMalformedAPIResponseError("Received malformed response from API.");
         if (payload.results.length<1)
             throw new BFNoResultsError("No results returned upon API request.");
