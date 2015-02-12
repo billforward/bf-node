@@ -89,26 +89,9 @@ var BillForward;
                         callArgs.splice(1, 0, json);
                     }
                     resolve(Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
-                        try {
-                            var success = _this.successResponse(obj);
-                            console.log("QQQQQQ");
-                            return resolve(success);
-                        }
-                        catch (e) {
-                            console.log("AAAAAAA");
-                            return reject(e);
-                        }
-                        ;
+                        return _this.successResponse(obj);
                     }).catch(function (obj) {
-                        console.log("BBBBBBBB");
-                        var err;
-                        try {
-                            err = _this.errorResponse(obj);
-                        }
-                        catch (e) {
-                            return reject(e);
-                        }
-                        return reject(err);
+                        return _this.errorResponse(obj);
                     }));
                 }
                 catch (e) {
