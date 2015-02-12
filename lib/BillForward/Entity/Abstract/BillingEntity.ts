@@ -35,18 +35,15 @@ module BillForward {
         return fullRoute;
     }
 
-    protected static makeHttpPromise(verb:string, endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null):Q.Promise<any> {
+    protected static makeHttpPromise(verb:string, endpoint:string, queryParams:Object, payload:Object, client:Client = null):Q.Promise<any> {
         return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
             try {
                 if (!client) {
                     client = BillingEntity.getSingletonClient();
                 }
 
-                var entityClass = responseEntity
-                ? responseEntity.getDerivedClass()
-                : this.getDerivedClassStatic();
-
-                var fullRoute = entityClass.resolveRoute(endpoint);
+                var myClass = this.getDerivedClassStatic();
+                var fullRoute = myClass.resolveRoute(endpoint);
 
                 return resolve(client.request(verb, fullRoute, queryParams, payload));
             } catch(e) {
@@ -55,33 +52,33 @@ module BillForward {
         });
     }
 
-    protected static makeGetPromise(endpoint:string, queryParams:Object, client:Client = null, responseEntity:BillingEntity = null) {
+    protected static makeGetPromise(endpoint:string, queryParams:Object, client:Client = null) {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
-                return resolve(myClass.makeHttpPromise("GET", endpoint, queryParams, null, client, responseEntity));
+                return resolve(myClass.makeHttpPromise("GET", endpoint, queryParams, null, client));
             } catch(e) {
                 return reject(e);
             }
         });
     }
 
-    protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
+    protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
               var myClass = this.getDerivedClassStatic();
-              return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client, responseEntity);
+              return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
             } catch(e) {
                 return reject(e);
             }
         });
     }
 
-    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
+    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
-                return resolve(myClass.makeHttpPromise("POST", endpoint, queryParams, payload, client, responseEntity));
+                return resolve(myClass.makeHttpPromise("POST", endpoint, queryParams, payload, client));
             } catch(e) {
                 return reject(e);
             }
@@ -116,10 +113,11 @@ module BillForward {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
+                var responseClass = responseEntity.getDerivedClass();
                 return resolve(
-                    myClass.makePostPromise(endpoint, queryParams, payload, client, responseEntity)
+                    myClass.makePostPromise(endpoint, queryParams, payload, client)
                     .then(payload => {
-                        return myClass.getFirstEntityFromResponse(payload, client);
+                        return responseClass.getFirstEntityFromResponse(payload, client);
                       })
                     );
             } catch(e) {
@@ -132,10 +130,45 @@ module BillForward {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
+                var responseClass = responseEntity.getDerivedClass();
                 return resolve(
-                    myClass.makePostPromise(endpoint, queryParams, payload, client, responseEntity)
+                    myClass.makePostPromise(endpoint, queryParams, payload, client)
                     .then(payload => {
-                        return myClass.getAllEntitiesFromResponse(payload, client);
+                        return responseClass.getAllEntitiesFromResponse(payload, client);
+                      })
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    protected static getAndGrabFirst(endpoint:string, queryParams:Object, client:Client = null, responseEntity:BillingEntity = null) {
+        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var myClass = this.getDerivedClassStatic();
+                var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
+                return resolve(
+                    myClass.makeGetPromise(endpoint, queryParams, client)
+                    .then(payload => {
+                        return responseClass.getFirstEntityFromResponse(payload, client);
+                      })
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    protected static getAndGrabCollection(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
+        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var myClass = this.getDerivedClassStatic();
+                var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
+                return resolve(
+                    myClass.makeGetPromise(endpoint, queryParams, client)
+                    .then(payload => {
+                        return responseClass.getAllEntitiesFromResponse(payload, client);
                       })
                     );
             } catch(e) {
@@ -147,11 +180,9 @@ module BillForward {
     static getByID(id:string, queryParams:Object = {}, client:Client = null) {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
-                var entityClass = this.getDerivedClassStatic();
-                return resolve(entityClass.makeGetPromise("/"+id, queryParams, client)
-                    .then((payload) => {
-                        return entityClass.getFirstEntityFromResponse(payload, client);
-                    }));
+                var myClass = this.getDerivedClassStatic();
+                var endpoint = Imports.util.format("/%s", encodeURIComponent(id));
+                return resolve(myClass.getAndGrabFirst(endpoint, queryParams, client));
             } catch(e) {
                 return reject(e);
             }
@@ -161,11 +192,9 @@ module BillForward {
     static getAll(queryParams:Object = {}, client:Client = null) {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
-                var entityClass = this.getDerivedClassStatic();
-                return resolve(entityClass.makeGetPromise("", queryParams, client)
-                    .then((payload) => {
-                        return entityClass.getAllEntitiesFromResponse(payload, client);
-                    }));
+                var myClass = this.getDerivedClassStatic();
+                var endpoint = "";
+                return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
             } catch(e) {
                 return reject(e);
             }

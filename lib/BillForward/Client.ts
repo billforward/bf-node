@@ -208,24 +208,35 @@ module BillForward {
       } else {
         throw new BFHTTPError(input);
       }
-      
 
-      var parsed = input;
+      var raw = input;
       if (input.data)
-      parsed = input.data;
-      
-      var printable = parsed;
-      if (parsed instanceof Object) {
-        var jsonParse;
+      raw = input.data;
+      var obj = raw;
+      var printable = raw;
+
+      if (typeof raw === "string") {
+        var jsonParsed;
         try {
-          jsonParse = JSON.stringify(parsed, null, "\t");
-          printable = jsonParse;
+          jsonParsed = JSON.parse(raw);
+          obj = jsonParsed;
+        } catch(e) {
+        }
+      }
+      if (obj instanceof Object) {
+        var stringified;
+        try {
+          stringified = JSON.stringify(obj, null, "\t");
+          printable = stringified;
         } catch(e) {
         }
       }
 
       if (this.errorLogging)
       console.error(printable);
+
+      if (obj.errorType === "Oauth")
+      throw new BFUnauthorizedError(printable);
 
       throw new BFRequestError(printable);
     }

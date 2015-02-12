@@ -7,7 +7,6 @@ module BillForward {
     }
 
     export class BFError extends Error {
-
         constructor(public message: string) {
             super(message);
             this.name = 'BFError';
@@ -71,7 +70,7 @@ module BillForward {
     export class BFUnauthorizedError extends BFError {
     	constructor(public message: string) {
             super(message);
-            this.name = 'BFRequestError';
+            this.name = 'BFUnauthorizedError';
         }
     }
 }

@@ -145,22 +145,39 @@ var BillForward;
         Client.prototype.errorResponse = function (input) {
             if (input & input.response && input.response.statusCode !== undefined && input.response.statusCode !== null)
                 if (input.response.statusCode !== 200)
-                    throw new BillForward.BFHTTPError(input);
-            var parsed = input;
+                    if (input.response.statusCode === 401) {
+                        throw new BillForward.BFUnauthorizedError(input);
+                    }
+                    else {
+                        throw new BillForward.BFHTTPError(input);
+                    }
+            var raw = input;
             if (input.data)
-                parsed = input.data;
-            var printable = parsed;
-            if (parsed instanceof Object) {
-                var jsonParse;
+                raw = input.data;
+            var obj = raw;
+            var printable = raw;
+            if (typeof raw === "string") {
+                var jsonParsed;
                 try {
-                    jsonParse = JSON.stringify(parsed, null, "\t");
-                    printable = jsonParse;
+                    jsonParsed = JSON.parse(raw);
+                    obj = jsonParsed;
+                }
+                catch (e) {
+                }
+            }
+            if (obj instanceof Object) {
+                var stringified;
+                try {
+                    stringified = JSON.stringify(obj, null, "\t");
+                    printable = stringified;
                 }
                 catch (e) {
                 }
             }
             if (this.errorLogging)
                 console.error(printable);
+            if (obj.errorType === "Oauth")
+                throw new BillForward.BFUnauthorizedError(printable);
             throw new BillForward.BFRequestError(printable);
         };
         return Client;
@@ -194,17 +211,16 @@ var BillForward;
             var fullRoute = apiRoute + endpoint;
             return fullRoute;
         };
-        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client, responseEntity) {
+        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client) {
             var _this = this;
             if (client === void 0) { client = null; }
-            if (responseEntity === void 0) { responseEntity = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     if (!client) {
                         client = BillingEntity.getSingletonClient();
                     }
-                    var entityClass = responseEntity ? responseEntity.getDerivedClass() : _this.getDerivedClassStatic();
-                    var fullRoute = entityClass.resolveRoute(endpoint);
+                    var myClass = _this.getDerivedClassStatic();
+                    var fullRoute = myClass.resolveRoute(endpoint);
                     return resolve(client.request(verb, fullRoute, queryParams, payload));
                 }
                 catch (e) {
@@ -212,42 +228,39 @@ var BillForward;
                 }
             });
         };
-        BillingEntity.makeGetPromise = function (endpoint, queryParams, client, responseEntity) {
+        BillingEntity.makeGetPromise = function (endpoint, queryParams, client) {
             var _this = this;
             if (client === void 0) { client = null; }
-            if (responseEntity === void 0) { responseEntity = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    return resolve(myClass.makeHttpPromise("GET", endpoint, queryParams, null, client, responseEntity));
+                    return resolve(myClass.makeHttpPromise("GET", endpoint, queryParams, null, client));
                 }
                 catch (e) {
                     return reject(e);
                 }
             });
         };
-        BillingEntity.makePutPromise = function (endpoint, queryParams, payload, client, responseEntity) {
+        BillingEntity.makePutPromise = function (endpoint, queryParams, payload, client) {
             var _this = this;
             if (client === void 0) { client = null; }
-            if (responseEntity === void 0) { responseEntity = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client, responseEntity);
+                    return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
                 }
                 catch (e) {
                     return reject(e);
                 }
             });
         };
-        BillingEntity.makePostPromise = function (endpoint, queryParams, payload, client, responseEntity) {
+        BillingEntity.makePostPromise = function (endpoint, queryParams, payload, client) {
             var _this = this;
             if (client === void 0) { client = null; }
-            if (responseEntity === void 0) { responseEntity = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    return resolve(myClass.makeHttpPromise("POST", endpoint, queryParams, payload, client, responseEntity));
+                    return resolve(myClass.makeHttpPromise("POST", endpoint, queryParams, payload, client));
                 }
                 catch (e) {
                     return reject(e);
@@ -291,8 +304,9 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client, responseEntity).then(function (payload) {
-                        return myClass.getFirstEntityFromResponse(payload, client);
+                    var responseClass = responseEntity.getDerivedClass();
+                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client).then(function (payload) {
+                        return responseClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }
                 catch (e) {
@@ -307,8 +321,43 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client, responseEntity).then(function (payload) {
-                        return myClass.getAllEntitiesFromResponse(payload, client);
+                    var responseClass = responseEntity.getDerivedClass();
+                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client).then(function (payload) {
+                        return responseClass.getAllEntitiesFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.getAndGrabFirst = function (endpoint, queryParams, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
+                    return resolve(myClass.makeGetPromise(endpoint, queryParams, client).then(function (payload) {
+                        return responseClass.getFirstEntityFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.getAndGrabCollection = function (endpoint, queryParams, payload, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
+                    return resolve(myClass.makeGetPromise(endpoint, queryParams, client).then(function (payload) {
+                        return responseClass.getAllEntitiesFromResponse(payload, client);
                     }));
                 }
                 catch (e) {
@@ -322,10 +371,9 @@ var BillForward;
             if (client === void 0) { client = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    var entityClass = _this.getDerivedClassStatic();
-                    return resolve(entityClass.makeGetPromise("/" + id, queryParams, client).then(function (payload) {
-                        return entityClass.getFirstEntityFromResponse(payload, client);
-                    }));
+                    var myClass = _this.getDerivedClassStatic();
+                    var endpoint = BillForward.Imports.util.format("/%s", encodeURIComponent(id));
+                    return resolve(myClass.getAndGrabFirst(endpoint, queryParams, client));
                 }
                 catch (e) {
                     return reject(e);
@@ -338,10 +386,9 @@ var BillForward;
             if (client === void 0) { client = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    var entityClass = _this.getDerivedClassStatic();
-                    return resolve(entityClass.makeGetPromise("", queryParams, client).then(function (payload) {
-                        return entityClass.getAllEntitiesFromResponse(payload, client);
-                    }));
+                    var myClass = _this.getDerivedClassStatic();
+                    var endpoint = "";
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
                 }
                 catch (e) {
                     return reject(e);
@@ -442,7 +489,7 @@ var BillForward;
         };
         BillingEntity.getAllEntitiesFromResponse = function (payload, client) {
             var _this = this;
-            if (!payload.results || !payload.results.length)
+            if (!payload.results || payload.results.length === undefined || payload.results.length === null)
                 throw new BillForward.BFMalformedAPIResponseError("Received malformed response from API.");
             if (payload.results.length < 1)
                 throw new BillForward.BFNoResultsError("No results returned upon API request.");
@@ -952,7 +999,7 @@ var BillForward;
                     var responseEntity = new BillForward.Coupon();
                     var client = requestEntity.getClient();
                     var myClass = _this.getDerivedClassStatic();
-                    return resolve(myClass.postAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
+                    return resolve(myClass.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
                 }
                 catch (e) {
                     return reject(e);
@@ -1596,6 +1643,16 @@ var BillForward;
         return BFHTTPError;
     })(BFError);
     BillForward.BFHTTPError = BFHTTPError;
+    var BFUnauthorizedError = (function (_super) {
+        __extends(BFUnauthorizedError, _super);
+        function BFUnauthorizedError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFUnauthorizedError';
+        }
+        return BFUnauthorizedError;
+    })(BFError);
+    BillForward.BFUnauthorizedError = BFUnauthorizedError;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {

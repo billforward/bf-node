@@ -81,9 +81,9 @@ BillForward.Account.getByID("not here mate")
     console.error("Also we know it's because there were no results"); // prints
   if (e instanceof BillForward.BFMalformedAPIResponseError)
     console.error("It's not this; why are you checking?"); // doesn't print
-  console.error(e.stack);
+  console.error(e.toString(), e.stack);
 })
-.done(); // done at end of promise chain makes sure unhandled exceptions are thrown too
+.done(); // 'done' at end of promise chain makes sure unhandled exceptions are thrown too
 ```
 
 You can also follow stack traces further up the promise chain if you enable `longStack` in your client's config:
@@ -96,6 +96,18 @@ var config = {
 };
 
 BillForward.Client.makeDefault(config);
+```
+
+You can also enable more tracing in your config:
+
+```js
+var config = {
+  urlRoot:     "https://api-sandbox.billforward.net:443/v1/",
+  accessToken: "INSERT_ACCESS_TOKEN_HERE",
+  requestLogging: true, // print the REST responses we send
+  responseLogging: true, // print the REST responses we receive
+  errorLogging: true // print errors occurring during REST conversations
+};
 ```
 
 Develop

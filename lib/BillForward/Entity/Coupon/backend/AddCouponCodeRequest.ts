@@ -28,7 +28,7 @@ module BillForward {
 
 		    	var myClass = this.getDerivedClassStatic();
 				return resolve(
-					myClass.postAndGrabFirst(endpoint, null, requestEntity, client, responseEntity)
+					myClass.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity)
 					);
 			} catch(e) {
                 return reject(e);
