@@ -137,11 +137,14 @@ module BillForward {
           }
 
           return resolve(Client.mockableRequestWrapper(callVerb, callArgs)
-          .then((obj) => {
+          .then(obj => {
             return this.successResponse(obj);
             })
-          .catch((obj) => {
+          .catch(obj => {
             return this.errorResponse(obj);
+            })
+          .catch(e => {
+            return reject(e);
             }));
         } catch(e) {
           return reject(e);
@@ -202,7 +205,7 @@ module BillForward {
 
       if (this.errorLogging)
       console.error(printable);
-      
+
       throw new Error(parsed);
     }
   }
