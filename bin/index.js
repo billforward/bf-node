@@ -92,8 +92,6 @@ var BillForward;
                         return _this.successResponse(obj);
                     }).catch(function (obj) {
                         return _this.errorResponse(obj);
-                    }).catch(function (e) {
-                        return reject(e);
                     }));
                 }
                 catch (e) {
