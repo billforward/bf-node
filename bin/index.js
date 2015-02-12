@@ -90,11 +90,16 @@ var BillForward;
                     }
                     return Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
                         console.log('AAAAAAA');
-                        var success = _this.successResponse(obj);
+                        var success;
+                        try {
+                            success = _this.successResponse(obj);
+                        }
+                        catch (e) {
+                            throw e;
+                        }
                         console.log('BBBBBBBB');
                         return resolve(success);
                     }).catch(function (obj) {
-                        console.log('CCCCCCC');
                         return reject(obj);
                     });
                 }
