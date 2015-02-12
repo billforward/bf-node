@@ -95,7 +95,7 @@ var BillForward;
                         return resolve(success);
                     }).catch(function (obj) {
                         console.log('CCCCCCC');
-                        return reject(_this.errorResponse(obj));
+                        return reject(obj);
                     });
                 }
                 catch (e) {

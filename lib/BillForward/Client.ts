@@ -145,7 +145,7 @@ module BillForward {
             })
           .catch(obj => {
             console.log('CCCCCCC')
-              return reject(this.errorResponse(obj));
+              return reject(obj);
             });
         } catch(e) {
           return reject(e);
