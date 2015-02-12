@@ -423,7 +423,7 @@ var BillForward;
             return entities;
         };
         BillingEntity.getFirstEntityFromResponse = function (payload, client) {
-            if (!payload.results || !payload.results.length)
+            if (!payload.results || payload.results.length === undefined || payload.results.length === null)
                 throw new Error("Received malformed response from API.");
             if (payload.results.length < 1)
                 throw new Error("No results returned upon API request.");
