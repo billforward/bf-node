@@ -1,15 +1,17 @@
 var BillForward;
 (function (BillForward) {
     var Client = (function () {
-        function Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging) {
+        function Client(accessToken, urlRoot, requestLogging, responseLogging, errorLogging, longStack) {
             if (requestLogging === void 0) { requestLogging = false; }
             if (responseLogging === void 0) { responseLogging = false; }
             if (errorLogging === void 0) { errorLogging = false; }
+            if (longStack === void 0) { longStack = false; }
             this.accessToken = accessToken;
             this.urlRoot = urlRoot;
             this.requestLogging = requestLogging;
             this.responseLogging = responseLogging;
             this.errorLogging = errorLogging;
+            BillForward.Imports.Q.longStackSupport = longStack;
         }
         Client.prototype.getAccessToken = function () {
             return this.accessToken;
@@ -21,12 +23,13 @@ var BillForward;
             Client.singletonClient = client;
             return Client.singletonClient;
         };
-        Client.makeDefault = function (accessTokenOrObj, urlRoot, requestLogging, responseLogging, errorLogging) {
+        Client.makeDefault = function (accessTokenOrObj, urlRoot, requestLogging, responseLogging, errorLogging, longStack) {
             var _accessToken;
             var _urlRoot;
             var _responseLogging = false;
             var _requestLogging = false;
             var _errorLogging = false;
+            var _longStack = false;
             if (typeof accessTokenOrObj === 'string') {
                 _accessToken = accessTokenOrObj;
                 _urlRoot = urlRoot;
@@ -36,6 +39,8 @@ var BillForward;
                     _responseLogging = responseLogging;
                 if (errorLogging)
                     _errorLogging = errorLogging;
+                if (longStack)
+                    _longStack = longStack;
             }
             else {
                 var obj = accessTokenOrObj;
@@ -47,8 +52,10 @@ var BillForward;
                     _responseLogging = obj.responseLogging;
                 if (obj.errorLogging)
                     _errorLogging = obj.errorLogging;
+                if (obj.longStack)
+                    _longStack = obj.longStack;
             }
-            var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
+            var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging, _longStack);
             return Client.setDefault(client);
         };
         Client.getDefaultClient = function () {

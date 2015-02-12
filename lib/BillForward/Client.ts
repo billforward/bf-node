@@ -1,5 +1,5 @@
 module BillForward {
-  export type clientConstructObj = { accessToken:string; urlRoot:string; requestLogging?:boolean; responseLogging?:boolean; errorLogging?:boolean; };
+  export type clientConstructObj = { accessToken:string; urlRoot:string; requestLogging?:boolean; responseLogging?:boolean; errorLogging?:boolean; longStack?:boolean };
 
   export class Client {
 
@@ -12,13 +12,17 @@ module BillForward {
     private responseLogging:boolean;
     private errorLogging:boolean;
 
-    constructor(accessToken:string, urlRoot:string, requestLogging:boolean = false, responseLogging:boolean = false, errorLogging:boolean = false) {
+    private longStack:boolean;
+
+    constructor(accessToken:string, urlRoot:string, requestLogging:boolean = false, responseLogging:boolean = false, errorLogging:boolean = false, longStack:boolean = false) {
       this.accessToken = accessToken;
       this.urlRoot = urlRoot;
       
       this.requestLogging = requestLogging;
       this.responseLogging = responseLogging;
       this.errorLogging = errorLogging;
+
+      Imports.Q.longStackSupport = longStack;
     }
 
     getAccessToken():string {
@@ -35,25 +39,27 @@ module BillForward {
     }
 
     static makeDefault(obj:clientConstructObj): Client;
-    static makeDefault(accessToken:string, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean): Client;
+    static makeDefault(accessToken:string, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean, longStack?:boolean): Client;
 
     /*static makeDefault(obj:Object):Client {
       var client = new Client(obj.accessToken, obj.urlRoot, obj.requestLogging, obj.responseLogging, obj.errorLogging);
       return Client.setDefault(client);
     }*/
 
-    static makeDefault(accessTokenOrObj:any, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean):Client {
+    static makeDefault(accessTokenOrObj:any, urlRoot?:string, requestLogging?:boolean, responseLogging?:boolean, errorLogging?:boolean, longStack?:boolean):Client {
       var _accessToken:string;
       var _urlRoot:string;
       var _responseLogging:boolean = false;
       var _requestLogging:boolean = false;
       var _errorLogging:boolean = false;
+      var _longStack:boolean = false;
       if (typeof accessTokenOrObj === 'string') {
         _accessToken = <string>accessTokenOrObj;
         _urlRoot = urlRoot;
         if (requestLogging) _requestLogging = requestLogging;
         if (responseLogging) _responseLogging = responseLogging;
         if (errorLogging) _errorLogging = errorLogging;
+        if (longStack) _longStack = longStack;
       } else {
         var obj = <clientConstructObj>accessTokenOrObj;
         _accessToken = obj.accessToken;
@@ -61,9 +67,10 @@ module BillForward {
         if (obj.requestLogging) _requestLogging = obj.requestLogging;
         if (obj.responseLogging) _responseLogging = obj.responseLogging;
         if (obj.errorLogging) _errorLogging = obj.errorLogging;
+        if (obj.longStack) _longStack = obj.longStack;
       }
 
-      var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging);
+      var client = new Client(_accessToken, _urlRoot, _requestLogging, _responseLogging, _errorLogging, _longStack);
       return Client.setDefault(client);
     }
 

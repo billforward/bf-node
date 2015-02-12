@@ -6,6 +6,7 @@ declare module BillForward {
         requestLogging?: boolean;
         responseLogging?: boolean;
         errorLogging?: boolean;
+        longStack?: boolean;
     };
     class Client {
         private static singletonClient;
@@ -14,12 +15,13 @@ declare module BillForward {
         private requestLogging;
         private responseLogging;
         private errorLogging;
-        constructor(accessToken: string, urlRoot: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean);
+        private longStack;
+        constructor(accessToken: string, urlRoot: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean, longStack?: boolean);
         getAccessToken(): string;
         getUrlRoot(): string;
         static setDefault(client: Client): Client;
         static makeDefault(obj: clientConstructObj): Client;
-        static makeDefault(accessToken: string, urlRoot?: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean): Client;
+        static makeDefault(accessToken: string, urlRoot?: string, requestLogging?: boolean, responseLogging?: boolean, errorLogging?: boolean, longStack?: boolean): Client;
         static getDefaultClient(): Client;
         request(verb: string, path: string, queryParams?: Object, json?: Object): Q.Promise<any>;
         static mockableRequestWrapper(callVerb: string, callArgs: Array<any>): any;
