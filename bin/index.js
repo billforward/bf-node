@@ -95,7 +95,6 @@ var BillForward;
                     }));
                 }
                 catch (e) {
-                    console.log("CCCCCCC");
                     return reject(e);
                 }
             });
@@ -138,10 +137,10 @@ var BillForward;
             if (input.data)
                 parsed = input.data;
             var printable = parsed;
-            if (input instanceof Object) {
+            if (parsed instanceof Object) {
                 var jsonParse;
                 try {
-                    jsonParse = JSON.stringify(input, null, "\t");
+                    jsonParse = JSON.stringify(parsed, null, "\t");
                     printable = jsonParse;
                 }
                 catch (e) {

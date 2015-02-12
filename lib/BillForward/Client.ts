@@ -144,7 +144,6 @@ module BillForward {
               return this.errorResponse(obj);
             }));
         } catch(e) {
-          console.log("CCCCCCC");
           return reject(e);
         }
       });
@@ -192,10 +191,10 @@ module BillForward {
       parsed = input.data;
       
       var printable = parsed;
-      if (input instanceof Object) {
+      if (parsed instanceof Object) {
         var jsonParse;
         try {
-          jsonParse = JSON.stringify(input, null, "\t");
+          jsonParse = JSON.stringify(parsed, null, "\t");
           printable = jsonParse;
         } catch(e) {
         }
