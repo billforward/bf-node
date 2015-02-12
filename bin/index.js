@@ -1039,6 +1039,53 @@ var BillForward;
             this.registerEntityArray('invoicePayments', BillForward.InvoicePayment);
             this.unserialize(stateParams);
         }
+        Invoice.getForSubscription = function (subscription, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var subscriptionIdentifier = BillForward.Subscription.getIdentifier(subscription);
+                    var endpoint = BillForward.Imports.util.format("subscription/%s", encodeURIComponent(subscriptionIdentifier));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Invoice.getForSubscriptionVersion = function (subscriptionVersionID, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var endpoint = BillForward.Imports.util.format("subscription/version/%s", encodeURIComponent(subscriptionVersionID));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Invoice.getForAccount = function (account, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var accountIdentifier = BillForward.Account.getIdentifier(account);
+                    var endpoint = BillForward.Imports.util.format("account/%s", encodeURIComponent(accountIdentifier));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Invoice.prototype.modifyUsage = function (componentNamesToValues) {
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {

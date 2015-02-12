@@ -12,6 +12,55 @@ module BillForward {
         this.unserialize(stateParams);
     }
 
+    static getForSubscription(subscription:EntityReference, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var subscriptionIdentifier = Subscription.getIdentifier(subscription);
+
+                var endpoint = Imports.util.format("subscription/%s", encodeURIComponent(subscriptionIdentifier));
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    static getForSubscriptionVersion(subscriptionVersionID:string, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("subscription/version/%s", encodeURIComponent(subscriptionVersionID));
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    static getForAccount(account:EntityReference, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var accountIdentifier = Account.getIdentifier(account);
+
+                var endpoint = Imports.util.format("account/%s", encodeURIComponent(accountIdentifier));
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
     /**
      * Registers (upon this invoice's subscription) the consumption of usage-based pricing components for the period described by this invoice.
      * This is intended only for 'usage' pricing components.

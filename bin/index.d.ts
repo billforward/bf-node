@@ -203,6 +203,9 @@ declare module BillForward {
     class Invoice extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        static getForSubscription(subscription: EntityReference, queryParams?: Object, client?: Client): Q.Promise<Invoice>;
+        static getForSubscriptionVersion(subscriptionVersionID: string, queryParams?: Object, client?: Client): Q.Promise<Invoice>;
+        static getForAccount(account: EntityReference, queryParams?: Object, client?: Client): Q.Promise<Invoice>;
         modifyUsage(componentNamesToValues: {
             [componentName: string]: Number;
         }): Q.Promise<Invoice>;
