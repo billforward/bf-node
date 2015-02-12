@@ -75,72 +75,78 @@ module BillForward {
     }
 
     request(verb:string, path:string, queryParams:Object = {}, json:Object = {}):Q.Promise<any> {
-      var queryString = "";
-      if (!Imports._.isEmpty(queryParams)) {
-        queryString = "?"+Imports._.map(<any>queryParams, function(value:any, key:string) {
-          return encodeURIComponent(key)+"="+encodeURIComponent(value);
-        }).join("&");
-      }
-
-      var fullPath = this.urlRoot+path+queryString;
-
-      if (this.requestLogging) {
-        console.log(fullPath);
-      }
-
-      /*var callback = (err, body, statusCode, headers) => {
-          if(err) {
-            this.errorResponse(err, deferred);
-            return;
+      return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
+        try {
+          var queryString = "";
+          if (!Imports._.isEmpty(queryParams)) {
+            queryString = "?"+Imports._.map(<any>queryParams, function(value:any, key:string) {
+              return encodeURIComponent(key)+"="+encodeURIComponent(value);
+            }).join("&");
           }
-          // console.log('Success', body, statusCode, headers);
-          this.successResponse(body, statusCode, headers, deferred);
-      };*/
 
-      var headers = {
-        'Authorization': 'Bearer '+this.accessToken
-      };
+          var fullPath = this.urlRoot+path+queryString;
 
-      /*var converters = {
-        'text json': JSON.parse,
-        'json text': JSON.stringify
-      };
+          if (this.requestLogging) {
+            console.log(fullPath);
+          }
 
-      var options:any = {
-        headers: headers,
-        finished: callback,
-        outputType: 'json',
-        converters: converters
-      };*/
+          /*var callback = (err, body, statusCode, headers) => {
+              if(err) {
+                this.errorResponse(err, deferred);
+                return;
+              }
+              // console.log('Success', body, statusCode, headers);
+              this.successResponse(body, statusCode, headers, deferred);
+          };*/
 
-      var options:any = {
-        headers: headers
-      };
+          var headers = {
+            'Authorization': 'Bearer '+this.accessToken
+          };
 
-      if (this.requestLogging) {
-        console.log(JSON.stringify(json, null, "\t"));
-      }
+          /*var converters = {
+            'text json': JSON.parse,
+            'json text': JSON.stringify
+          };
 
-      var callVerb = verb.toLowerCase();
+          var options:any = {
+            headers: headers,
+            finished: callback,
+            outputType: 'json',
+            converters: converters
+          };*/
 
-      var callArgs = [fullPath, options];
+          var options:any = {
+            headers: headers
+          };
 
-      if(verb === 'POST' || verb === 'PUT') {
-        /*options.input = json;
-        options.inputType = 'json';
-        options.headers['Content-Type'] = 'application/json';*/
+          if (this.requestLogging) {
+            console.log(JSON.stringify(json, null, "\t"));
+          }
 
-        callVerb += "Json";
-        callArgs.splice(1, 0, json);
-      }
+          var callVerb = verb.toLowerCase();
 
-      return Client.mockableRequestWrapper(callVerb, callArgs)
-      .then((obj) => {
-        return this.successResponse(obj);
-        })
-      .catch((obj) => {
-        return this.errorResponse(obj);
-        });
+          var callArgs = [fullPath, options];
+
+          if(verb === 'POST' || verb === 'PUT') {
+            /*options.input = json;
+            options.inputType = 'json';
+            options.headers['Content-Type'] = 'application/json';*/
+
+            callVerb += "Json";
+            callArgs.splice(1, 0, json);
+          }
+
+          return resolve(Client.mockableRequestWrapper(callVerb, callArgs)
+          .then((obj) => {
+            return this.successResponse(obj);
+            })
+          .catch((obj) => {
+            return this.errorResponse(obj);
+            }));
+        } catch(e) {
+          return reject(e);
+        }
+      });
     }
 
     static mockableRequestWrapper(callVerb:string, callArgs:Array<any>):any {

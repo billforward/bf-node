@@ -61,35 +61,42 @@ var BillForward;
             var _this = this;
             if (queryParams === void 0) { queryParams = {}; }
             if (json === void 0) { json = {}; }
-            var queryString = "";
-            if (!BillForward.Imports._.isEmpty(queryParams)) {
-                queryString = "?" + BillForward.Imports._.map(queryParams, function (value, key) {
-                    return encodeURIComponent(key) + "=" + encodeURIComponent(value);
-                }).join("&");
-            }
-            var fullPath = this.urlRoot + path + queryString;
-            if (this.requestLogging) {
-                console.log(fullPath);
-            }
-            var headers = {
-                'Authorization': 'Bearer ' + this.accessToken
-            };
-            var options = {
-                headers: headers
-            };
-            if (this.requestLogging) {
-                console.log(JSON.stringify(json, null, "\t"));
-            }
-            var callVerb = verb.toLowerCase();
-            var callArgs = [fullPath, options];
-            if (verb === 'POST' || verb === 'PUT') {
-                callVerb += "Json";
-                callArgs.splice(1, 0, json);
-            }
-            return Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
-                return _this.successResponse(obj);
-            }).catch(function (obj) {
-                return _this.errorResponse(obj);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var queryString = "";
+                    if (!BillForward.Imports._.isEmpty(queryParams)) {
+                        queryString = "?" + BillForward.Imports._.map(queryParams, function (value, key) {
+                            return encodeURIComponent(key) + "=" + encodeURIComponent(value);
+                        }).join("&");
+                    }
+                    var fullPath = _this.urlRoot + path + queryString;
+                    if (_this.requestLogging) {
+                        console.log(fullPath);
+                    }
+                    var headers = {
+                        'Authorization': 'Bearer ' + _this.accessToken
+                    };
+                    var options = {
+                        headers: headers
+                    };
+                    if (_this.requestLogging) {
+                        console.log(JSON.stringify(json, null, "\t"));
+                    }
+                    var callVerb = verb.toLowerCase();
+                    var callArgs = [fullPath, options];
+                    if (verb === 'POST' || verb === 'PUT') {
+                        callVerb += "Json";
+                        callArgs.splice(1, 0, json);
+                    }
+                    return resolve(Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
+                        return _this.successResponse(obj);
+                    }).catch(function (obj) {
+                        return _this.errorResponse(obj);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
         };
         Client.mockableRequestWrapper = function (callVerb, callArgs) {
