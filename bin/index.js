@@ -884,6 +884,27 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
+        Coupon.prototype.applyToSubscription = function (subscription) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.AddCouponCodeRequest.applyCouponToSubscription(_this, subscription));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Coupon.prototype.applyCouponCodeToSubscription = function (couponCode, subscription) {
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    return resolve(BillForward.AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Coupon._resourcePath = new BillForward.ResourcePath('coupons', 'Coupon');
         return Coupon;
     })(BillForward.MutableEntity);
@@ -912,6 +933,21 @@ var BillForward;
                     var client = requestEntity.getClient();
                     var myClass = _this.getDerivedClassStatic();
                     return resolve(myClass.postAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        AddCouponCodeRequest.applyCouponCodeToSubscription = function (couponCode, subscription) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var coupon = new BillForward.Coupon({
+                        couponCode: couponCode
+                    });
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.applyCouponToSubscription(coupon, subscription));
                 }
                 catch (e) {
                     return reject(e);

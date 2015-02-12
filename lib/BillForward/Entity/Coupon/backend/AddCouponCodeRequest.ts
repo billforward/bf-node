@@ -13,7 +13,7 @@ module BillForward {
     }
 
     static applyCouponToSubscription(coupon:Coupon, subscription:EntityReference) {
-    	return <Q.Promise<ProductRatePlan>>Imports.Q.Promise((resolve, reject) => {
+    	return <Q.Promise<Coupon>>Imports.Q.Promise((resolve, reject) => {
             try {
 		    	var requestEntity = new Coupon({
 		    		'couponCode': (<any>coupon).couponCode
@@ -31,6 +31,22 @@ module BillForward {
 					myClass.postAndGrabFirst(endpoint, null, requestEntity, client, responseEntity)
 					);
 			} catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    static applyCouponCodeToSubscription(couponCode:string, subscription:EntityReference) {
+        return <Q.Promise<Coupon>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var coupon = new Coupon({
+                    couponCode: couponCode
+                    });
+
+                var myClass = this.getDerivedClassStatic();
+
+                return resolve(myClass.applyCouponToSubscription(coupon, subscription));
+            } catch(e) {
                 return reject(e);
             }
         });
