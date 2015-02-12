@@ -136,7 +136,7 @@ module BillForward {
             callArgs.splice(1, 0, json);
           }
 
-          return resolve(Client.mockableRequestWrapper(callVerb, callArgs)
+          Client.mockableRequestWrapper(callVerb, callArgs)
           .then(obj => {
             return this.successResponse(obj);
             })
@@ -145,7 +145,7 @@ module BillForward {
             })
           .catch(e => {
             return reject(e);
-            }));
+            });
         } catch(e) {
           return reject(e);
         }

@@ -88,13 +88,13 @@ var BillForward;
                         callVerb += "Json";
                         callArgs.splice(1, 0, json);
                     }
-                    return resolve(Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
+                    Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
                         return _this.successResponse(obj);
                     }).catch(function (obj) {
                         return _this.errorResponse(obj);
                     }).catch(function (e) {
                         return reject(e);
-                    }));
+                    });
                 }
                 catch (e) {
                     return reject(e);
