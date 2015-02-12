@@ -189,18 +189,21 @@ module BillForward {
       var parsed = input;
       if (input.data)
       parsed = input.data;
-      if (this.errorLogging) {
-        if (input instanceof Object) {
-          var jsonParse;
-          try {
-            jsonParse = JSON.stringify(input, null, "\t");
-            parsed = jsonParse;
-          } catch(e) {
-          }
+      
+      var printable = parsed;
+      if (input instanceof Object) {
+        var jsonParse;
+        try {
+          jsonParse = JSON.stringify(input, null, "\t");
+          printable = jsonParse;
+        } catch(e) {
         }
-        console.error(parsed);
       }
-      throw new Error(parsed);
+
+      if (this.errorLogging)
+      console.error(printable);
+
+      throw new Error(printable);
     }
   }
 }
