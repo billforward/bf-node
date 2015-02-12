@@ -929,7 +929,7 @@ var BillForward;
                     }, coupon.getClient());
                     var subscriptionIdentifier = BillForward.Subscription.getIdentifier(subscription);
                     var endpoint = BillForward.Imports.util.format("%s/coupons", encodeURIComponent(subscriptionIdentifier));
-                    var responseEntity = BillForward.Coupon;
+                    var responseEntity = BillForward.Coupon.constructor;
                     var client = requestEntity.getClient();
                     var myClass = _this.getDerivedClassStatic();
                     return resolve(myClass.postAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));

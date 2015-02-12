@@ -23,7 +23,7 @@ module BillForward {
 
 		    	var endpoint = Imports.util.format("%s/coupons", encodeURIComponent(subscriptionIdentifier));
 
-		    	var responseEntity = Coupon;
+		    	var responseEntity = Coupon.constructor;
 		    	var client = requestEntity.getClient();
 
 		    	var myClass = this.getDerivedClassStatic();
