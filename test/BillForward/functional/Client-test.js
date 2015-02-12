@@ -18,7 +18,7 @@ context(testBase.getContext(), function () {
 				})
 				it('should reject', function () {
 					return promise
-					.should.be.rejected;
+					.should.be.rejectedWith(BillForward.BFUnauthorizedError);
 				});
 			});
 			context('authorised', function () {

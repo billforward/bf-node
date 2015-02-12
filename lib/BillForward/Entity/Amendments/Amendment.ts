@@ -44,7 +44,7 @@ module BillForward {
                     date = BillingEntity.makeBillForwardDate(<Date>actioningTime);
                 } else if (actioningTime === 'AtPeriodEnd') {
                     if (!subscription) {
-                        throw new Error("Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.");
+                        throw new BFInvocationError("Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.");
                     }
                     return resolve(Subscription.fetchIfNecessary(subscription)
                         .then(subscription => (<Subscription>subscription).getCurrentPeriodEnd));

@@ -249,7 +249,7 @@ module BillForward {
         }
         var constructArgsType = typeof constructArgs;
         if (constructArgsType !== 'object') {
-            throw new Error(Imports.util.format("Expected either a property map or an entity of type '%s'. Instead received: '%s'; %s", entityClass, constructArgsType, constructArgs));
+            throw new BFInvocationError(Imports.util.format("Expected either a property map or an entity of type '%s'. Instead received: '%s'; %s", entityClass, constructArgsType, constructArgs));
         }
         var client = this.getClient();
         var newEntity:BillingEntity = entityClass.makeEntityFromPayload(constructArgs, client);
@@ -263,10 +263,10 @@ module BillForward {
     }    
 
     protected static getFirstEntityFromResponse(payload:any, client:Client):BillingEntity {
-        if (!payload.results || !payload.results.length)
-            throw new Error("Received malformed response from API.");
+        if (!payload.results || payload.results.length === undefined || payload.results.length === null)
+            throw new BFMalformedAPIResponseError("Received malformed response from API.");
         if (payload.results.length<1)
-            throw new Error("No results returned upon API request.");
+            throw new BFNoResultsError("No results returned upon API request.");
 
         var entity:BillingEntity;
         var results = payload.results;
@@ -276,15 +276,15 @@ module BillForward {
         entity = entityClass.makeEntityFromPayload(stateParams, client);
 
         if (!entity)
-            throw new Error("Failed to unserialize API response into entity.");
+            throw new BFResponseUnserializationFailure("Failed to unserialize API response into entity.");
         return entity;
     }
 
     protected static getAllEntitiesFromResponse(payload:any, client:Client): Array<BillingEntity> {
         if (!payload.results || !payload.results.length)
-            throw new Error("Received malformed response from API.");
+            throw new BFMalformedAPIResponseError("Received malformed response from API.");
         if (payload.results.length<1)
-            throw new Error("No results returned upon API request.");
+            throw new BFNoResultsError("No results returned upon API request.");
 
         var entities:Array<BillingEntity>;
         var results = payload.results;
@@ -292,12 +292,12 @@ module BillForward {
             var entityClass = this.getDerivedClassStatic();
             var entity = entityClass.makeEntityFromPayload(value, client);
             if (!entity)
-                throw new Error("Failed to unserialize API response into entity.");
+                throw new BFResponseUnserializationFailure("Failed to unserialize API response into entity.");
             return entity;
         });
 
         if (!entities)
-            throw new Error("Failed to unserialize API response into entity.");
+            throw new BFResponseUnserializationFailure("Failed to unserialize API response into entity.");
 
         return entities;
     }
@@ -325,7 +325,7 @@ module BillForward {
                     // is already a usable entity
                     return resolve(<any>entityReference);
                 }
-                throw new Error("Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
+                throw new BFInvocationError("Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
             } catch (e) {
                 return reject(e);
             }
@@ -348,7 +348,7 @@ module BillForward {
             return (<any>entityReference).id;
         }
 
-        throw new Error("Cannot get identifier of referenced entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
+        throw new BFInvocationError("Cannot get identifier of referenced entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
     }
 
     static makeBillForwardDate(date:Date) {

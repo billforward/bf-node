@@ -353,6 +353,47 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class Error {
+        name: string;
+        message: string;
+        stack: string;
+        constructor(message?: string);
+    }
+    class BFError extends Error {
+        message: string;
+        constructor(message: string);
+        toString(): string;
+    }
+    class BFPreconditionFailedError extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+    class BFInvocationError extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+    class BFNoResultsError extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+    class BFMalformedAPIResponseError extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+    class BFResponseUnserializationFailure extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+    class BFRequestError extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+    class BFHTTPError extends BFError {
+        message: string;
+        constructor(message: string);
+    }
+}
+declare module BillForward {
     class Imports {
         static _: _.LoDashStatic;
         static restler: any;

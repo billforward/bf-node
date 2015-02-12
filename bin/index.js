@@ -60,7 +60,7 @@ var BillForward;
         };
         Client.getDefaultClient = function () {
             if (!Client.singletonClient) {
-                throw new Error("No default BillForwardClient found; cannot make API requests.");
+                throw new BillForward.BFInvocationError("No default BillForwardClient found; cannot make API requests.");
             }
             return Client.singletonClient;
         };
@@ -143,6 +143,9 @@ var BillForward;
             return this.errorResponse(obj);
         };
         Client.prototype.errorResponse = function (input) {
+            if (input & input.response && input.response.statusCode !== undefined && input.response.statusCode !== null)
+                if (input.response.statusCode !== 200)
+                    throw new BillForward.BFHTTPError(input);
             var parsed = input;
             if (input.data)
                 parsed = input.data;
@@ -158,7 +161,7 @@ var BillForward;
             }
             if (this.errorLogging)
                 console.error(printable);
-            throw new Error(printable);
+            throw new BillForward.BFRequestError(printable);
         };
         return Client;
     })();
@@ -411,7 +414,7 @@ var BillForward;
             }
             var constructArgsType = typeof constructArgs;
             if (constructArgsType !== 'object') {
-                throw new Error(BillForward.Imports.util.format("Expected either a property map or an entity of type '%s'. Instead received: '%s'; %s", entityClass, constructArgsType, constructArgs));
+                throw new BillForward.BFInvocationError(BillForward.Imports.util.format("Expected either a property map or an entity of type '%s'. Instead received: '%s'; %s", entityClass, constructArgsType, constructArgs));
             }
             var client = this.getClient();
             var newEntity = entityClass.makeEntityFromPayload(constructArgs, client);
@@ -424,9 +427,9 @@ var BillForward;
         };
         BillingEntity.getFirstEntityFromResponse = function (payload, client) {
             if (!payload.results || payload.results.length === undefined || payload.results.length === null)
-                throw new Error("Received malformed response from API.");
+                throw new BillForward.BFMalformedAPIResponseError("Received malformed response from API.");
             if (payload.results.length < 1)
-                throw new Error("No results returned upon API request.");
+                throw new BillForward.BFNoResultsError("No results returned upon API request.");
             var entity;
             var results = payload.results;
             var assumeFirst = results[0];
@@ -434,26 +437,26 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             entity = entityClass.makeEntityFromPayload(stateParams, client);
             if (!entity)
-                throw new Error("Failed to unserialize API response into entity.");
+                throw new BillForward.BFResponseUnserializationFailure("Failed to unserialize API response into entity.");
             return entity;
         };
         BillingEntity.getAllEntitiesFromResponse = function (payload, client) {
             var _this = this;
             if (!payload.results || !payload.results.length)
-                throw new Error("Received malformed response from API.");
+                throw new BillForward.BFMalformedAPIResponseError("Received malformed response from API.");
             if (payload.results.length < 1)
-                throw new Error("No results returned upon API request.");
+                throw new BillForward.BFNoResultsError("No results returned upon API request.");
             var entities;
             var results = payload.results;
             entities = BillForward.Imports._.map(results, function (value) {
                 var entityClass = _this.getDerivedClassStatic();
                 var entity = entityClass.makeEntityFromPayload(value, client);
                 if (!entity)
-                    throw new Error("Failed to unserialize API response into entity.");
+                    throw new BillForward.BFResponseUnserializationFailure("Failed to unserialize API response into entity.");
                 return entity;
             });
             if (!entities)
-                throw new Error("Failed to unserialize API response into entity.");
+                throw new BillForward.BFResponseUnserializationFailure("Failed to unserialize API response into entity.");
             return entities;
         };
         BillingEntity.makeEntityFromPayload = function (payload, client) {
@@ -471,7 +474,7 @@ var BillForward;
                     if (entityReference instanceof entityClass) {
                         return resolve(entityReference);
                     }
-                    throw new Error("Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
+                    throw new BillForward.BFInvocationError("Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
                 }
                 catch (e) {
                     return reject(e);
@@ -486,7 +489,7 @@ var BillForward;
             if (entityReference instanceof entityClass) {
                 return entityReference.id;
             }
-            throw new Error("Cannot get identifier of referenced entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
+            throw new BillForward.BFInvocationError("Cannot get identifier of referenced entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
         };
         BillingEntity.makeBillForwardDate = function (date) {
             var asISO = date.toISOString();
@@ -707,7 +710,7 @@ var BillForward;
                     }
                     else if (actioningTime === 'AtPeriodEnd') {
                         if (!subscription) {
-                            throw new Error("Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.");
+                            throw new BillForward.BFInvocationError("Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.");
                         }
                         return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) { return subscription.getCurrentPeriodEnd; }));
                     }
@@ -1357,7 +1360,7 @@ var BillForward;
                 return this.currentPeriodStart;
             }
             else {
-                throw new Error("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
+                throw new BillForward.BFPreconditionFailedError("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
             }
         };
         Subscription.prototype.getCurrentPeriodEnd = function () {
@@ -1365,7 +1368,7 @@ var BillForward;
                 return this.currentPeriodEnd;
             }
             else {
-                throw new Error("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
+                throw new BillForward.BFPreconditionFailedError("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
             }
         };
         Subscription.prototype.getRatePlan = function () {
@@ -1427,9 +1430,9 @@ var BillForward;
                                 return pricingComponent.name === key;
                             });
                             if (!correspondingComponent)
-                                throw new Error(BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key));
+                                throw new BillForward.BFInvocationError(BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key));
                             if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingComponent.chargeType))
-                                throw new Error(BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", ")));
+                                throw new BillForward.BFInvocationError(BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", ")));
                             return componentGenerator(correspondingComponent, mappedValue);
                         }), function (pricingComponentValueModel) {
                             return BillForward.PricingComponentValue.create(pricingComponentValueModel);
@@ -1505,6 +1508,94 @@ var BillForward;
         return StripeToken;
     })(BillForward.MutableEntity);
     BillForward.StripeToken = StripeToken;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var BFError = (function (_super) {
+        __extends(BFError, _super);
+        function BFError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFError';
+            this.message = message;
+            this.stack = (new Error()).stack;
+        }
+        BFError.prototype.toString = function () {
+            return this.name + ': ' + this.message;
+        };
+        return BFError;
+    })(Error);
+    BillForward.BFError = BFError;
+    var BFPreconditionFailedError = (function (_super) {
+        __extends(BFPreconditionFailedError, _super);
+        function BFPreconditionFailedError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFPreconditionFailedError';
+        }
+        return BFPreconditionFailedError;
+    })(BFError);
+    BillForward.BFPreconditionFailedError = BFPreconditionFailedError;
+    var BFInvocationError = (function (_super) {
+        __extends(BFInvocationError, _super);
+        function BFInvocationError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFInvocationError';
+        }
+        return BFInvocationError;
+    })(BFError);
+    BillForward.BFInvocationError = BFInvocationError;
+    var BFNoResultsError = (function (_super) {
+        __extends(BFNoResultsError, _super);
+        function BFNoResultsError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFNoResultsError';
+        }
+        return BFNoResultsError;
+    })(BFError);
+    BillForward.BFNoResultsError = BFNoResultsError;
+    var BFMalformedAPIResponseError = (function (_super) {
+        __extends(BFMalformedAPIResponseError, _super);
+        function BFMalformedAPIResponseError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'MalformedAPIResponseError';
+        }
+        return BFMalformedAPIResponseError;
+    })(BFError);
+    BillForward.BFMalformedAPIResponseError = BFMalformedAPIResponseError;
+    var BFResponseUnserializationFailure = (function (_super) {
+        __extends(BFResponseUnserializationFailure, _super);
+        function BFResponseUnserializationFailure(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFResponseUnserializationFailure';
+        }
+        return BFResponseUnserializationFailure;
+    })(BFError);
+    BillForward.BFResponseUnserializationFailure = BFResponseUnserializationFailure;
+    var BFRequestError = (function (_super) {
+        __extends(BFRequestError, _super);
+        function BFRequestError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFRequestError';
+        }
+        return BFRequestError;
+    })(BFError);
+    BillForward.BFRequestError = BFRequestError;
+    var BFHTTPError = (function (_super) {
+        __extends(BFHTTPError, _super);
+        function BFHTTPError(message) {
+            _super.call(this, message);
+            this.message = message;
+            this.name = 'BFHTTPError';
+        }
+        return BFHTTPError;
+    })(BFError);
+    BillForward.BFHTTPError = BFHTTPError;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {

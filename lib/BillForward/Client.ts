@@ -76,7 +76,7 @@ module BillForward {
 
     static getDefaultClient():Client {
       if (!Client.singletonClient) {
-        throw new Error("No default BillForwardClient found; cannot make API requests.");
+        throw new BFInvocationError("No default BillForwardClient found; cannot make API requests.");
       }
       return Client.singletonClient;
     }
@@ -201,6 +201,15 @@ module BillForward {
     }
 
     private errorResponse(input:any):any {
+      if (input & input.response && input.response.statusCode !== undefined && input.response.statusCode !== null)
+      if (input.response.statusCode !== 200)
+      if (input.response.statusCode === 401) {
+        throw new BFUnauthorizedError(input);
+      } else {
+        throw new BFHTTPError(input);
+      }
+      
+
       var parsed = input;
       if (input.data)
       parsed = input.data;
@@ -218,7 +227,7 @@ module BillForward {
       if (this.errorLogging)
       console.error(printable);
 
-      throw new Error(printable);
+      throw new BFRequestError(printable);
     }
   }
 }

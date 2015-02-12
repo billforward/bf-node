@@ -13,7 +13,7 @@ context(testBase.getContext(), function () {
 				});
 				it('should complain', function () {
 					return promise
-					.should.be.rejected;
+					.should.be.rejectedWith(BillForward.BFNoResultsError);
 				});
 			});
 		});
