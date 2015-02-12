@@ -22,7 +22,7 @@ module BillForward {
               // console.log(entityClass);
               // console.log(entityClass.makePutPromise);
 
-              return resolve(entityClass.makePutPromise("/", null, payload, client)
+              return resolve(entityClass.makePutPromise("", null, payload, client)
               .then((payload) => {
                 return entityClass.getFirstEntityFromResponse(payload, client);
               }));

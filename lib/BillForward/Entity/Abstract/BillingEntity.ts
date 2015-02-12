@@ -26,11 +26,12 @@ module BillForward {
 		this._client = client;
 	}
 
-    protected static resolveRoute(endpoint:string = "") {
+    protected static resolveRoute(endpoint:string = ""):string {
         var entityClass = this.getDerivedClassStatic();
 
-        var apiRoute = entityClass.getResourcePath().getPath();
-        var fullRoute = apiRoute+endpoint;
+        var controller = entityClass.getResourcePath().getPath();
+
+        var fullRoute = Imports.util.format("%s/%s", controller, endpoint);
 
         return fullRoute;
     }
@@ -181,7 +182,7 @@ module BillForward {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
-                var endpoint = Imports.util.format("/%s", encodeURIComponent(id));
+                var endpoint = Imports.util.format("%s", encodeURIComponent(id));
                 return resolve(myClass.getAndGrabFirst(endpoint, queryParams, client));
             } catch(e) {
                 return reject(e);

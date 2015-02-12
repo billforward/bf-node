@@ -207,8 +207,8 @@ var BillForward;
         BillingEntity.resolveRoute = function (endpoint) {
             if (endpoint === void 0) { endpoint = ""; }
             var entityClass = this.getDerivedClassStatic();
-            var apiRoute = entityClass.getResourcePath().getPath();
-            var fullRoute = apiRoute + endpoint;
+            var controller = entityClass.getResourcePath().getPath();
+            var fullRoute = BillForward.Imports.util.format("%s/%s", controller, endpoint);
             return fullRoute;
         };
         BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client) {
@@ -372,7 +372,7 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    var endpoint = BillForward.Imports.util.format("/%s", encodeURIComponent(id));
+                    var endpoint = BillForward.Imports.util.format("%s", encodeURIComponent(id));
                     return resolve(myClass.getAndGrabFirst(endpoint, queryParams, client));
                 }
                 catch (e) {
@@ -574,7 +574,7 @@ var BillForward;
                     var entityClass = _this.getDerivedClassStatic();
                     var client = entity.getClient();
                     var payload = entity.serialize();
-                    return resolve(entityClass.makePostPromise("/", null, payload, client).then(function (payload) {
+                    return resolve(entityClass.makePostPromise("", null, payload, client).then(function (payload) {
                         return entityClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }
@@ -603,7 +603,7 @@ var BillForward;
                     var entityClass = _this.getDerivedClass();
                     var client = _this.getClient();
                     var payload = _this.serialize();
-                    return resolve(entityClass.makePutPromise("/", null, payload, client).then(function (payload) {
+                    return resolve(entityClass.makePutPromise("", null, payload, client).then(function (payload) {
                         return entityClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }

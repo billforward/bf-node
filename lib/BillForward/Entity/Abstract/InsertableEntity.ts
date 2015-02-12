@@ -16,7 +16,7 @@ module BillForward {
             var client:Client = entity.getClient();
             var payload = entity.serialize();
 
-            return resolve(entityClass.makePostPromise("/", null, payload, client)
+            return resolve(entityClass.makePostPromise("", null, payload, client)
               .then((payload) => {
                 return entityClass.getFirstEntityFromResponse(payload, client);
               }));
