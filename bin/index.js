@@ -88,7 +88,7 @@ var BillForward;
                         callVerb += "Json";
                         callArgs.splice(1, 0, json);
                     }
-                    Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
+                    resolve(Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
                         try {
                             var success = _this.successResponse(obj);
                             console.log("QQQQQQ");
@@ -109,7 +109,7 @@ var BillForward;
                             return reject(e);
                         }
                         return reject(err);
-                    });
+                    }));
                 }
                 catch (e) {
                     console.log("CCCCCCC");
@@ -121,13 +121,13 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
-                        resolve({
+                    return BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
+                        return resolve({
                             data: data,
                             response: response
                         });
                     }).on('fail', function (data, response) {
-                        reject({
+                        return reject({
                             data: data,
                             response: response
                         });

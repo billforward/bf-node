@@ -136,7 +136,7 @@ module BillForward {
             callArgs.splice(1, 0, json);
           }
 
-          Client.mockableRequestWrapper(callVerb, callArgs)
+          resolve(Client.mockableRequestWrapper(callVerb, callArgs)
           .then(obj => {
               try {
                 var success = this.successResponse(obj);
@@ -156,7 +156,7 @@ module BillForward {
                 return reject(e);
               }
               return reject(err);
-            });
+            }));
         } catch(e) {
           console.log("CCCCCCC");
           return reject(e);
@@ -167,15 +167,15 @@ module BillForward {
     static mockableRequestWrapper(callVerb:string, callArgs:Array<any>):any {
       return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
         try {
-          Imports.restler[callVerb].apply(this, callArgs)
+          return Imports.restler[callVerb].apply(this, callArgs)
           .on('success', (data, response) => {
-            resolve({
+            return resolve({
               data:data,
               response:response
               });
             })
           .on('fail', (data, response) => {
-            reject({
+            return reject({
               data:data,
               response:response
               });
