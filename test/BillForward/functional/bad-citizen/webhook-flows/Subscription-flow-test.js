@@ -34,7 +34,7 @@ context(testBase.getContext(), function () {
 					.then(function(account) {
 						models.creditNote = new BillForward.CreditNote({
 							'accountID': account.id, // predicated on account's first being created
-							'nominalValue': 100,
+							'value': 100,
 							'currency': 'USD'
 						});
 						return BillForward.CreditNote.create(models.creditNote);

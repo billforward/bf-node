@@ -27,8 +27,13 @@ module.exports = function(BillForward) {
 	};
 
 	models.UnitOfMeasure = function() {
+		// don't wanna include GUID library =_=;;
+		var seed = Math.floor((new Date).getTime()+Math.random()*10000000);
+
+		var unique = Math.floor(seed/100000)+seed%1000;
+		var name = "CPU "+unique;
 		var uom = new BillForward.UnitOfMeasure({
-			'name': 'CPU',
+			'name': name,
 			'displayedAs': 'Cycles',
 			'roundingScheme': 'UP',
 		});
@@ -36,8 +41,13 @@ module.exports = function(BillForward) {
 	};
 
 	models.UnitOfMeasure2 = function() {
+		// don't wanna include GUID library =_=;;
+		var seed = Math.floor((new Date).getTime()+Math.random()*10000000);
+
+		var unique = Math.floor(seed/100000)+seed%1000;
+		var name = "Bandwidth "+unique;
 		var uom = new BillForward.UnitOfMeasure({
-			'name': 'Bandwidth',
+			'name': name,
 			'displayedAs': 'Mbps',
 			'roundingScheme': 'UP',
 		});
