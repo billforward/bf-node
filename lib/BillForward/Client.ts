@@ -141,7 +141,7 @@ module BillForward {
             return this.successResponse(obj);
             })
           .catch(obj => {
-            return this.errorResponse(obj);
+            return reject(this.errorResponse(obj));
             }));
         } catch(e) {
           return reject(e);
@@ -152,15 +152,15 @@ module BillForward {
     static mockableRequestWrapper(callVerb:string, callArgs:Array<any>):any {
       return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
         try {
-          Imports.restler[callVerb].apply(this, callArgs)
+          return Imports.restler[callVerb].apply(this, callArgs)
           .on('success', (data, response) => {
-            resolve({
+            return resolve({
               data:data,
               response:response
               });
             })
           .on('fail', (data, response) => {
-            reject({
+            return reject({
               data:data,
               response:response
               });

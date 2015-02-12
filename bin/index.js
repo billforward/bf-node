@@ -91,7 +91,7 @@ var BillForward;
                     return resolve(Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
                         return _this.successResponse(obj);
                     }).catch(function (obj) {
-                        return _this.errorResponse(obj);
+                        return reject(_this.errorResponse(obj));
                     }));
                 }
                 catch (e) {
@@ -103,13 +103,13 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
-                        resolve({
+                    return BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
+                        return resolve({
                             data: data,
                             response: response
                         });
                     }).on('fail', function (data, response) {
-                        reject({
+                        return reject({
                             data: data,
                             response: response
                         });
