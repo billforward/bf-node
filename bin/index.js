@@ -101,7 +101,10 @@ var BillForward;
                         ;
                     }).catch(function (obj) {
                         console.log("BBBBBBBB");
-                        return reject(_this.errorResponse(obj));
+                        return _this.errorResponse(obj);
+                    }).catch(function (e) {
+                        console.log("DDDDDD");
+                        reject(e);
                     });
                 }
                 catch (e) {
