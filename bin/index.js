@@ -148,7 +148,7 @@ var BillForward;
             }
             if (this.errorLogging)
                 console.error(printable);
-            throw new Error(printable);
+            throw new Error(parsed);
         };
         return Client;
     })();
