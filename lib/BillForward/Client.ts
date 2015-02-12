@@ -138,14 +138,17 @@ module BillForward {
 
           return Client.mockableRequestWrapper(callVerb, callArgs)
           .catch(obj => {
+            // HTTP errors
             return this.errorResponse(obj);
           })
           .then(obj => {
-            console.log('AAAAAAA')
-              var success = this.successResponse(obj);
-              return resolve(success);
-            })
+            // HTTP succeeded
+            // throws error if response is in bad format
+            var success = this.successResponse(obj);
+            return resolve(success);
+          })
           .catch(obj => {
+            // HTTP succeeds, but BillForward response is an error
             return reject(obj);
           });
         } catch(e) {
