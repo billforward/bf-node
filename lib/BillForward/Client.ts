@@ -148,12 +148,14 @@ module BillForward {
               };
             })
           .catch(obj => {
-            console.log("BBBBBBBB");
-            return this.errorResponse(obj);
-            })
-          .catch(e => {
-            console.log("DDDDDD");
-            reject(e);
+              console.log("BBBBBBBB");
+              var err;
+              try {
+                err = this.errorResponse(obj);
+              } catch (e) {
+                return reject(e);
+              }
+              return reject(err);
             });
         } catch(e) {
           console.log("CCCCCCC");

@@ -101,10 +101,14 @@ var BillForward;
                         ;
                     }).catch(function (obj) {
                         console.log("BBBBBBBB");
-                        return _this.errorResponse(obj);
-                    }).catch(function (e) {
-                        console.log("DDDDDD");
-                        reject(e);
+                        var err;
+                        try {
+                            err = _this.errorResponse(obj);
+                        }
+                        catch (e) {
+                            return reject(e);
+                        }
+                        return reject(err);
                     });
                 }
                 catch (e) {
