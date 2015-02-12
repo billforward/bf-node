@@ -53,7 +53,7 @@ var BillForward;
         };
         Client.getDefaultClient = function () {
             if (!Client.singletonClient) {
-                throw 'No default BillForwardClient found; cannot make API requests.';
+                throw new Error("No default BillForwardClient found; cannot make API requests.");
             }
             return Client.singletonClient;
         };
@@ -141,7 +141,7 @@ var BillForward;
                 }
                 console.error(parsed);
             }
-            throw parsed;
+            throw new Error(parsed);
         };
         return Client;
     })();
@@ -174,15 +174,16 @@ var BillForward;
             var fullRoute = apiRoute + endpoint;
             return fullRoute;
         };
-        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client) {
+        BillingEntity.makeHttpPromise = function (verb, endpoint, queryParams, payload, client, responseEntity) {
             var _this = this;
             if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     if (!client) {
                         client = BillingEntity.getSingletonClient();
                     }
-                    var entityClass = _this.getDerivedClassStatic();
+                    var entityClass = responseEntity ? responseEntity.getDerivedClass() : _this.getDerivedClassStatic();
                     var fullRoute = entityClass.resolveRoute(endpoint);
                     return resolve(client.request(verb, fullRoute, queryParams, payload));
                 }
@@ -191,10 +192,23 @@ var BillForward;
                 }
             });
         };
-        BillingEntity.makeGetPromise = function (endpoint, queryParams, client) {
+        BillingEntity.makeGetPromise = function (endpoint, queryParams, client, responseEntity) {
             if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
             var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client);
+            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client, responseEntity);
+        };
+        BillingEntity.makePostPromise = function (endpoint, queryParams, payload, client, responseEntity) {
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            var entityClass = this.getDerivedClassStatic();
+            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client, responseEntity);
+        };
+        BillingEntity.makePutPromise = function (endpoint, queryParams, payload, client, responseEntity) {
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            var entityClass = this.getDerivedClassStatic();
+            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client, responseEntity);
         };
         BillingEntity.getByID = function (id, queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
@@ -278,7 +292,7 @@ var BillForward;
             }
             var constructArgsType = typeof constructArgs;
             if (constructArgsType !== 'object') {
-                throw "Expected either a property map or an entity of type '" + entityClass + "'. Instead received: " + constructArgsType + "; " + constructArgs;
+                throw new Error(BillForward.Imports.util.format("Expected either a property map or an entity of type '%s'. Instead received: '%s'; %s", entityClass, constructArgsType, constructArgs));
             }
             var client = this.getClient();
             var newEntity = entityClass.makeEntityFromPayload(constructArgs, client);
@@ -291,9 +305,9 @@ var BillForward;
         };
         BillingEntity.getFirstEntityFromResponse = function (payload, client) {
             if (!payload.results || !payload.results.length)
-                throw "Received malformed response from API.";
+                throw new Error("Received malformed response from API.");
             if (payload.results.length < 1)
-                throw "No results returned upon API request.";
+                throw new Error("No results returned upon API request.");
             var entity;
             var results = payload.results;
             var assumeFirst = results[0];
@@ -301,26 +315,26 @@ var BillForward;
             var entityClass = this.getDerivedClassStatic();
             entity = entityClass.makeEntityFromPayload(stateParams, client);
             if (!entity)
-                throw "Failed to unserialize API response into entity.";
+                throw new Error("Failed to unserialize API response into entity.");
             return entity;
         };
         BillingEntity.getAllEntitiesFromResponse = function (payload, client) {
             var _this = this;
             if (!payload.results || !payload.results.length)
-                throw "Received malformed response from API.";
+                throw new Error("Received malformed response from API.");
             if (payload.results.length < 1)
-                throw "No results returned upon API request.";
+                throw new Error("No results returned upon API request.");
             var entities;
             var results = payload.results;
             entities = BillForward.Imports._.map(results, function (value) {
                 var entityClass = _this.getDerivedClassStatic();
                 var entity = entityClass.makeEntityFromPayload(value, client);
                 if (!entity)
-                    throw "Failed to unserialize API response into entity.";
+                    throw new Error("Failed to unserialize API response into entity.");
                 return entity;
             });
             if (!entities)
-                throw "Failed to unserialize API response into entity.";
+                throw new Error("Failed to unserialize API response into entity.");
             return entities;
         };
         BillingEntity.makeEntityFromPayload = function (payload, client) {
@@ -338,7 +352,7 @@ var BillForward;
                     if (entityReference instanceof entityClass) {
                         return resolve(entityReference);
                     }
-                    throw "Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.";
+                    throw new Error("Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
                 }
                 catch (e) {
                     return reject(e);
@@ -382,11 +396,6 @@ var BillForward;
                 return entityClass.getFirstEntityFromResponse(payload, client);
             });
         };
-        InsertableEntity.makePostPromise = function (endpoint, queryParams, payload, client) {
-            if (client === void 0) { client = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client);
-        };
         return InsertableEntity;
     })(BillForward.BillingEntity);
     BillForward.InsertableEntity = InsertableEntity;
@@ -407,11 +416,6 @@ var BillForward;
             return entityClass.makePutPromise("/", null, payload, client).then(function (payload) {
                 return entityClass.getFirstEntityFromResponse(payload, client);
             });
-        };
-        MutableEntity.makePutPromise = function (endpoint, queryParams, payload, client) {
-            if (client === void 0) { client = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
         };
         return MutableEntity;
     })(BillForward.InsertableEntity);
@@ -558,7 +562,7 @@ var BillForward;
                     }
                     else if (actioningTime === 'AtPeriodEnd') {
                         if (!subscription) {
-                            throw 'Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.';
+                            throw new Error("Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.");
                         }
                         return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) { return subscription.getCurrentPeriodEnd; }));
                     }
@@ -1138,7 +1142,7 @@ var BillForward;
                 return this.currentPeriodStart;
             }
             else {
-                throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain "Subscription", Action "Updated") whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === "currentPeriodEnd").';
+                throw new Error("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
             }
         };
         Subscription.prototype.getCurrentPeriodEnd = function () {
@@ -1146,7 +1150,7 @@ var BillForward;
                 return this.currentPeriodEnd;
             }
             else {
-                throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain "Subscription", Action "Updated") whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === "currentPeriodEnd").';
+                throw new Error("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
             }
         };
         Subscription.prototype.getRatePlan = function () {
@@ -1208,9 +1212,9 @@ var BillForward;
                                 return pricingComponent.name === key;
                             });
                             if (!correspondingComponent)
-                                throw BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
+                                throw new Error(BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key));
                             if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingComponent.chargeType))
-                                throw BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", "));
+                                throw new Error(BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", ")));
                             return componentGenerator(correspondingComponent, mappedValue);
                         }), function (pricingComponentValueModel) {
                             return BillForward.PricingComponentValue.create(pricingComponentValueModel);

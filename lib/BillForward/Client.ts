@@ -69,7 +69,7 @@ module BillForward {
 
     static getDefaultClient():Client {
       if (!Client.singletonClient) {
-        throw 'No default BillForwardClient found; cannot make API requests.';
+        throw new Error("No default BillForwardClient found; cannot make API requests.");
       }
       return Client.singletonClient;
     }
@@ -194,7 +194,7 @@ module BillForward {
         }
         console.error(parsed);
       }
-      throw parsed;
+      throw new Error(parsed);
     }
   }
 }

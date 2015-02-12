@@ -35,14 +35,16 @@ module BillForward {
         return fullRoute;
     }
 
-    protected static makeHttpPromise(verb:string, endpoint:string, queryParams:Object, payload:Object, client:Client = null):Q.Promise<any> {
+    protected static makeHttpPromise(verb:string, endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null):Q.Promise<any> {
         return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
             try {
                 if (!client) {
                     client = BillingEntity.getSingletonClient();
                 }
 
-                var entityClass = this.getDerivedClassStatic();
+                var entityClass = responseEntity
+                ? responseEntity.getDerivedClass()
+                : this.getDerivedClassStatic();
 
                 var fullRoute = entityClass.resolveRoute(endpoint);
 
@@ -53,9 +55,19 @@ module BillForward {
         });
     }
 
-    protected static makeGetPromise(endpoint:string, queryParams:Object, client:Client = null) {
+    protected static makeGetPromise(endpoint:string, queryParams:Object, client:Client = null, responseEntity:BillingEntity = null) {
         var entityClass = this.getDerivedClassStatic();
-        return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client)
+        return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client, responseEntity)
+    }
+
+    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
+        var entityClass = this.getDerivedClassStatic();
+        return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client, responseEntity);
+    }
+
+    protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
+      var entityClass = this.getDerivedClassStatic();
+      return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client, responseEntity);
     }
 
     static getByID(id:string, queryParams:Object = {}, client:Client = null) {
@@ -151,7 +163,7 @@ module BillForward {
         }
         var constructArgsType = typeof constructArgs;
         if (constructArgsType !== 'object') {
-            throw "Expected either a property map or an entity of type '"+entityClass+"'. Instead received: "+constructArgsType+"; "+constructArgs;
+            throw new Error(Imports.util.format("Expected either a property map or an entity of type '%s'. Instead received: '%s'; %s", entityClass, constructArgsType, constructArgs));
         }
         var client = this.getClient();
         var newEntity:BillingEntity = entityClass.makeEntityFromPayload(constructArgs, client);
@@ -166,9 +178,9 @@ module BillForward {
 
     protected static getFirstEntityFromResponse(payload:any, client:Client):BillingEntity {
         if (!payload.results || !payload.results.length)
-            throw "Received malformed response from API.";
+            throw new Error("Received malformed response from API.");
         if (payload.results.length<1)
-            throw "No results returned upon API request.";
+            throw new Error("No results returned upon API request.");
 
         var entity:BillingEntity;
         var results = payload.results;
@@ -178,15 +190,15 @@ module BillForward {
         entity = entityClass.makeEntityFromPayload(stateParams, client);
 
         if (!entity)
-            throw "Failed to unserialize API response into entity.";
+            throw new Error("Failed to unserialize API response into entity.");
         return entity;
     }
 
     protected static getAllEntitiesFromResponse(payload:any, client:Client): Array<BillingEntity> {
         if (!payload.results || !payload.results.length)
-            throw "Received malformed response from API.";
+            throw new Error("Received malformed response from API.");
         if (payload.results.length<1)
-            throw "No results returned upon API request.";
+            throw new Error("No results returned upon API request.");
 
         var entities:Array<BillingEntity>;
         var results = payload.results;
@@ -194,12 +206,12 @@ module BillForward {
             var entityClass = this.getDerivedClassStatic();
             var entity = entityClass.makeEntityFromPayload(value, client);
             if (!entity)
-                throw "Failed to unserialize API response into entity.";
+                throw new Error("Failed to unserialize API response into entity.");
             return entity;
         });
 
         if (!entities)
-            throw "Failed to unserialize API response into entity.";
+            throw new Error("Failed to unserialize API response into entity.");
 
         return entities;
     }
@@ -227,7 +239,7 @@ module BillForward {
                     // is already a usable entity
                     return resolve(<any>entityReference);
                 }
-                throw "Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.";
+                throw new Error("Cannot fetch entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
             } catch (e) {
                 return reject(e);
             }

@@ -42,8 +42,10 @@ declare module BillForward {
         getClient(): Client;
         setClient(client: Client): void;
         protected static resolveRoute(endpoint?: string): string;
-        protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<any>;
-        protected static makeGetPromise(endpoint: string, queryParams: Object, client?: Client): any;
+        protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<any>;
+        protected static makeGetPromise(endpoint: string, queryParams: Object, client?: Client, responseEntity?: BillingEntity): any;
+        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): any;
+        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): any;
         static getByID(id: string, queryParams?: Object, client?: Client): any;
         static getAll(queryParams?: Object, client?: Client): any;
         static getResourcePath(): any;
@@ -71,14 +73,12 @@ declare module BillForward {
     class InsertableEntity extends BillingEntity {
         constructor(stateParams?: Object, client?: Client);
         static create(entity: InsertableEntity): any;
-        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): any;
     }
 }
 declare module BillForward {
     class MutableEntity extends InsertableEntity {
         constructor(stateParams?: Object, client?: Client);
         save(): any;
-        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): any;
     }
 }
 declare module BillForward {

@@ -116,7 +116,7 @@ module BillForward {
         if ((<any>this).currentPeriodStart) {
             return (<any>this).currentPeriodStart;
         } else {
-            throw 'Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain "Subscription", Action "Updated") whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === "currentPeriodEnd").';
+            throw new Error("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
         }
     }
 
@@ -124,7 +124,7 @@ module BillForward {
         if ((<any>this).currentPeriodEnd) {
             return (<any>this).currentPeriodEnd;
         } else {
-            throw 'Cannot set actioning time to period end, because the subscription does not declare a period end. This could mean the subscription is still in the "Provisioned" state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain "Subscription", Action "Updated") whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === "currentPeriodEnd").';
+            throw new Error("Cannot set actioning time to period start, because the subscription does not declare a period start. This could mean the subscription is still in the 'Provisioned' state. Alternatively the subscription may not have been instantiated yet by the BillForward engines. You could try again in a few seconds, or wait for a WebHook (Domain 'Subscription', Action 'Updated') whose list of webhook.changes.auditFieldChanges includes an object auditFieldChange, where (auditFieldChange.attributeName === 'currentPeriodEnd').");
         }
     }
 
@@ -212,10 +212,10 @@ module BillForward {
                                     return (<any>pricingComponent).name === key;
                                     });
 
-                            if (!correspondingComponent) throw Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key);
+                            if (!correspondingComponent) throw new Error(Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key));
 
                             if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
-                            throw Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", "));
+                            throw new Error(Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", ")));
 
                             return componentGenerator(correspondingComponent, mappedValue);
                             }), pricingComponentValueModel => {

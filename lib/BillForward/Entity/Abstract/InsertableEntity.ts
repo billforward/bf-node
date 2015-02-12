@@ -19,10 +19,5 @@ module BillForward {
         return entityClass.getFirstEntityFromResponse(payload, client);
       });
     }
-
-    protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
-        var entityClass = this.getDerivedClassStatic();
-        return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client);
-    }
   } 
 }
