@@ -10,19 +10,25 @@ module BillForward {
   	 * to match the current properties with which it is modelled.
   	 */
   	save() {
-      // console.log('saving');
-      var entityClass = this.getDerivedClass();
-  		// var entityClass = (<any>this).constructor;
-  		
-  		var client = this.getClient();
-  		var payload = this.serialize();
+      return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
+          try {
+              // console.log('saving');
+              var entityClass = this.getDerivedClass();
+          		// var entityClass = (<any>this).constructor;
+          		
+          		var client = this.getClient();
+          		var payload = this.serialize();
 
-      // console.log(entityClass);
-      // console.log(entityClass.makePutPromise);
+              // console.log(entityClass);
+              // console.log(entityClass.makePutPromise);
 
-      return entityClass.makePutPromise("/", null, payload, client)
-      .then((payload) => {
-        return entityClass.getFirstEntityFromResponse(payload, client);
+              return resolve(entityClass.makePutPromise("/", null, payload, client)
+              .then((payload) => {
+                return entityClass.getFirstEntityFromResponse(payload, client);
+              }));
+          } catch(e) {
+              return reject(e);
+          }
       });
   	}
   } 

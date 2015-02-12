@@ -193,37 +193,139 @@ var BillForward;
             });
         };
         BillingEntity.makeGetPromise = function (endpoint, queryParams, client, responseEntity) {
+            var _this = this;
             if (client === void 0) { client = null; }
             if (responseEntity === void 0) { responseEntity = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("GET", endpoint, queryParams, null, client, responseEntity);
-        };
-        BillingEntity.makePostPromise = function (endpoint, queryParams, payload, client, responseEntity) {
-            if (client === void 0) { client = null; }
-            if (responseEntity === void 0) { responseEntity = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("POST", endpoint, queryParams, payload, client, responseEntity);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.makeHttpPromise("GET", endpoint, queryParams, null, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
         };
         BillingEntity.makePutPromise = function (endpoint, queryParams, payload, client, responseEntity) {
+            var _this = this;
             if (client === void 0) { client = null; }
             if (responseEntity === void 0) { responseEntity = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client, responseEntity);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client, responseEntity);
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.makePostPromise = function (endpoint, queryParams, payload, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.makeHttpPromise("POST", endpoint, queryParams, payload, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.postEntityAndGrabFirst = function (endpoint, queryParams, entity, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    var serial = entity.serialize();
+                    return resolve(myClass.postAndGrabFirst(endpoint, queryParams, serial, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.postEntityAndGrabCollection = function (endpoint, queryParams, entity, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    var serial = entity.serialize();
+                    return resolve(myClass.postAndGrabCollection(endpoint, queryParams, serial, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.postAndGrabFirst = function (endpoint, queryParams, payload, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client, responseEntity).then(function (payload) {
+                        return myClass.getFirstEntityFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        BillingEntity.postAndGrabCollection = function (endpoint, queryParams, payload, client, responseEntity) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            if (responseEntity === void 0) { responseEntity = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client, responseEntity).then(function (payload) {
+                        return myClass.getAllEntitiesFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
         };
         BillingEntity.getByID = function (id, queryParams, client) {
+            var _this = this;
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeGetPromise("/" + id, queryParams, client).then(function (payload) {
-                return entityClass.getFirstEntityFromResponse(payload, client);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClassStatic();
+                    return resolve(entityClass.makeGetPromise("/" + id, queryParams, client).then(function (payload) {
+                        return entityClass.getFirstEntityFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
         };
         BillingEntity.getAll = function (queryParams, client) {
+            var _this = this;
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
-            var entityClass = this.getDerivedClassStatic();
-            return entityClass.makeGetPromise("", queryParams, client).then(function (payload) {
-                return entityClass.getAllEntitiesFromResponse(payload, client);
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClassStatic();
+                    return resolve(entityClass.makeGetPromise("", queryParams, client).then(function (payload) {
+                        return entityClass.getAllEntitiesFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
         };
         BillingEntity.getResourcePath = function () {
@@ -359,6 +461,16 @@ var BillForward;
                 }
             });
         };
+        BillingEntity.getIdentifier = function (entityReference) {
+            if (typeof entityReference === "string") {
+                return entityReference;
+            }
+            var entityClass = this.getDerivedClassStatic();
+            if (entityReference instanceof entityClass) {
+                return entityReference.id;
+            }
+            throw new Error("Cannot get identifier of referenced entity; referenced entity is neither an ID, nor an object extending the desired entity class.");
+        };
         BillingEntity.makeBillForwardDate = function (date) {
             var asISO = date.toISOString();
             var removeMilli = asISO.slice(0, -5) + "Z";
@@ -389,11 +501,19 @@ var BillForward;
             _super.call(this, stateParams, client);
         }
         InsertableEntity.create = function (entity) {
-            var entityClass = this.getDerivedClassStatic();
-            var client = entity.getClient();
-            var payload = entity.serialize();
-            return entityClass.makePostPromise("/", null, payload, client).then(function (payload) {
-                return entityClass.getFirstEntityFromResponse(payload, client);
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClassStatic();
+                    var client = entity.getClient();
+                    var payload = entity.serialize();
+                    return resolve(entityClass.makePostPromise("/", null, payload, client).then(function (payload) {
+                        return entityClass.getFirstEntityFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
         };
         return InsertableEntity;
@@ -410,11 +530,19 @@ var BillForward;
             _super.call(this, stateParams, client);
         }
         MutableEntity.prototype.save = function () {
-            var entityClass = this.getDerivedClass();
-            var client = this.getClient();
-            var payload = this.serialize();
-            return entityClass.makePutPromise("/", null, payload, client).then(function (payload) {
-                return entityClass.getFirstEntityFromResponse(payload, client);
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var entityClass = _this.getDerivedClass();
+                    var client = _this.getClient();
+                    var payload = _this.serialize();
+                    return resolve(entityClass.makePutPromise("/", null, payload, client).then(function (payload) {
+                        return entityClass.getFirstEntityFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
             });
         };
         return MutableEntity;
@@ -760,6 +888,40 @@ var BillForward;
         return Coupon;
     })(BillForward.MutableEntity);
     BillForward.Coupon = Coupon;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var AddCouponCodeRequest = (function (_super) {
+        __extends(AddCouponCodeRequest, _super);
+        function AddCouponCodeRequest(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        AddCouponCodeRequest.applyCouponToSubscription = function (coupon, subscription) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var requestEntity = new BillForward.Coupon({
+                        'couponCode': coupon.couponCode
+                    }, coupon.getClient());
+                    var subscriptionIdentifier = BillForward.Subscription.getIdentifier(subscription);
+                    var endpoint = BillForward.Imports.util.format("%s/coupons", encodeURIComponent(subscriptionIdentifier));
+                    var responseEntity = BillForward.Coupon;
+                    var client = requestEntity.getClient();
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.postAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        AddCouponCodeRequest._resourcePath = new BillForward.ResourcePath('subscriptions', 'AddCouponCodeRequest');
+        return AddCouponCodeRequest;
+    })(BillForward.BillingEntity);
+    BillForward.AddCouponCodeRequest = AddCouponCodeRequest;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
