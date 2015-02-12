@@ -138,13 +138,15 @@ module BillForward {
 
           Client.mockableRequestWrapper(callVerb, callArgs)
           .then(obj => {
-            return this.successResponse(obj);
+              try {
+                var success = this.successResponse(obj);
+                return resolve(success);
+              } catch(e) {
+                return reject(e);
+              };
             })
           .catch(obj => {
-            return this.errorResponse(obj);
-            })
-          .catch(e => {
-            return reject(e);
+            return reject(this.errorResponse(obj));
             });
         } catch(e) {
           return reject(e);
