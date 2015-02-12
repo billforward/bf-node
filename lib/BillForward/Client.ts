@@ -140,15 +140,19 @@ module BillForward {
           .then(obj => {
               try {
                 var success = this.successResponse(obj);
+                console.log("QQQQQQ");
                 return resolve(success);
               } catch(e) {
+                console.log("AAAAAAA");
                 return reject(e);
               };
             })
           .catch(obj => {
+            console.log("BBBBBBBB");
             return reject(this.errorResponse(obj));
             });
         } catch(e) {
+          console.log("CCCCCCC");
           return reject(e);
         }
       });
@@ -157,15 +161,15 @@ module BillForward {
     static mockableRequestWrapper(callVerb:string, callArgs:Array<any>):any {
       return <Q.Promise<any>>Imports.Q.Promise((resolve, reject) => {
         try {
-          return Imports.restler[callVerb].apply(this, callArgs)
+          Imports.restler[callVerb].apply(this, callArgs)
           .on('success', (data, response) => {
-            return resolve({
+            resolve({
               data:data,
               response:response
               });
             })
           .on('fail', (data, response) => {
-            return reject({
+            reject({
               data:data,
               response:response
               });
