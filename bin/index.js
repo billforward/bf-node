@@ -91,8 +91,8 @@ var BillForward;
                     return resolve(Client.mockableRequestWrapper(callVerb, callArgs).then(function (obj) {
                         return _this.successResponse(obj);
                     }).catch(function (obj) {
-                        return reject(_this.errorResponse(obj));
-                    }));
+                        return _this.errorResponse(obj);
+                    }).done());
                 }
                 catch (e) {
                     return reject(e);

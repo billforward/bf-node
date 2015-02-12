@@ -141,8 +141,9 @@ module BillForward {
             return this.successResponse(obj);
             })
           .catch(obj => {
-            return reject(this.errorResponse(obj));
-            }));
+            return this.errorResponse(obj);
+            })
+          .done());
         } catch(e) {
           return reject(e);
         }
