@@ -247,7 +247,7 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var myClass = _this.getDerivedClassStatic();
-                    return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
+                    return resolve(myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client));
                 }
                 catch (e) {
                     return reject(e);

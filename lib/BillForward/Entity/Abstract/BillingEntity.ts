@@ -68,7 +68,7 @@ module BillForward {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
             try {
               var myClass = this.getDerivedClassStatic();
-              return myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client);
+              return resolve(myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client));
             } catch(e) {
                 return reject(e);
             }
