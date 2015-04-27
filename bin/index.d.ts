@@ -45,17 +45,17 @@ declare module BillForward {
         setClient(client: Client): void;
         protected static resolveRoute(endpoint?: string): string;
         protected static makeHttpPromise(verb: string, endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<any>;
-        protected static makeGetPromise(endpoint: string, queryParams: Object, client?: Client): Q.Promise<BillingEntity>;
-        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<BillingEntity>;
-        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<BillingEntity>;
+        protected static makeGetPromise(endpoint: string, queryParams: Object, client?: Client): Q.Promise<BillingEntity[]>;
+        protected static makePutPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<BillingEntity[]>;
+        protected static makePostPromise(endpoint: string, queryParams: Object, payload: Object, client?: Client): Q.Promise<BillingEntity[]>;
         protected static postEntityAndGrabFirst(endpoint: string, queryParams: Object, entity: BillingEntity, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
-        protected static postEntityAndGrabCollection(endpoint: string, queryParams: Object, entity: BillingEntity, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
+        protected static postEntityAndGrabCollection(endpoint: string, queryParams: Object, entity: BillingEntity, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         protected static postAndGrabFirst(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
-        protected static postAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
+        protected static postAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         protected static getAndGrabFirst(endpoint: string, queryParams: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
-        protected static getAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
+        protected static getAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         static getByID(id: string, queryParams?: Object, client?: Client): Q.Promise<BillingEntity>;
-        static getAll(queryParams?: Object, client?: Client): Q.Promise<BillingEntity>;
+        static getAll(queryParams?: Object, client?: Client): Q.Promise<BillingEntity[]>;
         static getResourcePath(): any;
         static getSingletonClient(): Client;
         static getDerivedClassStatic(): any;
@@ -285,12 +285,14 @@ declare module BillForward {
     class Product extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        getRatePlans(queryParams?: Object, client?: Client): Q.Promise<ProductRatePlan[]>;
     }
 }
 declare module BillForward {
     class ProductRatePlan extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        static getForProduct(product: EntityReference, queryParams?: Object, client?: Client): Q.Promise<ProductRatePlan[]>;
     }
 }
 declare module BillForward {

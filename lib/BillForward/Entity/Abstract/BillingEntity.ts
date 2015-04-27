@@ -1,6 +1,6 @@
 module BillForward {
 
-    export type EntityReference = string | BillingEntity;
+  export type EntityReference = string | BillingEntity;
 
   export class BillingEntity {
 
@@ -54,7 +54,7 @@ module BillForward {
     }
 
     protected static makeGetPromise(endpoint:string, queryParams:Object, client:Client = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
                 return resolve(myClass.makeHttpPromise("GET", endpoint, queryParams, null, client));
@@ -65,7 +65,7 @@ module BillForward {
     }
 
     protected static makePutPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
               var myClass = this.getDerivedClassStatic();
               return resolve(myClass.makeHttpPromise("PUT", endpoint, queryParams, payload, client));
@@ -76,7 +76,7 @@ module BillForward {
     }
 
     protected static makePostPromise(endpoint:string, queryParams:Object, payload:Object, client:Client = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
                 return resolve(myClass.makeHttpPromise("POST", endpoint, queryParams, payload, client));
@@ -99,7 +99,7 @@ module BillForward {
     }
 
     protected static postEntityAndGrabCollection(endpoint:string, queryParams:Object, entity:BillingEntity, client:Client = null, responseEntity:BillingEntity = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
                 var serial = entity.serialize();
@@ -128,7 +128,7 @@ module BillForward {
     }
 
     protected static postAndGrabCollection(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
                 var responseClass = responseEntity.getDerivedClass();
@@ -162,7 +162,7 @@ module BillForward {
     }
 
     protected static getAndGrabCollection(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
                 var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
@@ -191,7 +191,7 @@ module BillForward {
     }
 
     static getAll(queryParams:Object = {}, client:Client = null) {
-        return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();
                 var endpoint = "";

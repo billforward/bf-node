@@ -7,5 +7,9 @@ module BillForward {
         
         this.unserialize(stateParams);
     }
+
+    getRatePlans(queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Array<ProductRatePlan>>>ProductRatePlan.getForProduct(<BillingEntity>this, queryParams, client);
+    }
   }
 }

@@ -1309,6 +1309,11 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
+        Product.prototype.getRatePlans = function (queryParams, client) {
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.ProductRatePlan.getForProduct(this, queryParams, client);
+        };
         Product._resourcePath = new BillForward.ResourcePath('products', 'product');
         return Product;
     })(BillForward.MutableEntity);
@@ -1327,6 +1332,22 @@ var BillForward;
             this.registerEntity('product', BillForward.Product);
             this.unserialize(stateParams);
         }
+        ProductRatePlan.getForProduct = function (product, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var productIdentifier = BillForward.Product.getIdentifier(product);
+                    var endpoint = BillForward.Imports.util.format("product/%s", encodeURIComponent(productIdentifier));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         ProductRatePlan._resourcePath = new BillForward.ResourcePath('product-rate-plans', 'productRatePlan');
         return ProductRatePlan;
     })(BillForward.MutableEntity);
