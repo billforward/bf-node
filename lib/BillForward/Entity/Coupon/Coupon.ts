@@ -8,6 +8,17 @@ module BillForward {
         this.unserialize(stateParams);
     }
 
+    getBaseCode() {
+        if (!(<any>this).parentCouponCode) {
+            return (<any>this).parentCouponCode;
+        }
+        return (<any>this).couponCode;
+    }
+
+    getUnusedUniqueCodes(queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Array<CouponUniqueCodesResponse>>>this.getDerivedClass().getUnusedUniqueCodesFromBaseCode(this.getBaseCode(), queryParams, client);
+    }
+
     applyToSubscription(subscription:EntityReference) {
     	return <Q.Promise<Coupon>>Imports.Q.Promise((resolve, reject) => {
             try {
@@ -27,6 +38,23 @@ module BillForward {
     				AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription)
     				);
     		} catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    static getUnusedUniqueCodesFromBaseCode(baseCode:string, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Array<CouponUniqueCodesResponse>>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("%s/codes", encodeURIComponent(baseCode));
+
+                var responseEntity = new CouponUniqueCodesResponse();
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client, responseEntity)
+                    );
+            } catch(e) {
                 return reject(e);
             }
         });

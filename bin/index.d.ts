@@ -187,8 +187,11 @@ declare module BillForward {
     class Coupon extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        getBaseCode(): any;
+        getUnusedUniqueCodes(queryParams?: Object, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
         applyToSubscription(subscription: EntityReference): Q.Promise<Coupon>;
         applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference): Q.Promise<Coupon>;
+        static getUnusedUniqueCodesFromBaseCode(baseCode: string, queryParams?: Object, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
     }
 }
 declare module BillForward {
@@ -197,6 +200,11 @@ declare module BillForward {
         constructor(stateParams?: Object, client?: Client);
         static applyCouponToSubscription(coupon: Coupon, subscription: EntityReference): Q.Promise<Coupon>;
         static applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference): Q.Promise<Coupon>;
+    }
+}
+declare module BillForward {
+    class CouponUniqueCodesResponse extends BillingEntity {
+        constructor(stateParams?: Object, client?: Client);
     }
 }
 declare module BillForward {

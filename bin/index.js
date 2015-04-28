@@ -951,6 +951,17 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
+        Coupon.prototype.getBaseCode = function () {
+            if (!this.parentCouponCode) {
+                return this.parentCouponCode;
+            }
+            return this.couponCode;
+        };
+        Coupon.prototype.getUnusedUniqueCodes = function (queryParams, client) {
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return this.getDerivedClass().getUnusedUniqueCodesFromBaseCode(this.getBaseCode(), queryParams, client);
+        };
         Coupon.prototype.applyToSubscription = function (subscription) {
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
@@ -966,6 +977,22 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     return resolve(BillForward.AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Coupon.getUnusedUniqueCodesFromBaseCode = function (baseCode, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var endpoint = BillForward.Imports.util.format("%s/codes", encodeURIComponent(baseCode));
+                    var responseEntity = new BillForward.CouponUniqueCodesResponse();
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client, responseEntity));
                 }
                 catch (e) {
                     return reject(e);
@@ -1025,6 +1052,20 @@ var BillForward;
         return AddCouponCodeRequest;
     })(BillForward.BillingEntity);
     BillForward.AddCouponCodeRequest = AddCouponCodeRequest;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var CouponUniqueCodesResponse = (function (_super) {
+        __extends(CouponUniqueCodesResponse, _super);
+        function CouponUniqueCodesResponse(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        return CouponUniqueCodesResponse;
+    })(BillForward.BillingEntity);
+    BillForward.CouponUniqueCodesResponse = CouponUniqueCodesResponse;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
