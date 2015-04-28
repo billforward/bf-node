@@ -188,10 +188,12 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         getBaseCode(): any;
+        createUniqueCodes(quantity: number, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
         getUnusedUniqueCodes(queryParams?: Object, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
         applyToSubscription(subscription: EntityReference): Q.Promise<Coupon>;
         applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference): Q.Promise<Coupon>;
         static getUnusedUniqueCodesFromBaseCode(baseCode: string, queryParams?: Object, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
+        static createUniqueCodesFromBaseCode(baseCode: string, quantity: number, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
     }
 }
 declare module BillForward {

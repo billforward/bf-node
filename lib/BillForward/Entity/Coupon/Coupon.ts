@@ -15,6 +15,10 @@ module BillForward {
         return (<any>this).couponCode;
     }
 
+    createUniqueCodes(quantity:number, client:Client = null) {
+        return <Q.Promise<Array<CouponUniqueCodesResponse>>>this.getDerivedClass().createUniqueCodesFromBaseCode(this.getBaseCode(), quantity, client);
+    }
+
     getUnusedUniqueCodes(queryParams:Object = {}, client:Client = null) {
         return <Q.Promise<Array<CouponUniqueCodesResponse>>>this.getDerivedClass().getUnusedUniqueCodesFromBaseCode(this.getBaseCode(), queryParams, client);
     }
@@ -53,6 +57,28 @@ module BillForward {
                 var myClass = this.getDerivedClassStatic();
                 return resolve(
                     myClass.getAndGrabCollection(endpoint, queryParams, client, responseEntity)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    static createUniqueCodesFromBaseCode(baseCode:string, quantity:number, client:Client = null) {
+        return <Q.Promise<Array<CouponUniqueCodesResponse>>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var requestEntity = new Coupon({
+                    'quantity': quantity
+                    }, client);
+
+                var endpoint = Imports.util.format("%s/codes", encodeURIComponent(baseCode));
+
+                var responseEntity = new CouponUniqueCodesResponse();
+                var client = requestEntity.getClient();
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity)
                     );
             } catch(e) {
                 return reject(e);

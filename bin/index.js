@@ -957,6 +957,10 @@ var BillForward;
             }
             return this.couponCode;
         };
+        Coupon.prototype.createUniqueCodes = function (quantity, client) {
+            if (client === void 0) { client = null; }
+            return this.getDerivedClass().createUniqueCodesFromBaseCode(this.getBaseCode(), quantity, client);
+        };
         Coupon.prototype.getUnusedUniqueCodes = function (queryParams, client) {
             if (queryParams === void 0) { queryParams = {}; }
             if (client === void 0) { client = null; }
@@ -993,6 +997,25 @@ var BillForward;
                     var responseEntity = new BillForward.CouponUniqueCodesResponse();
                     var myClass = _this.getDerivedClassStatic();
                     return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Coupon.createUniqueCodesFromBaseCode = function (baseCode, quantity, client) {
+            var _this = this;
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var requestEntity = new Coupon({
+                        'quantity': quantity
+                    }, client);
+                    var endpoint = BillForward.Imports.util.format("%s/codes", encodeURIComponent(baseCode));
+                    var responseEntity = new BillForward.CouponUniqueCodesResponse();
+                    var client = requestEntity.getClient();
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
                 }
                 catch (e) {
                     return reject(e);
