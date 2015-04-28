@@ -110,7 +110,7 @@ module.exports = function(Q, _, config) {
 		// one more long-running test is being added to the test-run
 		globalKeepAlive += keepAlive;
 		return globalKeepAlive;
-	};;
+	};
 
 	utils.webhookListener = listener;
 	utils.WebHookFilter = WebHookFilter;
