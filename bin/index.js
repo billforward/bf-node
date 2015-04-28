@@ -95,12 +95,15 @@ var BillForward;
                         callVerb += "Json";
                         callArgs.splice(1, 0, json);
                     }
-                    return Client.mockableRequestWrapper(callVerb, callArgs).catch(function (obj) {
+                    return Client.mockableRequestWrapper(callVerb, callArgs)
+                        .catch(function (obj) {
                         return _this.errorResponse(obj);
-                    }).then(function (obj) {
+                    })
+                        .then(function (obj) {
                         var success = _this.successResponse(obj);
                         return resolve(success);
-                    }).catch(function (obj) {
+                    })
+                        .catch(function (obj) {
                         return reject(obj);
                     });
                 }
@@ -113,12 +116,14 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return BillForward.Imports.restler[callVerb].apply(_this, callArgs).on('success', function (data, response) {
+                    return BillForward.Imports.restler[callVerb].apply(_this, callArgs)
+                        .on('success', function (data, response) {
                         return resolve({
                             data: data,
                             response: response
                         });
-                    }).on('fail', function (data, response) {
+                    })
+                        .on('fail', function (data, response) {
                         return reject({
                             data: data,
                             response: response
@@ -305,7 +310,8 @@ var BillForward;
                 try {
                     var myClass = _this.getDerivedClassStatic();
                     var responseClass = responseEntity.getDerivedClass();
-                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client).then(function (payload) {
+                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client)
+                        .then(function (payload) {
                         return responseClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }
@@ -322,7 +328,8 @@ var BillForward;
                 try {
                     var myClass = _this.getDerivedClassStatic();
                     var responseClass = responseEntity.getDerivedClass();
-                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client).then(function (payload) {
+                    return resolve(myClass.makePostPromise(endpoint, queryParams, payload, client)
+                        .then(function (payload) {
                         return responseClass.getAllEntitiesFromResponse(payload, client);
                     }));
                 }
@@ -339,7 +346,8 @@ var BillForward;
                 try {
                     var myClass = _this.getDerivedClassStatic();
                     var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
-                    return resolve(myClass.makeGetPromise(endpoint, queryParams, client).then(function (payload) {
+                    return resolve(myClass.makeGetPromise(endpoint, queryParams, client)
+                        .then(function (payload) {
                         return responseClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }
@@ -356,7 +364,8 @@ var BillForward;
                 try {
                     var myClass = _this.getDerivedClassStatic();
                     var responseClass = responseEntity ? responseEntity.getDerivedClass() : myClass;
-                    return resolve(myClass.makeGetPromise(endpoint, queryParams, client).then(function (payload) {
+                    return resolve(myClass.makeGetPromise(endpoint, queryParams, client)
+                        .then(function (payload) {
                         return responseClass.getAllEntitiesFromResponse(payload, client);
                     }));
                 }
@@ -574,7 +583,8 @@ var BillForward;
                     var entityClass = _this.getDerivedClassStatic();
                     var client = entity.getClient();
                     var payload = entity.serialize();
-                    return resolve(entityClass.makePostPromise("", null, payload, client).then(function (payload) {
+                    return resolve(entityClass.makePostPromise("", null, payload, client)
+                        .then(function (payload) {
                         return entityClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }
@@ -603,7 +613,8 @@ var BillForward;
                     var entityClass = _this.getDerivedClass();
                     var client = _this.getClient();
                     var payload = _this.serialize();
-                    return resolve(entityClass.makePutPromise("", null, payload, client).then(function (payload) {
+                    return resolve(entityClass.makePutPromise("", null, payload, client)
+                        .then(function (payload) {
                         return entityClass.getFirstEntityFromResponse(payload, client);
                     }));
                 }
@@ -743,7 +754,8 @@ var BillForward;
         };
         Amendment.prototype.discard = function (actioningTime) {
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            return BillForward.AmendmentDiscardAmendment.construct(this, actioningTime).then(function (amendment) {
+            return BillForward.AmendmentDiscardAmendment.construct(this, actioningTime)
+                .then(function (amendment) {
                 return BillForward.AmendmentDiscardAmendment.create(amendment);
             });
         };
@@ -759,7 +771,8 @@ var BillForward;
                         if (!subscription) {
                             throw new BillForward.BFInvocationError("Failed to consult subscription to ascertain AtPeriodEnd time, because a null reference was provided to the subscription.");
                         }
-                        return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) { return subscription.getCurrentPeriodEnd; }));
+                        return resolve(BillForward.Subscription.fetchIfNecessary(subscription)
+                            .then(function (subscription) { return subscription.getCurrentPeriodEnd; }));
                     }
                     return resolve(date);
                 }
@@ -774,7 +787,8 @@ var BillForward;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var entityClass = _this.getDerivedClass();
-                    return resolve(entityClass.parseActioningTime(actioningTime, subscription).then(function (parsedActioningTime) {
+                    return resolve(entityClass.parseActioningTime(actioningTime, subscription)
+                        .then(function (parsedActioningTime) {
                         if (parsedActioningTime !== null) {
                             _this.actioningTime = parsedActioningTime;
                         }
@@ -806,7 +820,8 @@ var BillForward;
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return resolve(BillForward.Amendment.fetchIfNecessary(amendment).then(function (amendment) {
+                    return resolve(BillForward.Amendment.fetchIfNecessary(amendment)
+                        .then(function (amendment) {
                         var discardModel = new AmendmentDiscardAmendment({
                             'amendmentToDiscardID': amendment.id,
                             'subscriptionID': amendment.subscriptionID
@@ -840,11 +855,12 @@ var BillForward;
             this.unserialize(stateParams);
         }
         CancellationAmendment.construct = function (subscription, serviceEnd, actioningTime) {
-            if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
+            if (serviceEnd === void 0) { serviceEnd = ServiceEndState.AtPeriodEnd; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return resolve(BillForward.Subscription.fetchIfNecessary(subscription).then(function (subscription) {
+                    return resolve(BillForward.Subscription.fetchIfNecessary(subscription)
+                        .then(function (subscription) {
                         var amendment = new CancellationAmendment({
                             'subscriptionID': subscription.id,
                             'serviceEnd': serviceEnd
@@ -885,12 +901,13 @@ var BillForward;
             this.unserialize(stateParams);
         }
         InvoiceRecalculationAmendment.construct = function (invoice, newInvoiceState, recalculationBehaviour, actioningTime) {
-            if (newInvoiceState === void 0) { newInvoiceState = 2 /* Pending */; }
-            if (recalculationBehaviour === void 0) { recalculationBehaviour = 0 /* RecalculateAsLatestSubscriptionVersion */; }
+            if (newInvoiceState === void 0) { newInvoiceState = InvoiceState.Pending; }
+            if (recalculationBehaviour === void 0) { recalculationBehaviour = InvoiceRecalculationBehaviour.RecalculateAsLatestSubscriptionVersion; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice).then(function (invoice) {
+                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice)
+                        .then(function (invoice) {
                         var amendment = new InvoiceRecalculationAmendment({
                             'invoiceID': invoice.id,
                             'subscriptionID': invoice.subscriptionID
@@ -924,7 +941,8 @@ var BillForward;
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice).then(function (invoice) {
+                    return resolve(BillForward.Invoice.fetchIfNecessary(invoice)
+                        .then(function (invoice) {
                         var amendment = new IssueInvoiceAmendment({
                             'invoiceID': invoice.id,
                             'subscriptionID': invoice.subscriptionID
@@ -966,26 +984,13 @@ var BillForward;
             if (client === void 0) { client = null; }
             return this.getDerivedClass().getUnusedUniqueCodesFromBaseCode(this.getBaseCode(), queryParams, client);
         };
-        Coupon.prototype.applyToSubscription = function (subscription) {
-            var _this = this;
-            return BillForward.Imports.Q.Promise(function (resolve, reject) {
-                try {
-                    return resolve(BillForward.AddCouponCodeRequest.applyCouponToSubscription(_this, subscription));
-                }
-                catch (e) {
-                    return reject(e);
-                }
-            });
+        Coupon.prototype.applyToSubscription = function (subscription, client) {
+            if (client === void 0) { client = null; }
+            return this.getDerivedClass().applyCouponCodeToSubscription(this.getBaseCode(), subscription, client);
         };
-        Coupon.prototype.applyCouponCodeToSubscription = function (couponCode, subscription) {
-            return BillForward.Imports.Q.Promise(function (resolve, reject) {
-                try {
-                    return resolve(BillForward.AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription));
-                }
-                catch (e) {
-                    return reject(e);
-                }
-            });
+        Coupon.applyCouponCodeToSubscription = function (couponCode, subscription, client) {
+            if (client === void 0) { client = null; }
+            return BillForward.AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription, client);
         };
         Coupon.getUnusedUniqueCodesFromBaseCode = function (baseCode, queryParams, client) {
             var _this = this;
@@ -1037,34 +1042,24 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
-        AddCouponCodeRequest.applyCouponToSubscription = function (coupon, subscription) {
+        AddCouponCodeRequest.applyCouponToSubscription = function (coupon, subscription, client) {
+            if (client === void 0) { client = null; }
+            return this.getDerivedClassStatic().applyCouponCodeToSubscription(coupon.getBaseCode(), subscription, client);
+        };
+        AddCouponCodeRequest.applyCouponCodeToSubscription = function (couponCode, subscription, client) {
             var _this = this;
+            if (client === void 0) { client = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
                     var requestEntity = new BillForward.Coupon({
-                        'couponCode': coupon.couponCode
-                    }, coupon.getClient());
+                        couponCode: couponCode
+                    }, client);
                     var subscriptionIdentifier = BillForward.Subscription.getIdentifier(subscription);
                     var endpoint = BillForward.Imports.util.format("%s/coupons", encodeURIComponent(subscriptionIdentifier));
                     var responseEntity = new BillForward.Coupon();
                     var client = requestEntity.getClient();
                     var myClass = _this.getDerivedClassStatic();
                     return resolve(myClass.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
-                }
-                catch (e) {
-                    return reject(e);
-                }
-            });
-        };
-        AddCouponCodeRequest.applyCouponCodeToSubscription = function (couponCode, subscription) {
-            var _this = this;
-            return BillForward.Imports.Q.Promise(function (resolve, reject) {
-                try {
-                    var coupon = new BillForward.Coupon({
-                        couponCode: couponCode
-                    });
-                    var myClass = _this.getDerivedClassStatic();
-                    return resolve(myClass.applyCouponToSubscription(coupon, subscription));
                 }
                 catch (e) {
                     return reject(e);
@@ -1086,6 +1081,13 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
+        CouponUniqueCodesResponse.prototype.getBaseCode = function () {
+            return this.couponCode;
+        };
+        CouponUniqueCodesResponse.prototype.applyToSubscription = function (subscription, client) {
+            if (client === void 0) { client = null; }
+            return BillForward.Coupon.applyCouponCodeToSubscription(this.getBaseCode(), subscription, client);
+        };
         return CouponUniqueCodesResponse;
     })(BillForward.BillingEntity);
     BillForward.CouponUniqueCodesResponse = CouponUniqueCodesResponse;
@@ -1154,10 +1156,12 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return resolve(BillForward.Subscription.fetchIfNecessary(_this.subscriptionID).then(function (subscription) {
+                    return resolve(BillForward.Subscription.fetchIfNecessary(_this.subscriptionID)
+                        .then(function (subscription) {
                         var appliesTil = _this.periodStart;
                         return subscription.modifyUsageHelper(componentNamesToValues, appliesTil);
-                    }).then(function () {
+                    })
+                        .then(function () {
                         return _this;
                     }));
                 }
@@ -1168,15 +1172,17 @@ var BillForward;
         };
         Invoice.prototype.issue = function (actioningTime) {
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            return BillForward.IssueInvoiceAmendment.construct(this, actioningTime).then(function (amendment) {
+            return BillForward.IssueInvoiceAmendment.construct(this, actioningTime)
+                .then(function (amendment) {
                 return BillForward.IssueInvoiceAmendment.create(amendment);
             });
         };
         Invoice.prototype.recalculate = function (newInvoiceState, recalculationBehaviour, actioningTime) {
-            if (newInvoiceState === void 0) { newInvoiceState = 2 /* Pending */; }
-            if (recalculationBehaviour === void 0) { recalculationBehaviour = 0 /* RecalculateAsLatestSubscriptionVersion */; }
+            if (newInvoiceState === void 0) { newInvoiceState = BillForward.InvoiceState.Pending; }
+            if (recalculationBehaviour === void 0) { recalculationBehaviour = BillForward.InvoiceRecalculationBehaviour.RecalculateAsLatestSubscriptionVersion; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            return BillForward.InvoiceRecalculationAmendment.construct(this, newInvoiceState, recalculationBehaviour, actioningTime).then(function (amendment) {
+            return BillForward.InvoiceRecalculationAmendment.construct(this, newInvoiceState, recalculationBehaviour, actioningTime)
+                .then(function (amendment) {
                 return BillForward.InvoiceRecalculationAmendment.create(amendment);
             });
         };
@@ -1466,15 +1472,17 @@ var BillForward;
             return this.save();
         };
         Subscription.prototype.cancel = function (serviceEnd, actioningTime) {
-            if (serviceEnd === void 0) { serviceEnd = 0 /* AtPeriodEnd */; }
+            if (serviceEnd === void 0) { serviceEnd = BillForward.ServiceEndState.AtPeriodEnd; }
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
-            return BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime).then(function (amendment) {
+            return BillForward.CancellationAmendment.construct(this, serviceEnd, actioningTime)
+                .then(function (amendment) {
                 return BillForward.CancellationAmendment.create(amendment);
             });
         };
         Subscription.prototype.usePaymentMethodsFromAccountByID = function (accountID) {
             var _this = this;
-            return BillForward.Account.getByID(accountID).then(function (account) {
+            return BillForward.Account.getByID(accountID)
+                .then(function (account) {
                 return _this.usePaymentMethodsFromAccount(account);
             });
         };
@@ -1509,7 +1517,8 @@ var BillForward;
         };
         Subscription.prototype.useValuesForNamedPricingComponentsOnRatePlanByID = function (ratePlanID, componentNamesToValues) {
             var _this = this;
-            return BillForward.ProductRatePlan.getByID(ratePlanID).then(function (ratePlan) {
+            return BillForward.ProductRatePlan.getByID(ratePlanID)
+                .then(function (ratePlan) {
                 return _this.useValuesForNamedPricingComponentsOnRatePlan(ratePlan, componentNamesToValues);
             });
         };
@@ -1570,7 +1579,8 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    return resolve(_this.modifyUsageHelper(componentNamesToValues).then(function () {
+                    return resolve(_this.modifyUsageHelper(componentNamesToValues)
+                        .then(function () {
                         return Subscription.getByID(_this.id);
                     }));
                 }
@@ -1601,7 +1611,8 @@ var BillForward;
                             subscriptionID: _this.id
                         });
                     };
-                    return resolve(_this.getRatePlan().then(function (ratePlan) {
+                    return resolve(_this.getRatePlan()
+                        .then(function (ratePlan) {
                         var pricingComponents = ratePlan.pricingComponents;
                         return BillForward.Imports.Q.all(BillForward.Imports._.map(BillForward.Imports._.map(BillForward.Imports._.keys(componentNamesToValues), function (key) {
                             var mappedValue = componentNamesToValues[key];
@@ -1815,5 +1826,6 @@ var BillForward;
     })();
     BillForward.MixinHandler = MixinHandler;
 })(BillForward || (BillForward = {}));
+///<reference path='../typings/tsd.d.ts' />
 module.exports = BillForward;
 //# sourceMappingURL=index.js.map

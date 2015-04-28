@@ -23,28 +23,12 @@ module BillForward {
         return <Q.Promise<Array<CouponUniqueCodesResponse>>>this.getDerivedClass().getUnusedUniqueCodesFromBaseCode(this.getBaseCode(), queryParams, client);
     }
 
-    applyToSubscription(subscription:EntityReference) {
-    	return <Q.Promise<Coupon>>Imports.Q.Promise((resolve, reject) => {
-            try {
-    			return resolve(
-    				AddCouponCodeRequest.applyCouponToSubscription(this, subscription)
-    				);
-    		} catch(e) {
-                return reject(e);
-            }
-        });
+    applyToSubscription(subscription:EntityReference, client:Client = null) {
+        return <Q.Promise<Coupon>>this.getDerivedClass().applyCouponCodeToSubscription(this.getBaseCode(), subscription, client);
     }
 
-    applyCouponCodeToSubscription(couponCode:string, subscription:EntityReference) {
-    	return <Q.Promise<Coupon>>Imports.Q.Promise((resolve, reject) => {
-            try {
-    			return resolve(
-    				AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription)
-    				);
-    		} catch(e) {
-                return reject(e);
-            }
-        });
+    static applyCouponCodeToSubscription(couponCode:string, subscription:EntityReference, client:Client = null) {
+        return <Q.Promise<Coupon>>AddCouponCodeRequest.applyCouponCodeToSubscription(couponCode, subscription, client);
     }
 
     static getUnusedUniqueCodesFromBaseCode(baseCode:string, queryParams:Object = {}, client:Client = null) {

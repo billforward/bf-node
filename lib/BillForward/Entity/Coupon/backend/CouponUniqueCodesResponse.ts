@@ -5,6 +5,14 @@ module BillForward {
 	        
 	        this.unserialize(stateParams);
 	    }
-		
+
+	    getBaseCode() {
+	        return (<any>this).couponCode;
+	    }
+
+	    applyToSubscription(subscription:EntityReference, client:Client = null) {
+	    	return <Q.Promise<Coupon>>Coupon.applyCouponCodeToSubscription(this.getBaseCode(), subscription, client);
+	    }
+
 	}
 }

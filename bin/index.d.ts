@@ -190,8 +190,8 @@ declare module BillForward {
         getBaseCode(): any;
         createUniqueCodes(quantity: number, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
         getUnusedUniqueCodes(queryParams?: Object, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
-        applyToSubscription(subscription: EntityReference): Q.Promise<Coupon>;
-        applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference): Q.Promise<Coupon>;
+        applyToSubscription(subscription: EntityReference, client?: Client): Q.Promise<Coupon>;
+        static applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference, client?: Client): Q.Promise<Coupon>;
         static getUnusedUniqueCodesFromBaseCode(baseCode: string, queryParams?: Object, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
         static createUniqueCodesFromBaseCode(baseCode: string, quantity: number, client?: Client): Q.Promise<CouponUniqueCodesResponse[]>;
     }
@@ -200,13 +200,15 @@ declare module BillForward {
     class AddCouponCodeRequest extends BillingEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
-        static applyCouponToSubscription(coupon: Coupon, subscription: EntityReference): Q.Promise<Coupon>;
-        static applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference): Q.Promise<Coupon>;
+        static applyCouponToSubscription(coupon: Coupon, subscription: EntityReference, client?: Client): Q.Promise<Coupon>;
+        static applyCouponCodeToSubscription(couponCode: string, subscription: EntityReference, client?: Client): Q.Promise<Coupon>;
     }
 }
 declare module BillForward {
     class CouponUniqueCodesResponse extends BillingEntity {
         constructor(stateParams?: Object, client?: Client);
+        getBaseCode(): any;
+        applyToSubscription(subscription: EntityReference, client?: Client): Q.Promise<Coupon>;
     }
 }
 declare module BillForward {

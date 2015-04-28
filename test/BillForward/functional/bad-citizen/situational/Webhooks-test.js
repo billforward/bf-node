@@ -4,15 +4,21 @@ var BillForward = testBase.BillForward;
 
 var Q = testBase.Q;
 
+var getNewTimeout;
+var webhookListener;
+var WebHookFilter;
 if (testBase.enableWebhooksTests) {
-	var keepAlive = testBase.keepAlive;
-	var webhookListener = testBase.webhookListener;
-	// var WebHookFilter = testBase.WebHookFilter;
+	// var keepAlive = testBase.keepAlive;
+	webhookListener = testBase.webhookListener;
+	WebHookFilter = testBase.WebHookFilter;
+	getNewTimeout = testBase.getIncrementedGlobalKeepAlive;
 }
 
 context(testBase.getContext(), function () {
 	(testBase.enableWebhooksTests ? context : context.skip)('Listening for webhooks', function() {
-  		this.timeout(keepAlive);
+		if (getNewTimeout) {
+			this.timeout(getNewTimeout());
+		}
   		context('Webhook triggered manually', function() {
 			describe('The webhook server', function() {
 				var callback;

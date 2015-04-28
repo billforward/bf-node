@@ -7,13 +7,14 @@ var Q = testBase.Q;
 var _ = testBase._;
 var moment = testBase.moment;
 
+var getNewTimeout;
+var webhookListener;
+var WebHookFilter;
 if (testBase.enableWebhooksTests) {
 	// var keepAlive = testBase.keepAlive;
-	var webhookListener = testBase.webhookListener;
-	var WebHookFilter = testBase.WebHookFilter;
-	var getNewTimeout = testBase.getIncrementedGlobalKeepAlive;
-} else {
-	getNewTimeout = function() {};
+	webhookListener = testBase.webhookListener;
+	WebHookFilter = testBase.WebHookFilter;
+	getNewTimeout = testBase.getIncrementedGlobalKeepAlive;
 }
 
 context(testBase.getContext(), function () {
@@ -166,7 +167,9 @@ context(testBase.getContext(), function () {
 						.should.be.fulfilled;
 					});
 					(testBase.enableWebhooksTests ? context : context.skip)('Webhooks permitting', function() {
-				  		this.timeout(getNewTimeout());
+				  		if (getNewTimeout) {
+							this.timeout(getNewTimeout());
+						}
 						describe('The subscription', function() {
 							var parentClosure = {
 								promises: promises
@@ -226,7 +229,9 @@ context(testBase.getContext(), function () {
 								.should.be.fulfilled;
 							});
 							context("once active", function() {
-								this.timeout(getNewTimeout());
+								if (getNewTimeout) {
+									this.timeout(getNewTimeout());
+								}
 
 								// var actioningTime = moment().add(1, 'month').toDate();
 								var actioningTime = moment().toDate();
@@ -259,7 +264,9 @@ context(testBase.getContext(), function () {
 									.should.be.fulfilled;
 								});
 								/*context("future cancellation queued", function() {
-									this.timeout(getNewTimeout());
+									if (getNewTimeout) {
+										this.timeout(getNewTimeout());
+									}
 									var parentClosure = {
 										callbacks: callbacks,
 										webhookFilters: webhookFilters,
