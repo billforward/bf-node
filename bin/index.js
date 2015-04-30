@@ -1406,21 +1406,16 @@ var BillForward;
             var _this = this;
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    var promise;
-                    if (_this.product) {
-                        promise = BillForward.Imports.Q.when(_this.product);
-                    }
-                    else {
-                        if (!_this.productID) {
-                            throw new BillForward.BFPreconditionFailedError("This ProductRatePlan has neither a 'product' specified, nor a 'productID' by which to obtain said product.");
-                        }
-                        promise = BillForward.Product.getByID(_this.productID)
-                            .then(function (product) {
-                            _this.product = product;
-                            return _this.product;
-                        });
-                    }
-                    return resolve(promise);
+                    var ref;
+                    if (_this.productID)
+                        ref = _this.productID;
+                    if (_this.product)
+                        ref = _this.product;
+                    return resolve(BillForward.Product.fetchIfNecessary(ref)
+                        .then(function (product) {
+                        _this.product = product;
+                        return _this.product;
+                    }));
                 }
                 catch (e) {
                     return reject(e);
@@ -1593,7 +1588,11 @@ var BillForward;
                         ref = _this.productRatePlanID;
                     if (_this.productRatePlan)
                         ref = _this.productRatePlan;
-                    return resolve(BillForward.ProductRatePlan.fetchIfNecessary(ref));
+                    return resolve(BillForward.ProductRatePlan.fetchIfNecessary(ref)
+                        .then(function (productRatePlan) {
+                        _this.productRatePlan = productRatePlan;
+                        return _this.productRatePlan;
+                    }));
                 }
                 catch (e) {
                     return reject(e);

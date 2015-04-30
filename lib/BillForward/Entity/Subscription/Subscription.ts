@@ -139,7 +139,13 @@ module BillForward {
                 if ((<any>this).productRatePlan)
                 ref = (<any>this).productRatePlan;
 
-                return resolve(ProductRatePlan.fetchIfNecessary(ref));
+                return resolve(ProductRatePlan.fetchIfNecessary(ref)
+                    .then((productRatePlan) => {
+                        // cache because why not
+                        (<any>this).productRatePlan = productRatePlan;
+                        return (<any>this).productRatePlan;
+                        })
+                    );
             } catch(e) {
                 return reject(e);
             }

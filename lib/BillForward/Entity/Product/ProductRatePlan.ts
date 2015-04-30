@@ -15,20 +15,21 @@ module BillForward {
     getProduct() {
         return <Q.Promise<Product>>Imports.Q.Promise((resolve, reject) => {
             try {
-                var promise;
-                if ((<any>this).product) {
-                    promise = Imports.Q.when((<any>this).product);
-                } else {
-                    if (!(<any>this).productID) {
-                        throw new BFPreconditionFailedError("This ProductRatePlan has neither a 'product' specified, nor a 'productID' by which to obtain said product.");
-                    }
-                    promise = Product.getByID((<any>this).productID)
+                var ref:EntityReference;
+                // could use ID
+                if ((<any>this).productID)
+                ref = (<any>this).productID;
+                // prefer product entity if present
+                if ((<any>this).product)
+                ref = (<any>this).product;
+
+                return resolve(Product.fetchIfNecessary(ref)
                     .then((product) => {
+                        // cache because why not
                         (<any>this).product = product;
                         return (<any>this).product;
-                        });
-                }
-                return resolve(promise);
+                        })
+                    );
             } catch(e) {
                 return reject(e);
             }
