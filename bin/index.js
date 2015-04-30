@@ -1402,6 +1402,31 @@ var BillForward;
             this.registerEntity('product', BillForward.Product);
             this.unserialize(stateParams);
         }
+        ProductRatePlan.prototype.getProduct = function () {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var promise;
+                    if (_this.product) {
+                        promise = BillForward.Imports.Q.when(_this.product);
+                    }
+                    else {
+                        if (!_this.productID) {
+                            throw new BillForward.BFPreconditionFailedError("This ProductRatePlan has neither a 'product' specified, nor a 'productID' by which to obtain said product.");
+                        }
+                        promise = BillForward.Product.getByID(_this.productID)
+                            .then(function (product) {
+                            _this.product = product;
+                            return _this.product;
+                        });
+                    }
+                    return resolve(promise);
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         ProductRatePlan.getForProduct = function (product, queryParams, client) {
             var _this = this;
             if (queryParams === void 0) { queryParams = {}; }

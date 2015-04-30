@@ -341,7 +341,7 @@ module BillForward {
      * Fetches (if necessary) entity by ID from API.
      * Otherwise returns entity as-is.
      * @param mixed ENUM[string id, BillingEntity entity] Reference to the entity. <id>: Fetches entity by ID. <entity>: Returns entity as-is.
-     * @return static The gotten entity.
+     * @return Q.Promise<static> The gotten entity.
      */
     static fetchIfNecessary(entityReference: EntityReference): Q.Promise<BillingEntity> {
         return <Q.Promise<BillingEntity>>Imports.Q.Promise((resolve, reject) => {

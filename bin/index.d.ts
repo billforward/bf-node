@@ -304,6 +304,7 @@ declare module BillForward {
     class ProductRatePlan extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        getProduct(): Q.Promise<Product>;
         static getForProduct(product: EntityReference, queryParams?: Object, client?: Client): Q.Promise<ProductRatePlan[]>;
     }
 }
