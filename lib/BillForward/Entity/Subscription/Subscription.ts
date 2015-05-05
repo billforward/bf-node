@@ -31,7 +31,7 @@ module BillForward {
     static getByState(state:SubscriptionState, queryParams:Object = {}, client:Client = null) {
         return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
             try {
-                var endpoint = Imports.util.format("state/%s", encodeURIComponent(state.toString()));
+                var endpoint = Imports.util.format("state/%s", encodeURIComponent(SubscriptionState[state]));
 
                 var myClass = this.getDerivedClassStatic();
                 return resolve(

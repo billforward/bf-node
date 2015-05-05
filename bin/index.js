@@ -1503,7 +1503,7 @@ var BillForward;
             if (client === void 0) { client = null; }
             return BillForward.Imports.Q.Promise(function (resolve, reject) {
                 try {
-                    var endpoint = BillForward.Imports.util.format("state/%s", encodeURIComponent(state.toString()));
+                    var endpoint = BillForward.Imports.util.format("state/%s", encodeURIComponent(SubscriptionState[state]));
                     var myClass = _this.getDerivedClassStatic();
                     return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
                 }
