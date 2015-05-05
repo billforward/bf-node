@@ -1,4 +1,14 @@
 module BillForward {
+    export enum SubscriptionState {
+        Trial,
+        Provisioned,
+        Paid,
+        AwaitingPayment,
+        Cancelled,
+        Failed,
+        Expired
+    }
+
   export class Subscription extends MutableEntity {
     protected static _resourcePath = new ResourcePath('subscriptions', 'subscription');
 
@@ -11,6 +21,26 @@ module BillForward {
         
         this.registerEntity('productRatePlan', ProductRatePlan);
         this.unserialize(stateParams);
+    }
+
+    /**
+     * Gets Subscriptions by the specified state
+     * @param ENUM['Trial', 'Provisioned', 'Paid', 'AwaitingPayment', 'Cancelled', 'Failed', 'Expired'] (ENUM: BillForward.SubscriptionState) Subscription state upon which to query.
+     * @return Q.Promise<Subscription[]> The fetched Subscriptions.
+     */
+    static getByState(state:SubscriptionState, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("state/%s", encodeURIComponent(state.toString()));
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
     }
 
     /**

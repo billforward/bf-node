@@ -1475,6 +1475,16 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    (function (SubscriptionState) {
+        SubscriptionState[SubscriptionState["Trial"] = 0] = "Trial";
+        SubscriptionState[SubscriptionState["Provisioned"] = 1] = "Provisioned";
+        SubscriptionState[SubscriptionState["Paid"] = 2] = "Paid";
+        SubscriptionState[SubscriptionState["AwaitingPayment"] = 3] = "AwaitingPayment";
+        SubscriptionState[SubscriptionState["Cancelled"] = 4] = "Cancelled";
+        SubscriptionState[SubscriptionState["Failed"] = 5] = "Failed";
+        SubscriptionState[SubscriptionState["Expired"] = 6] = "Expired";
+    })(BillForward.SubscriptionState || (BillForward.SubscriptionState = {}));
+    var SubscriptionState = BillForward.SubscriptionState;
     var Subscription = (function (_super) {
         __extends(Subscription, _super);
         function Subscription(stateParams, client) {
@@ -1487,6 +1497,21 @@ var BillForward;
             this.registerEntity('productRatePlan', BillForward.ProductRatePlan);
             this.unserialize(stateParams);
         }
+        Subscription.getByState = function (state, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var endpoint = BillForward.Imports.util.format("state/%s", encodeURIComponent(state.toString()));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Subscription.prototype.activate = function () {
             this.state = 'AwaitingPayment';
             return this.save();

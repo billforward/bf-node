@@ -321,9 +321,19 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    enum SubscriptionState {
+        Trial = 0,
+        Provisioned = 1,
+        Paid = 2,
+        AwaitingPayment = 3,
+        Cancelled = 4,
+        Failed = 5,
+        Expired = 6,
+    }
     class Subscription extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        static getByState(state: SubscriptionState, queryParams?: Object, client?: Client): Q.Promise<Invoice>;
         activate(): Q.Promise<any>;
         cancel(serviceEnd?: ServiceEndState, actioningTime?: ActioningTime): Q.Promise<CancellationAmendment>;
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
