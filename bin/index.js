@@ -657,6 +657,20 @@ var BillForward;
             this.registerEntity('profile', BillForward.Profile);
             this.unserialize(stateParams);
         }
+        Account.prototype.issueCredit = function (value, currency, description) {
+            var _this = this;
+            if (currency === void 0) { currency = null; }
+            if (description === void 0) { description = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var creditNote = BillForward.CreditNote.construct(value, currency, description);
+                    return resolve(creditNote.issueToAccount(_this));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
         return Account;
     })(BillForward.MutableEntity);
@@ -687,6 +701,50 @@ var BillForward;
             _super.call(this, stateParams, client);
             this.unserialize(stateParams);
         }
+        CreditNote.construct = function (value, currency, description) {
+            if (currency === void 0) { currency = null; }
+            if (description === void 0) { description = null; }
+            var stateParams = {
+                nominalValue: value,
+            };
+            if (currency) {
+                stateParams.currency = currency;
+            }
+            if (description) {
+                stateParams.description = description;
+            }
+            return new CreditNote(stateParams);
+        };
+        CreditNote.prototype.issueToSubscription = function (subscription) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var requestEntity = _this;
+                    var endpoint = BillForward.Imports.util.format("%s/credit", encodeURIComponent(BillForward.Subscription.getIdentifier(subscription)));
+                    var responseEntity = new CreditNote();
+                    var client = requestEntity.getClient();
+                    return resolve(BillForward.Subscription.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        CreditNote.prototype.issueToAccount = function (account) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var requestEntity = _this;
+                    var endpoint = BillForward.Imports.util.format("%s/credit", encodeURIComponent(BillForward.Account.getIdentifier(account)));
+                    var responseEntity = new CreditNote();
+                    var client = requestEntity.getClient();
+                    return resolve(BillForward.Account.postEntityAndGrabFirst(endpoint, null, requestEntity, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         CreditNote._resourcePath = new BillForward.ResourcePath('credit-notes', 'creditNote');
         return CreditNote;
     })(BillForward.MutableEntity);
@@ -1677,6 +1735,19 @@ var BillForward;
                             return BillForward.PricingComponentValue.create(pricingComponentValueModel);
                         }));
                     }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
+        Subscription.prototype.issueCredit = function (value, description) {
+            var _this = this;
+            if (description === void 0) { description = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var creditNote = BillForward.CreditNote.construct(value, null, description);
+                    return resolve(creditNote.issueToSubscription(_this));
                 }
                 catch (e) {
                     return reject(e);

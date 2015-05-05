@@ -263,5 +263,22 @@ module BillForward {
             }
         });
     }
+
+    /**
+     * Issues to this subscription a credit note of the specified value, in the currency of this subscription's rate plan.
+     * @param number Nominal value of credit note
+     * @param string Description of the credit awarded
+     * @return CreditNote the modelled credit note
+     */
+    issueCredit(value:number, description:string = null):Q.Promise<CreditNote> {
+        return Imports.Q.Promise((resolve, reject) => {
+            try {
+                var creditNote = CreditNote.construct(value, null, description);
+                return resolve(creditNote.issueToSubscription(this));
+            } catch (e) {
+                return reject(e);
+            }
+        });
+    }
   }
 }

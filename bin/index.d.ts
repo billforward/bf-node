@@ -103,6 +103,7 @@ declare module BillForward {
     class Account extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        issueCredit(value: number, currency?: string, description?: string): Q.Promise<CreditNote>;
     }
 }
 declare module BillForward {
@@ -115,6 +116,9 @@ declare module BillForward {
     class CreditNote extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
+        static construct(value: number, currency?: string, description?: string): CreditNote;
+        issueToSubscription(subscription: EntityReference): Q.Promise<CreditNote>;
+        issueToAccount(account: EntityReference): Q.Promise<CreditNote>;
     }
 }
 declare module BillForward {
@@ -174,7 +178,7 @@ declare module BillForward {
     }
     class InvoiceRecalculationAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
-        static construct(invoice: any, newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
+        static construct(invoice: EntityReference, newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
     }
 }
 declare module BillForward {
@@ -356,6 +360,7 @@ declare module BillForward {
         modifyUsageHelper(componentNamesToValues: {
             [componentName: string]: Number;
         }, appliesTilOverride?: string): Q.Promise<Array<PricingComponentValue>>;
+        issueCredit(value: number, description?: string): Q.Promise<CreditNote>;
     }
 }
 declare module BillForward {

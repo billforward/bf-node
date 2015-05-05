@@ -28,7 +28,7 @@ module BillForward {
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment
      * @return InvoiceRecalculationAmendment The created 'invoice recalculation' amendment.
      */
-	static construct(invoice:any, newInvoiceState:InvoiceState = InvoiceState.Pending, recalculationBehaviour:InvoiceRecalculationBehaviour = InvoiceRecalculationBehaviour.RecalculateAsLatestSubscriptionVersion, actioningTime:ActioningTime = 'Immediate'): Q.Promise<InvoiceRecalculationAmendment> {
+	static construct(invoice:EntityReference, newInvoiceState:InvoiceState = InvoiceState.Pending, recalculationBehaviour:InvoiceRecalculationBehaviour = InvoiceRecalculationBehaviour.RecalculateAsLatestSubscriptionVersion, actioningTime:ActioningTime = 'Immediate'): Q.Promise<InvoiceRecalculationAmendment> {
     	return <Q.Promise<InvoiceRecalculationAmendment>>Imports.Q.Promise((resolve, reject) => {
 	        try {
 	        	return resolve(Invoice.fetchIfNecessary(invoice)
