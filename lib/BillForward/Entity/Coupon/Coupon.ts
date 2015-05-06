@@ -9,7 +9,7 @@ module BillForward {
     }
 
     getBaseCode() {
-        if (!(<any>this).parentCouponCode) {
+        if ((<any>this).parentCouponCode) {
             return (<any>this).parentCouponCode;
         }
         return (<any>this).couponCode;

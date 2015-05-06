@@ -1028,7 +1028,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         Coupon.prototype.getBaseCode = function () {
-            if (!this.parentCouponCode) {
+            if (this.parentCouponCode) {
                 return this.parentCouponCode;
             }
             return this.couponCode;
