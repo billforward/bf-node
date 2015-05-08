@@ -23,5 +23,3 @@ lib/.baseDir.ts
 test/config/config.js
 
 example/scratch.js
-
-bin/index.js.map
