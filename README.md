@@ -5,15 +5,23 @@ This client library provides (via Node) easy access to the BillForward API.
 
 Install
 -------------------------
-This is a private repostory, not yet published to NPM. You will need to authenticate to install this package..
+###Via npm
 
-Add your SSH public key to your GitHub profile.
+Install to your node application like so:
+
+```
+npm install billforward --save
+```
+
+###Via GitHub
 
 Install to your node application like so:
 
 ```
 npm install git+ssh://git@github.com:billforward/bf-node.git --save
 ```
+
+You may need to add your SSH public key to your GitHub profile.
 
 Include
 -------------------------
