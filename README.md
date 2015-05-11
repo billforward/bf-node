@@ -28,8 +28,10 @@ Include
 Include like this:
 
 ```js
-var BillForward = require('BillForward');
+var BillForward = require('billforward');
 ```
+
+Note that lower-case is used for the package name, but StudlyCaps is preferred for the namespace.
 
 Invoke
 -------------------------
