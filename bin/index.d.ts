@@ -144,6 +144,7 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client, skipUnserialize?: boolean);
         applyType(type: string): void;
+        static getBySubscription(subscription: EntityReference, queryParams?: Object, client?: Client): Q.Promise<Amendment>;
         discard(actioningTime?: ActioningTime): Q.Promise<AmendmentDiscardAmendment>;
         static parseActioningTime(actioningTime: ActioningTime, subscription?: any): Q.Promise<string>;
         applyActioningTime(actioningTime: ActioningTime, subscription?: any): Q.Promise<BillingEntity>;
@@ -185,6 +186,11 @@ declare module BillForward {
     class IssueInvoiceAmendment extends Amendment {
         constructor(stateParams?: Object, client?: Client);
         static construct(invoice: any, actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
+    }
+}
+declare module BillForward {
+    class ProductRatePlanMigrationAmendment extends Amendment {
+        constructor(stateParams?: Object, client?: Client);
     }
 }
 declare module BillForward {

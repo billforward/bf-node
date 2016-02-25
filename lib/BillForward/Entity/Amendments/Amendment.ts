@@ -17,6 +17,26 @@ module BillForward {
     }
 
     /**
+     * Gets Amendments belonging to the specified subscription
+     * @param EntityReference Reference to the entity. <string>: ID of the entity. <Subscription>: Entity object, from whom an ID can be extracted.
+     * @return Q.Promise<Amendment[]> The fetched Subscriptions.
+     */
+    static getBySubscription(subscription:EntityReference, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Amendment>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("subscription/%s", encodeURIComponent(Subscription.getIdentifier(subscription)));
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    /**
      * Discards amendment at a specified time.
      * @param string ENUM['Immediate', 'AtPeriodEnd'] (Default: 'AtPeriodEnd') Specifies whether the service will end immediately on cancellation or if it will continue until the end of the current period.
      * @param mixed[timestamp:Date, 'Immediate', 'AtPeriodEnd'] Default: 'Immediate'. When to action the cancellation amendment

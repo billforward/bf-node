@@ -810,6 +810,21 @@ var BillForward;
         Amendment.prototype.applyType = function (type) {
             this['@type'] = type;
         };
+        Amendment.getBySubscription = function (subscription, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var endpoint = BillForward.Imports.util.format("subscription/%s", encodeURIComponent(BillForward.Subscription.getIdentifier(subscription)));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Amendment.prototype.discard = function (actioningTime) {
             if (actioningTime === void 0) { actioningTime = 'Immediate'; }
             return BillForward.AmendmentDiscardAmendment.construct(this, actioningTime)
@@ -1016,6 +1031,21 @@ var BillForward;
         return IssueInvoiceAmendment;
     })(BillForward.Amendment);
     BillForward.IssueInvoiceAmendment = IssueInvoiceAmendment;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var ProductRatePlanMigrationAmendment = (function (_super) {
+        __extends(ProductRatePlanMigrationAmendment, _super);
+        function ProductRatePlanMigrationAmendment(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client, true);
+            this.applyType('ProductRatePlanMigrationAmendment');
+            this.unserialize(stateParams);
+        }
+        return ProductRatePlanMigrationAmendment;
+    })(BillForward.Amendment);
+    BillForward.ProductRatePlanMigrationAmendment = ProductRatePlanMigrationAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {

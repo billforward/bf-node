@@ -31,6 +31,7 @@ module BillForward {
 
     /**
 	 * Issues this credit note to the specified subscription
+     * @param EntityReference Reference to the entity. <string>: ID of the entity. <Subscription>: Entity object, from whom an ID can be extracted.
 	 * @return CreditNote The issued credit note
 	 */
     issueToSubscription(subscription:EntityReference):Q.Promise<CreditNote> {

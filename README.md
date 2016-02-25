@@ -187,3 +187,32 @@ I run test files using a custom Sublime build script:
       }
   }
 ```
+
+
+## Releases
+
+### `npm`
+
+#### Minor release
+
+Finish your commit, then run:
+
+```bash
+npm version patch
+npm publish
+git push origin master --follow-tags
+```
+
+Or run `sh ./npm-release-minor.sh`
+
+#### Major release
+
+Finish your commit, then run:
+
+```bash
+npm version major
+npm publish
+git push origin master --follow-tags
+```
+
+Or run `sh ./npm-release-major.sh`
