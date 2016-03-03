@@ -1585,6 +1585,21 @@ var BillForward;
             this.registerEntity('productRatePlan', BillForward.ProductRatePlan);
             this.unserialize(stateParams);
         }
+        Subscription.getByAccount = function (account, queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var endpoint = BillForward.Imports.util.format("account/%s", encodeURIComponent(BillForward.Account.getIdentifier(account)));
+                    var myClass = _this.getDerivedClassStatic();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Subscription.getByState = function (state, queryParams, client) {
             var _this = this;
             if (queryParams === void 0) { queryParams = {}; }

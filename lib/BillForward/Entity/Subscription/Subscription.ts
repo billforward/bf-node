@@ -24,12 +24,32 @@ module BillForward {
     }
 
     /**
+     * Gets Subscriptions belonging to the specified account
+     * @param EntityReference Reference to the entity. <string>: ID of the entity. <Account>: Entity object, from whom an ID can be extracted.
+     * @return Q.Promise<Subscription[]> The fetched Subscriptions.
+     */
+    static getByAccount(account:EntityReference, queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("account/%s", encodeURIComponent(Account.getIdentifier(account)));
+
+                var myClass = this.getDerivedClassStatic();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    /**
      * Gets Subscriptions by the specified state
      * @param ENUM['Trial', 'Provisioned', 'Paid', 'AwaitingPayment', 'Cancelled', 'Failed', 'Expired'] (ENUM: BillForward.SubscriptionState) Subscription state upon which to query.
      * @return Q.Promise<Subscription[]> The fetched Subscriptions.
      */
     static getByState(state:SubscriptionState, queryParams:Object = {}, client:Client = null) {
-        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
+        return <Q.Promise<Subscription>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var endpoint = Imports.util.format("state/%s", encodeURIComponent(SubscriptionState[state]));
 

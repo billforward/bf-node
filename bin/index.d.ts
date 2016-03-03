@@ -343,7 +343,8 @@ declare module BillForward {
     class Subscription extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
-        static getByState(state: SubscriptionState, queryParams?: Object, client?: Client): Q.Promise<Invoice>;
+        static getByAccount(account: EntityReference, queryParams?: Object, client?: Client): Q.Promise<Subscription>;
+        static getByState(state: SubscriptionState, queryParams?: Object, client?: Client): Q.Promise<Subscription>;
         activate(): Q.Promise<any>;
         cancel(serviceEnd?: ServiceEndState, actioningTime?: ActioningTime): Q.Promise<CancellationAmendment>;
         usePaymentMethodsFromAccountByID(accountID: string): Q.Promise<Subscription>;
