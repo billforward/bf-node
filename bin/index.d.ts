@@ -368,6 +368,14 @@ declare module BillForward {
             [componentName: string]: Number;
         }, appliesTilOverride?: string): Q.Promise<Array<PricingComponentValue>>;
         issueCredit(value: number, description?: string): Q.Promise<CreditNote>;
+        getCharges(queryParams?: Object, client?: Client): Q.Promise<SubscriptionCharge>;
+    }
+}
+declare module BillForward {
+    class SubscriptionCharge extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+        static getBySubscription(subscription: EntityReference, queryParams?: Object, client?: Client): Q.Promise<SubscriptionCharge>;
     }
 }
 declare module BillForward {

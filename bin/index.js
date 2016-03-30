@@ -1799,10 +1799,49 @@ var BillForward;
                 }
             });
         };
+        Subscription.prototype.getCharges = function (queryParams, client) {
+            var _this = this;
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var endpoint = BillForward.Imports.util.format("%s/charges", encodeURIComponent(Subscription.getIdentifier(_this)));
+                    var responseEntity = new BillForward.SubscriptionCharge();
+                    var myClass = _this.getDerivedClass();
+                    return resolve(myClass.getAndGrabCollection(endpoint, queryParams, client, responseEntity));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;
     })(BillForward.MutableEntity);
     BillForward.Subscription = Subscription;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
+    var SubscriptionCharge = (function (_super) {
+        __extends(SubscriptionCharge, _super);
+        function SubscriptionCharge(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        SubscriptionCharge.getBySubscription = function (subscription, queryParams, client) {
+            if (queryParams === void 0) { queryParams = {}; }
+            if (client === void 0) { client = null; }
+            return BillForward.Subscription.fetchIfNecessary(subscription)
+                .then(function (sub) {
+                return sub.getCharges(queryParams, client);
+            });
+        };
+        SubscriptionCharge._resourcePath = new BillForward.ResourcePath('charges', 'subscriptionCharge');
+        return SubscriptionCharge;
+    })(BillForward.MutableEntity);
+    BillForward.SubscriptionCharge = SubscriptionCharge;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
