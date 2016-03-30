@@ -324,5 +324,22 @@ module BillForward {
         });
     }
 
+    addCharge(charge:SubscriptionCharge, client:Client = null) {
+        return Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("%s/charge", encodeURIComponent(Subscription.getIdentifier(this)));
+
+                var responseEntity = new SubscriptionCharge();
+
+                var myClass = this.getDerivedClass();
+                return resolve(
+                    myClass.postEntityAndGrabCollection(endpoint, {}, charge, client, responseEntity)
+                    );
+            } catch (e) {
+                return reject(e);
+            }
+        });
+    }
+
   }
 }

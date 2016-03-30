@@ -14,10 +14,20 @@ module BillForward {
      * @return Q.Promise<SubscriptionCharge[]> The fetched SubscriptionCharges.
      */
     static getBySubscription(subscription:EntityReference, queryParams:Object = {}, client:Client = null) {
-        return Subscription.fetchIfNecessary(subscription)
-        .then((sub) => {
-            return (<Subscription>sub).getCharges(queryParams, client);
+        var subSham = new Subscription({
+            "id" : Subscription.getIdentifier(subscription)
             });
+
+        return subSham.getCharges(queryParams, client);
     }
+
+    addToSubscription(subscription:EntityReference, client:Client = null) {
+        var subSham = new Subscription({
+            "id" : Subscription.getIdentifier(subscription)
+            });
+
+        return subSham.addCharge(this, client);
+    }
+
   }
 }
