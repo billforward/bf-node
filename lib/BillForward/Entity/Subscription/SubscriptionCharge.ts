@@ -16,7 +16,7 @@ module BillForward {
     static getBySubscription(subscription:EntityReference, queryParams:Object = {}, client:Client = null) {
         var subSham = new Subscription({
             "id" : Subscription.getIdentifier(subscription)
-            });
+            }, client);
 
         return subSham.getCharges(queryParams, client);
     }
@@ -24,7 +24,7 @@ module BillForward {
     addToSubscription(subscription:EntityReference, client:Client = null) {
         var subSham = new Subscription({
             "id" : Subscription.getIdentifier(subscription)
-            });
+            }, client);
 
         return subSham.addCharge(this, client);
     }

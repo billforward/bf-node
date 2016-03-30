@@ -53,7 +53,7 @@ declare module BillForward {
         protected static postAndGrabFirst(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
         protected static postAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         protected static getAndGrabFirst(endpoint: string, queryParams: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
-        protected static getAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
+        protected static getAndGrabCollection(endpoint: string, queryParams: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         static getByID(id: string, queryParams?: Object, client?: Client): Q.Promise<BillingEntity>;
         static getAll(queryParams?: Object, client?: Client): Q.Promise<BillingEntity[]>;
         static getResourcePath(): any;

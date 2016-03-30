@@ -356,7 +356,7 @@ var BillForward;
                 }
             });
         };
-        BillingEntity.getAndGrabCollection = function (endpoint, queryParams, payload, client, responseEntity) {
+        BillingEntity.getAndGrabCollection = function (endpoint, queryParams, client, responseEntity) {
             var _this = this;
             if (client === void 0) { client = null; }
             if (responseEntity === void 0) { responseEntity = null; }
@@ -1850,14 +1850,14 @@ var BillForward;
             if (client === void 0) { client = null; }
             var subSham = new BillForward.Subscription({
                 "id": BillForward.Subscription.getIdentifier(subscription)
-            });
+            }, client);
             return subSham.getCharges(queryParams, client);
         };
         SubscriptionCharge.prototype.addToSubscription = function (subscription, client) {
             if (client === void 0) { client = null; }
             var subSham = new BillForward.Subscription({
                 "id": BillForward.Subscription.getIdentifier(subscription)
-            });
+            }, client);
             return subSham.addCharge(this, client);
         };
         SubscriptionCharge._resourcePath = new BillForward.ResourcePath('charges', 'subscriptionCharge');
