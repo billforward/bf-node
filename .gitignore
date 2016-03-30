@@ -12,6 +12,8 @@ pids
 logs
 results
 
+bin/index.js.map
+
 npm-debug.log
 node_modules
 
