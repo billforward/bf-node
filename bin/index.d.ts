@@ -53,7 +53,7 @@ declare module BillForward {
         protected static postAndGrabFirst(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
         protected static postAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         protected static getAndGrabFirst(endpoint: string, queryParams: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity>;
-        protected static getAndGrabCollection(endpoint: string, queryParams: Object, payload: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
+        protected static getAndGrabCollection(endpoint: string, queryParams: Object, client?: Client, responseEntity?: BillingEntity): Q.Promise<BillingEntity[]>;
         static getByID(id: string, queryParams?: Object, client?: Client): Q.Promise<BillingEntity>;
         static getAll(queryParams?: Object, client?: Client): Q.Promise<BillingEntity[]>;
         static getResourcePath(): any;
@@ -368,6 +368,16 @@ declare module BillForward {
             [componentName: string]: Number;
         }, appliesTilOverride?: string): Q.Promise<Array<PricingComponentValue>>;
         issueCredit(value: number, description?: string): Q.Promise<CreditNote>;
+        getCharges(queryParams?: Object, client?: Client): Q.Promise<SubscriptionCharge>;
+        addCharge(charge: SubscriptionCharge, client?: Client): any;
+    }
+}
+declare module BillForward {
+    class SubscriptionCharge extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+        static getBySubscription(subscription: EntityReference, queryParams?: Object, client?: Client): Q.Promise<SubscriptionCharge>;
+        addToSubscription(subscription: EntityReference, client?: Client): any;
     }
 }
 declare module BillForward {

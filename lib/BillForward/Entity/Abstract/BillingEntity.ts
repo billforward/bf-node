@@ -161,7 +161,7 @@ module BillForward {
         });
     }
 
-    protected static getAndGrabCollection(endpoint:string, queryParams:Object, payload:Object, client:Client = null, responseEntity:BillingEntity = null) {
+    protected static getAndGrabCollection(endpoint:string, queryParams:Object, client:Client = null, responseEntity:BillingEntity = null) {
         return <Q.Promise<Array<BillingEntity>>>Imports.Q.Promise((resolve, reject) => {
             try {
                 var myClass = this.getDerivedClassStatic();

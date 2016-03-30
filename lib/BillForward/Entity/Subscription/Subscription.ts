@@ -300,5 +300,46 @@ module BillForward {
             }
         });
     }
+
+
+
+    /**
+     * Gets SubscriptionCharges belonging to this Subscription
+     * @return Q.Promise<SubscriptionCharge[]> The fetched SubscriptionCharges.
+     */
+    getCharges(queryParams:Object = {}, client:Client = null) {
+        return <Q.Promise<SubscriptionCharge>>Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("%s/charges", encodeURIComponent(Subscription.getIdentifier(this)));
+
+                var responseEntity = new SubscriptionCharge();
+
+                var myClass = this.getDerivedClass();
+                return resolve(
+                    myClass.getAndGrabCollection(endpoint, queryParams, client, responseEntity)
+                    );
+            } catch(e) {
+                return reject(e);
+            }
+        });
+    }
+
+    addCharge(charge:SubscriptionCharge, client:Client = null) {
+        return Imports.Q.Promise((resolve, reject) => {
+            try {
+                var endpoint = Imports.util.format("%s/charge", encodeURIComponent(Subscription.getIdentifier(this)));
+
+                var responseEntity = new SubscriptionCharge();
+
+                var myClass = this.getDerivedClass();
+                return resolve(
+                    myClass.postEntityAndGrabCollection(endpoint, {}, charge, client, responseEntity)
+                    );
+            } catch (e) {
+                return reject(e);
+            }
+        });
+    }
+
   }
 }
