@@ -1927,6 +1927,21 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var TrustCommerceToken = (function (_super) {
+        __extends(TrustCommerceToken, _super);
+        function TrustCommerceToken(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        TrustCommerceToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/trustCommerce', 'trustCommerceToken');
+        return TrustCommerceToken;
+    })(BillForward.MutableEntity);
+    BillForward.TrustCommerceToken = TrustCommerceToken;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var BFError = (function (_super) {
         __extends(BFError, _super);
         function BFError(message) {

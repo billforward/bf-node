@@ -405,6 +405,12 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class TrustCommerceToken extends MutableEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+    }
+}
+declare module BillForward {
     class Error {
         name: string;
         message: string;
