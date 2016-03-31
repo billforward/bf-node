@@ -1,3 +1,5 @@
+var uuid = require('node-uuid');
+
 module.exports = function(BillForward) {
 	var models = {};
 
@@ -26,12 +28,13 @@ module.exports = function(BillForward) {
 		return account;
 	};
 
-	models.UnitOfMeasure = function() {
-		// don't wanna include GUID library =_=;;
-		var seed = Math.floor((new Date).getTime()+Math.random()*10000000);
+	function unique() {
+		var unique = uuid.v4().substring(0, 6);
+		return unique;
+	}
 
-		var unique = Math.floor(seed/100000)+seed%1000;
-		var name = "CPU "+unique;
+	models.UnitOfMeasure = function() {
+		var name = "CPU "+unique();
 		var uom = new BillForward.UnitOfMeasure({
 			'name': name,
 			'displayedAs': 'Cycles',
@@ -41,11 +44,7 @@ module.exports = function(BillForward) {
 	};
 
 	models.UnitOfMeasure2 = function() {
-		// don't wanna include GUID library =_=;;
-		var seed = Math.floor((new Date).getTime()+Math.random()*10000000);
-
-		var unique = Math.floor(seed/100000)+seed%1000;
-		var name = "Bandwidth "+unique;
+		var name = "Bandwidth "+unique();
 		var uom = new BillForward.UnitOfMeasure({
 			'name': name,
 			'displayedAs': 'Mbps',
@@ -58,7 +57,7 @@ module.exports = function(BillForward) {
 		var product = new BillForward.Product({
 			'productType': 'recurring',
 			'state': 'prod',
-			'name': 'Quickly recurring',
+			'name': 'Quickly recurring '+unique(),
 			'description': 'Purchaseables to which customer has an automatically-renewing, 3-minutely entitlement',
 			'durationPeriod': 'minutes',
 			'duration': 3
@@ -70,7 +69,7 @@ module.exports = function(BillForward) {
 		var product = new BillForward.Product({
 			'productType': 'recurring',
 			'state': 'prod',
-			'name': 'Monthly recurring',
+			'name': 'Monthly recurring '+unique(),
 			'description': 'Purchaseables to which customer has an automatically-renewing, monthly entitlement',
 			'durationPeriod': 'months',
 			'duration': 1
