@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var BillForward;
 (function (BillForward) {
     var Client = (function () {
@@ -186,7 +191,7 @@ var BillForward;
             throw new BillForward.BFRequestError(printable);
         };
         return Client;
-    })();
+    }());
     BillForward.Client = Client;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -558,15 +563,9 @@ var BillForward;
             return entityClass.makeBillForwardDate(now);
         };
         return BillingEntity;
-    })();
+    }());
     BillForward.BillingEntity = BillingEntity;
 })(BillForward || (BillForward = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var BillForward;
 (function (BillForward) {
     var InsertableEntity = (function (_super) {
@@ -594,7 +593,7 @@ var BillForward;
             });
         };
         return InsertableEntity;
-    })(BillForward.BillingEntity);
+    }(BillForward.BillingEntity));
     BillForward.InsertableEntity = InsertableEntity;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -624,7 +623,7 @@ var BillForward;
             });
         };
         return MutableEntity;
-    })(BillForward.InsertableEntity);
+    }(BillForward.InsertableEntity));
     BillForward.MutableEntity = MutableEntity;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -641,7 +640,7 @@ var BillForward;
             return this.entityName;
         };
         return ResourcePath;
-    })();
+    }());
     BillForward.ResourcePath = ResourcePath;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -673,7 +672,7 @@ var BillForward;
         };
         Account._resourcePath = new BillForward.ResourcePath('accounts', 'account');
         return Account;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Account = Account;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -688,7 +687,7 @@ var BillForward;
         }
         Address._resourcePath = new BillForward.ResourcePath('addresses', 'address');
         return Address;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Address = Address;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -747,7 +746,7 @@ var BillForward;
         };
         CreditNote._resourcePath = new BillForward.ResourcePath('credit-notes', 'creditNote');
         return CreditNote;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.CreditNote = CreditNote;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -762,7 +761,7 @@ var BillForward;
         }
         PaymentMethod._resourcePath = new BillForward.ResourcePath('payment-methods', 'paymentMethod');
         return PaymentMethod;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.PaymentMethod = PaymentMethod;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -778,7 +777,7 @@ var BillForward;
         }
         Profile._resourcePath = new BillForward.ResourcePath('profiles', 'profile');
         return Profile;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Profile = Profile;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -792,7 +791,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         return Role;
-    })(BillForward.InsertableEntity);
+    }(BillForward.InsertableEntity));
     BillForward.Role = Role;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -875,7 +874,7 @@ var BillForward;
         };
         Amendment._resourcePath = new BillForward.ResourcePath('amendments', 'amendment');
         return Amendment;
-    })(BillForward.InsertableEntity);
+    }(BillForward.InsertableEntity));
     BillForward.Amendment = Amendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -908,7 +907,7 @@ var BillForward;
             });
         };
         return AmendmentDiscardAmendment;
-    })(BillForward.Amendment);
+    }(BillForward.Amendment));
     BillForward.AmendmentDiscardAmendment = AmendmentDiscardAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -947,7 +946,7 @@ var BillForward;
             });
         };
         return CancellationAmendment;
-    })(BillForward.Amendment);
+    }(BillForward.Amendment));
     BillForward.CancellationAmendment = CancellationAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -996,7 +995,7 @@ var BillForward;
             });
         };
         return InvoiceRecalculationAmendment;
-    })(BillForward.Amendment);
+    }(BillForward.Amendment));
     BillForward.InvoiceRecalculationAmendment = InvoiceRecalculationAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1029,7 +1028,7 @@ var BillForward;
             });
         };
         return IssueInvoiceAmendment;
-    })(BillForward.Amendment);
+    }(BillForward.Amendment));
     BillForward.IssueInvoiceAmendment = IssueInvoiceAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1044,7 +1043,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         return ProductRatePlanMigrationAmendment;
-    })(BillForward.Amendment);
+    }(BillForward.Amendment));
     BillForward.ProductRatePlanMigrationAmendment = ProductRatePlanMigrationAmendment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1117,7 +1116,7 @@ var BillForward;
         };
         Coupon._resourcePath = new BillForward.ResourcePath('coupons', 'Coupon');
         return Coupon;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Coupon = Coupon;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1156,7 +1155,7 @@ var BillForward;
         };
         AddCouponCodeRequest._resourcePath = new BillForward.ResourcePath('subscriptions', 'AddCouponCodeRequest');
         return AddCouponCodeRequest;
-    })(BillForward.BillingEntity);
+    }(BillForward.BillingEntity));
     BillForward.AddCouponCodeRequest = AddCouponCodeRequest;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1177,7 +1176,7 @@ var BillForward;
             return BillForward.Coupon.applyCouponCodeToSubscription(this.getBaseCode(), subscription, client);
         };
         return CouponUniqueCodesResponse;
-    })(BillForward.BillingEntity);
+    }(BillForward.BillingEntity));
     BillForward.CouponUniqueCodesResponse = CouponUniqueCodesResponse;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1276,7 +1275,7 @@ var BillForward;
         };
         Invoice._resourcePath = new BillForward.ResourcePath('invoices', 'invoice');
         return Invoice;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Invoice = Invoice;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1290,7 +1289,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         return InvoiceLine;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.InvoiceLine = InvoiceLine;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1304,7 +1303,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         return InvoicePayment;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.InvoicePayment = InvoicePayment;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1318,7 +1317,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         return TaxLine;
-    })(BillForward.InsertableEntity);
+    }(BillForward.InsertableEntity));
     BillForward.TaxLine = TaxLine;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1332,7 +1331,7 @@ var BillForward;
             this.unserialize(stateParams);
         }
         return APIConfiguration;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.APIConfiguration = APIConfiguration;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1348,7 +1347,7 @@ var BillForward;
         }
         Organisation._resourcePath = new BillForward.ResourcePath('organizations', 'organization');
         return Organisation;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Organisation = Organisation;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1363,7 +1362,7 @@ var BillForward;
         }
         ComponentChange._resourcePath = new BillForward.ResourcePath('', 'ComponentChange');
         return ComponentChange;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.ComponentChange = ComponentChange;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1379,7 +1378,7 @@ var BillForward;
         }
         PricingComponent._resourcePath = new BillForward.ResourcePath('pricing-components', 'PricingComponent');
         return PricingComponent;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.PricingComponent = PricingComponent;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1394,7 +1393,7 @@ var BillForward;
         }
         PricingComponentTier._resourcePath = new BillForward.ResourcePath('pricing-component-tiers', 'pricingComponentTier');
         return PricingComponentTier;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.PricingComponentTier = PricingComponentTier;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1409,7 +1408,7 @@ var BillForward;
         }
         PricingComponentValue._resourcePath = new BillForward.ResourcePath('pricing-component-values', 'PricingComponentValue');
         return PricingComponentValue;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.PricingComponentValue = PricingComponentValue;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1424,7 +1423,7 @@ var BillForward;
         }
         PricingComponentValueChange._resourcePath = new BillForward.ResourcePath('pricing-component-value-changes', 'PricingComponentValueChange');
         return PricingComponentValueChange;
-    })(BillForward.InsertableEntity);
+    }(BillForward.InsertableEntity));
     BillForward.PricingComponentValueChange = PricingComponentValueChange;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1439,7 +1438,7 @@ var BillForward;
         }
         PricingComponentValueMigrationAmendmentMapping._resourcePath = new BillForward.ResourcePath('', 'PricingComponentValueMigrationAmendmentMapping');
         return PricingComponentValueMigrationAmendmentMapping;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.PricingComponentValueMigrationAmendmentMapping = PricingComponentValueMigrationAmendmentMapping;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1454,7 +1453,7 @@ var BillForward;
         }
         UnitOfMeasure._resourcePath = new BillForward.ResourcePath('units-of-measure', 'unitOfMeasure');
         return UnitOfMeasure;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.UnitOfMeasure = UnitOfMeasure;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1474,7 +1473,7 @@ var BillForward;
         };
         Product._resourcePath = new BillForward.ResourcePath('products', 'product');
         return Product;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Product = Product;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1528,7 +1527,7 @@ var BillForward;
         };
         ProductRatePlan._resourcePath = new BillForward.ResourcePath('product-rate-plans', 'productRatePlan');
         return ProductRatePlan;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.ProductRatePlan = ProductRatePlan;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1543,7 +1542,7 @@ var BillForward;
         }
         TaxationLink._resourcePath = new BillForward.ResourcePath('taxation-links', 'TaxationLink');
         return TaxationLink;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.TaxationLink = TaxationLink;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1558,7 +1557,7 @@ var BillForward;
         }
         PaymentMethodSubscriptionLink._resourcePath = new BillForward.ResourcePath('payment-method-subscription-links', 'PaymentMethodSubscriptionLink');
         return PaymentMethodSubscriptionLink;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.PaymentMethodSubscriptionLink = PaymentMethodSubscriptionLink;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1832,7 +1831,7 @@ var BillForward;
         };
         Subscription._resourcePath = new BillForward.ResourcePath('subscriptions', 'subscription');
         return Subscription;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.Subscription = Subscription;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1862,7 +1861,7 @@ var BillForward;
         };
         SubscriptionCharge._resourcePath = new BillForward.ResourcePath('charges', 'subscriptionCharge');
         return SubscriptionCharge;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.SubscriptionCharge = SubscriptionCharge;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1877,7 +1876,7 @@ var BillForward;
         }
         AuthorizeNetToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/authorize-net', 'authorizeNetToken');
         return AuthorizeNetToken;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.AuthorizeNetToken = AuthorizeNetToken;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1892,7 +1891,7 @@ var BillForward;
         }
         BraintreeToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/braintree', 'braintree_token');
         return BraintreeToken;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.BraintreeToken = BraintreeToken;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1907,7 +1906,7 @@ var BillForward;
         }
         StripeACHToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/stripe-ACH', 'stripe_ach_token');
         return StripeACHToken;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.StripeACHToken = StripeACHToken;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1922,7 +1921,7 @@ var BillForward;
         }
         StripeToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/stripe', 'stripe_token');
         return StripeToken;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.StripeToken = StripeToken;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1937,7 +1936,7 @@ var BillForward;
         }
         TrustCommerceToken._resourcePath = new BillForward.ResourcePath('vaulted-gateways/trustCommerce', 'trustCommerceToken');
         return TrustCommerceToken;
-    })(BillForward.MutableEntity);
+    }(BillForward.MutableEntity));
     BillForward.TrustCommerceToken = TrustCommerceToken;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -1955,7 +1954,7 @@ var BillForward;
             return this.name + ': ' + this.message;
         };
         return BFError;
-    })(Error);
+    }(Error));
     BillForward.BFError = BFError;
     var BFPreconditionFailedError = (function (_super) {
         __extends(BFPreconditionFailedError, _super);
@@ -1965,7 +1964,7 @@ var BillForward;
             this.name = 'BFPreconditionFailedError';
         }
         return BFPreconditionFailedError;
-    })(BFError);
+    }(BFError));
     BillForward.BFPreconditionFailedError = BFPreconditionFailedError;
     var BFInvocationError = (function (_super) {
         __extends(BFInvocationError, _super);
@@ -1975,7 +1974,7 @@ var BillForward;
             this.name = 'BFInvocationError';
         }
         return BFInvocationError;
-    })(BFError);
+    }(BFError));
     BillForward.BFInvocationError = BFInvocationError;
     var BFNoResultsError = (function (_super) {
         __extends(BFNoResultsError, _super);
@@ -1985,7 +1984,7 @@ var BillForward;
             this.name = 'BFNoResultsError';
         }
         return BFNoResultsError;
-    })(BFError);
+    }(BFError));
     BillForward.BFNoResultsError = BFNoResultsError;
     var BFMalformedAPIResponseError = (function (_super) {
         __extends(BFMalformedAPIResponseError, _super);
@@ -1995,7 +1994,7 @@ var BillForward;
             this.name = 'MalformedAPIResponseError';
         }
         return BFMalformedAPIResponseError;
-    })(BFError);
+    }(BFError));
     BillForward.BFMalformedAPIResponseError = BFMalformedAPIResponseError;
     var BFResponseUnserializationFailure = (function (_super) {
         __extends(BFResponseUnserializationFailure, _super);
@@ -2005,7 +2004,7 @@ var BillForward;
             this.name = 'BFResponseUnserializationFailure';
         }
         return BFResponseUnserializationFailure;
-    })(BFError);
+    }(BFError));
     BillForward.BFResponseUnserializationFailure = BFResponseUnserializationFailure;
     var BFRequestError = (function (_super) {
         __extends(BFRequestError, _super);
@@ -2015,7 +2014,7 @@ var BillForward;
             this.name = 'BFRequestError';
         }
         return BFRequestError;
-    })(BFError);
+    }(BFError));
     BillForward.BFRequestError = BFRequestError;
     var BFHTTPError = (function (_super) {
         __extends(BFHTTPError, _super);
@@ -2025,7 +2024,7 @@ var BillForward;
             this.name = 'BFHTTPError';
         }
         return BFHTTPError;
-    })(BFError);
+    }(BFError));
     BillForward.BFHTTPError = BFHTTPError;
     var BFUnauthorizedError = (function (_super) {
         __extends(BFUnauthorizedError, _super);
@@ -2035,7 +2034,7 @@ var BillForward;
             this.name = 'BFUnauthorizedError';
         }
         return BFUnauthorizedError;
-    })(BFError);
+    }(BFError));
     BillForward.BFUnauthorizedError = BFUnauthorizedError;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -2048,7 +2047,7 @@ var BillForward;
         Imports.Q = require('q');
         Imports.util = require('util');
         return Imports;
-    })();
+    }());
     BillForward.Imports = Imports;
 })(BillForward || (BillForward = {}));
 var BillForward;
@@ -2064,9 +2063,8 @@ var BillForward;
             });
         };
         return MixinHandler;
-    })();
+    }());
     BillForward.MixinHandler = MixinHandler;
 })(BillForward || (BillForward = {}));
-///<reference path='../typings/tsd.d.ts' />
 module.exports = BillForward;
 //# sourceMappingURL=index.js.map
