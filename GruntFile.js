@@ -20,7 +20,7 @@ module.exports = function (grunt) {
             out: "bin/index.js",
             // outDir: "bin/",
             options: {
-                module: "commonjs",
+                // module: "commonjs",
                 declaration: true,
                 sourceMap: true,
                 // fast: 'watch',
