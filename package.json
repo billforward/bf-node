@@ -35,8 +35,8 @@
     "sinon-chai": "^2.6.0",
     "chai": "~1.10.0",
     "chai-as-promised": "^4.1.1",
-    "tsd": "~0.5.7",
-    "typescript": "^1.4.1",
+    "tsd": "~0.6.5",
+    "typescript": "~1.8.9",
     "moment": "^2.8.4",
     "body-parser": "^1.10.0",
     "express": "^4.10.6"
