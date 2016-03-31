@@ -325,6 +325,13 @@ declare module BillForward {
     }
 }
 declare module BillForward {
+    class AddChargeRequest extends BillingEntity {
+        protected static _resourcePath: ResourcePath;
+        constructor(stateParams?: Object, client?: Client);
+        addToSubscription(subscription: EntityReference, client?: Client): any;
+    }
+}
+declare module BillForward {
     class PaymentMethodSubscriptionLink extends MutableEntity {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
@@ -369,7 +376,7 @@ declare module BillForward {
         }, appliesTilOverride?: string): Q.Promise<Array<PricingComponentValue>>;
         issueCredit(value: number, description?: string): Q.Promise<CreditNote>;
         getCharges(queryParams?: Object, client?: Client): Q.Promise<SubscriptionCharge>;
-        addCharge(charge: SubscriptionCharge, client?: Client): any;
+        addCharge(charge: AddChargeRequest, client?: Client): any;
     }
 }
 declare module BillForward {
@@ -377,7 +384,6 @@ declare module BillForward {
         protected static _resourcePath: ResourcePath;
         constructor(stateParams?: Object, client?: Client);
         static getBySubscription(subscription: EntityReference, queryParams?: Object, client?: Client): Q.Promise<SubscriptionCharge>;
-        addToSubscription(subscription: EntityReference, client?: Client): any;
     }
 }
 declare module BillForward {

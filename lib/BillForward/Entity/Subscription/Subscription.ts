@@ -324,7 +324,12 @@ module BillForward {
         });
     }
 
-    addCharge(charge:SubscriptionCharge, client:Client = null) {
+    /**
+     * Applies the specified AddChargeRequest to this Subscription
+     * @param AddChargeRequest request entity
+     * @return Q.Promise<SubscriptionCharge[]> The resulting SubscriptionCharges.
+     */
+    addCharge(charge:AddChargeRequest, client:Client = null) {
         return Imports.Q.Promise((resolve, reject) => {
             try {
                 var endpoint = Imports.util.format("%s/charge", encodeURIComponent(Subscription.getIdentifier(this)));

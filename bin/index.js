@@ -1547,6 +1547,28 @@ var BillForward;
 })(BillForward || (BillForward = {}));
 var BillForward;
 (function (BillForward) {
+    var AddChargeRequest = (function (_super) {
+        __extends(AddChargeRequest, _super);
+        function AddChargeRequest(stateParams, client) {
+            if (stateParams === void 0) { stateParams = {}; }
+            if (client === void 0) { client = null; }
+            _super.call(this, stateParams, client);
+            this.unserialize(stateParams);
+        }
+        AddChargeRequest.prototype.addToSubscription = function (subscription, client) {
+            if (client === void 0) { client = null; }
+            var subSham = new BillForward.Subscription({
+                "id": BillForward.Subscription.getIdentifier(subscription)
+            }, client);
+            return subSham.addCharge(this, client);
+        };
+        AddChargeRequest._resourcePath = new BillForward.ResourcePath('', '');
+        return AddChargeRequest;
+    }(BillForward.BillingEntity));
+    BillForward.AddChargeRequest = AddChargeRequest;
+})(BillForward || (BillForward = {}));
+var BillForward;
+(function (BillForward) {
     var PaymentMethodSubscriptionLink = (function (_super) {
         __extends(PaymentMethodSubscriptionLink, _super);
         function PaymentMethodSubscriptionLink(stateParams, client) {
@@ -1851,13 +1873,6 @@ var BillForward;
                 "id": BillForward.Subscription.getIdentifier(subscription)
             }, client);
             return subSham.getCharges(queryParams, client);
-        };
-        SubscriptionCharge.prototype.addToSubscription = function (subscription, client) {
-            if (client === void 0) { client = null; }
-            var subSham = new BillForward.Subscription({
-                "id": BillForward.Subscription.getIdentifier(subscription)
-            }, client);
-            return subSham.addCharge(this, client);
         };
         SubscriptionCharge._resourcePath = new BillForward.ResourcePath('charges', 'subscriptionCharge');
         return SubscriptionCharge;

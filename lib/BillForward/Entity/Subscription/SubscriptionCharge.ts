@@ -20,14 +20,6 @@ module BillForward {
 
         return subSham.getCharges(queryParams, client);
     }
-
-    addToSubscription(subscription:EntityReference, client:Client = null) {
-        var subSham = new Subscription({
-            "id" : Subscription.getIdentifier(subscription)
-            }, client);
-
-        return subSham.addCharge(this, client);
-    }
-
+    
   }
 }
