@@ -24,27 +24,27 @@
     "url": "git+ssh://git@github.com:billforward/bf-node.git"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-connect": "^0.9.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-open": "^0.2.3",
-    "grunt-ts": "^2.0.1",
-    "mocha": "^2.0.1",
-    "mocha-sinon": "~1.1.4",
-    "sinon": "~1.12.1",
-    "sinon-chai": "^2.6.0",
-    "chai": "~1.10.0",
-    "chai-as-promised": "^4.1.1",
+    "grunt": "~0.4.5",
+    "grunt-contrib-connect": "~1.0.1",
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-open": "~0.2.3",
+    "grunt-ts": "~5.4.0",
+    "mocha": "~2.4.5",
+    "mocha-sinon": "~1.1.5",
+    "sinon": "~1.17.3",
+    "sinon-chai": "~2.8.0",
+    "chai": "~3.5.0",
+    "chai-as-promised": "~5.3.0",
     "tsd": "~0.6.5",
     "typescript": "~1.8.9",
-    "moment": "^2.8.4",
-    "body-parser": "^1.10.0",
-    "express": "^4.10.6"
+    "moment": "~2.12.0",
+    "body-parser": "~1.15.0",
+    "express": "~4.13.4"
   },
   "dependencies": {
-    "lodash": "^2.4.1",
-    "q": "^1.3.0",
-    "restler": "^3.2.2"
+    "lodash": "~4.6.1",
+    "q": "~1.4.1",
+    "restler": "~3.4.0"
   },
   "license": "MIT"
 }
