@@ -262,7 +262,7 @@ module BillForward {
         if (Imports._.has(this._registeredEntities, key)) {
             var entityClass = this._registeredEntities[key];
             unserializedValue = this.buildEntity(entityClass, value);
-        } else if (Imports._.contains(this._registeredEntityArrays, key)) {
+        } else if (Imports._.includes(this._registeredEntityArrays, key)) {
             var entityClass = this._registeredEntityArrays[key];
             unserializedValue = this.buildEntityArray(entityClass, value);
         } else {

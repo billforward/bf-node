@@ -270,7 +270,7 @@ module BillForward {
 
                             if (!correspondingComponent) throw new BFInvocationError(Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key));
 
-                            if (!Imports._.contains(supportedChargeTypes, (<any>correspondingComponent).chargeType))
+                            if (!Imports._.includes(supportedChargeTypes, (<any>correspondingComponent).chargeType))
                             throw new BFInvocationError(Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", (<any>correspondingComponent).chargeType, supportedChargeTypes.join(", ")));
 
                             return componentGenerator(correspondingComponent, mappedValue);

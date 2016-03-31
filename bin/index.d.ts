@@ -1,4 +1,4 @@
-/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../typings/main.d.ts" />
 declare module BillForward {
     type clientConstructObj = {
         accessToken: string;
@@ -463,7 +463,7 @@ declare module BillForward {
 }
 declare module BillForward {
     class Imports {
-        static _: _.LoDashStatic;
+        static _: any;
         static restler: any;
         static Q: any;
         static util: any;

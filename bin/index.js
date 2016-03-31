@@ -460,7 +460,7 @@ var BillForward;
                 var entityClass = this._registeredEntities[key];
                 unserializedValue = this.buildEntity(entityClass, value);
             }
-            else if (BillForward.Imports._.contains(this._registeredEntityArrays, key)) {
+            else if (BillForward.Imports._.includes(this._registeredEntityArrays, key)) {
                 var entityClass = this._registeredEntityArrays[key];
                 unserializedValue = this.buildEntityArray(entityClass, value);
             }
@@ -1794,7 +1794,7 @@ var BillForward;
                             });
                             if (!correspondingComponent)
                                 throw new BillForward.BFInvocationError(BillForward.Imports.util.format("We failed to find any pricing component whose name matches '%s'.", key));
-                            if (!BillForward.Imports._.contains(supportedChargeTypes, correspondingComponent.chargeType))
+                            if (!BillForward.Imports._.includes(supportedChargeTypes, correspondingComponent.chargeType))
                                 throw new BillForward.BFInvocationError(BillForward.Imports.util.format("Matched pricing component has charge type '%s'. must be within supported types: [%s].", correspondingComponent.chargeType, supportedChargeTypes.join(", ")));
                             return componentGenerator(correspondingComponent, mappedValue);
                         }), function (pricingComponentValueModel) {
