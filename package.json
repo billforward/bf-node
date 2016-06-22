@@ -1,6 +1,6 @@
 {
   "name": "billforward",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "directories": {
     "lib": "./lib",
     "bin": "./bin",
