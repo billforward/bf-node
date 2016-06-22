@@ -135,12 +135,9 @@ module BillForward {
           var callArgs = [fullPath, options];
 
           if(verb === 'POST' || verb === 'PUT') {
-            /*options.input = json;
-            options.inputType = 'json';
-            options.headers['Content-Type'] = 'application/json';*/
-
-            callVerb += "Json";
-            callArgs.splice(1, 0, json);
+            options.headers['Content-Type'] = 'application/json;charset=utf-8';
+            
+            options.data = JSON.stringify(json || {});
           }
 
           return Client.mockableRequestWrapper(callVerb, callArgs)
