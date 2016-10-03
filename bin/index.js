@@ -1273,6 +1273,23 @@ var BillForward;
                 return BillForward.InvoiceRecalculationAmendment.create(amendment);
             });
         };
+        Invoice.prototype.retryExecution = function (payload) {
+            var _this = this;
+            return BillForward.Imports.Q.Promise(function (resolve, reject) {
+                try {
+                    var invoiceIdentifier = Invoice.getIdentifier(_this);
+                    var myClass = _this.getDerivedClass();
+                    var client = _this.getClient();
+                    return resolve(myClass.makePostPromise(BillForward.Imports.util.format("%s/execute", invoiceIdentifier), null, payload || {}, client)
+                        .then(function (payload) {
+                        return myClass.getFirstEntityFromResponse(payload, client);
+                    }));
+                }
+                catch (e) {
+                    return reject(e);
+                }
+            });
+        };
         Invoice._resourcePath = new BillForward.ResourcePath('invoices', 'invoice');
         return Invoice;
     }(BillForward.MutableEntity));
