@@ -115,5 +115,37 @@ module BillForward {
             return InvoiceRecalculationAmendment.create(amendment);
             });
     }
+
+    /**
+     * Synchronously retries execution of the invoice.
+     * @param Object $executionOptions (Default: All keys set to their respective default values) Encapsulates the following optional parameters:
+     *  * @param bool $..['forcePaid'] (Default: false) Whether to force the invoice into the paid state using an 'offline payment'.
+     */
+    retryExecution(payload:Object) {
+        return <Q.Promise<Invoice>>Imports.Q.Promise((resolve, reject) => {
+          try {
+            var invoiceIdentifier = Invoice.getIdentifier(this);
+
+            var myClass = this.getDerivedClass();
+            var client:Client = this.getClient();
+
+            return resolve(
+                myClass.makePostPromise(
+                    Imports.util.format(
+                        "%s/execute",
+                        invoiceIdentifier
+                        ),
+                    null,
+                    payload || {},
+                    client
+                    )
+              .then((payload) => {
+                return myClass.getFirstEntityFromResponse(payload, client);
+              }));
+          } catch(e) {
+              return reject(e);
+          }
+      });
+    }
   }
 }

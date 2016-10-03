@@ -233,6 +233,7 @@ declare module BillForward {
         }): Q.Promise<Invoice>;
         issue(actioningTime?: ActioningTime): Q.Promise<IssueInvoiceAmendment>;
         recalculate(newInvoiceState?: InvoiceState, recalculationBehaviour?: InvoiceRecalculationBehaviour, actioningTime?: ActioningTime): Q.Promise<InvoiceRecalculationAmendment>;
+        retryExecution(payload: Object): Q.Promise<Invoice>;
     }
 }
 declare module BillForward {
